@@ -35,6 +35,7 @@ class Amazonpolly_Activator {
 		// Default options configurations
 		update_option( 'amazon_polly_defconf', 'Amazon Polly enabled' );
 		update_option( 'amazon_polly_voice_id', 'Matthew' );
+		update_option( 'amazon_polly_sample_rate', '22050' );
 
 	}
 

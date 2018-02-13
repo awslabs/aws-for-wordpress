@@ -1,4 +1,4 @@
-## Amazon Polly plugin for WordPress
+## Amazon Polly for WordPress
 |  |  |
 | ------ | ------ |
 | Contributors | awslabs, wpengine, tstachlewski, stevenkword |
@@ -6,7 +6,7 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 4.9 |
-| Stable tag | 1.0.0 |
+| Stable tag | 1.0.1 |
 | License | GPLv2 or later |
 | License URI | http://www.gnu.org/licenses/gpl-2.0.html |
 
@@ -121,7 +121,7 @@ No. All audio files are being preserved. Depending on your configuration, they w
 
 Amazon S3 (Simple Storage Service) has got it’s own pricing, you can find information here: https://aws.amazon.com/s3/pricing/
 
-#### Q: How do I view my Amazon PollyCast feed?
+#### Q: How do I view my Amazon Pollycast feed?
 
 Attach '/amazon-pollycast/' to any page URL.
 
@@ -143,5 +143,8 @@ Submit your Amazon PollyCast to the iTunes iConnect directory: https://podcastsc
 
 #### Changelog
 
-= 1.0 =
+= 1.0.1 =
+* Fix the issue with converting special characters.
+
+= 1.0.0 =
 * Release of the plugin

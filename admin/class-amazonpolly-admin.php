@@ -514,8 +514,8 @@ class Amazonpolly_Admin {
 					try {
 						$rand1 = wp_rand( 10000000000, 99999999999 );
 						$rand2 = md5( microtime() );
-						$name = 'audio_for_wordpress_' . $rand1 . $rand2;
-						$name = substr( $name, 0, 60 );
+						$name  = 'audio_for_wordpress_' . $rand1 . $rand2;
+						$name  = substr( $name, 0, 60 );
 
 						$result = $this->s3_client->createBucket( array( 'Bucket' => $name ) );
 						update_option( $this->s3_bucket_metakey, $name );
@@ -536,7 +536,7 @@ class Amazonpolly_Admin {
 	 */
 	private function prepare_post_text( $post_id ) {
 
-		$post_content = get_the_title( $post_id ) . '<break time="1s"/>';
+		$post_content = get_the_title( $post_id ) . '**AMAZONPOLLY*SSML*BREAKTIME*1s**';
 		$post_content = $post_content . get_post_field( 'post_content', $post_id );
 		$post_content = str_replace( '&nbsp;', ' ', $post_content );
 		$post_content = strip_shortcodes( $post_content );
@@ -555,6 +555,10 @@ class Amazonpolly_Admin {
 		$post_content = $post_content_temp;
 
 		$post_content = html_entity_decode( $post_content, ENT_QUOTES, 'UTF-8' );
+		$post_content = str_replace( '&', ' and ', $post_content );
+		$post_content = str_replace( '<', ' ', $post_content );
+		$post_content = str_replace( '>', ' ', $post_content );
+		$post_content = str_replace( '**AMAZONPOLLY*SSML*BREAKTIME*1s**', '<break time="1s"/>', $post_content );
 		$parts        = [];
 
 		if ( ! empty( $post_content ) ) {
@@ -611,11 +615,19 @@ class Amazonpolly_Admin {
 	 * @since           1.0.0
 	 */
 	private function convert_to_audio( $post_id, $sample_rate, $voice_id, $sentences, $wp_filesystem ) {
+
+		$sample_rate_values = array("22050", "16000", "8000");
+		if ( !in_array($sample_rate, $sample_rate_values) ) {
+		    $sample_rate = "22050";
+		}
+
+
 		$upload_dir           = wp_upload_dir()['basedir'];
 		$file_prefix          = '/amazon_polly_';
 		$file_name            = $file_prefix . $post_id . '.mp3';
 		$file_temp_full_name  = $upload_dir . $file_name;
-		$file_final_full_name = $upload_dir . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name;
+		$dir_final_full_name  = $upload_dir . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id );
+		$file_final_full_name = $dir_final_full_name . $file_name;
 		// Delete temporary file if already exists.
 		if ( $wp_filesystem->exists( $file_temp_full_name ) ) {
 			$wp_filesystem->delete( $file_temp_full_name );
@@ -660,8 +672,13 @@ class Amazonpolly_Admin {
 		$store_in_s3 = get_option( 'amazon_polly_s3' );
 		if ( empty( $store_in_s3 ) ) {
 			$audio_location = 'local';
+
 			// We are storing audio file on the WP server.
 			// Moving file to it's final location and deleting temporary file.
+			if ( ! $wp_filesystem->is_dir( $dir_final_full_name ) ) {
+				$wp_filesystem->mkdir( $dir_final_full_name );
+			}
+
 			$wp_filesystem->move( $file_temp_full_name, $file_final_full_name, true );
 			$wp_filesystem->delete( $file_temp_full_name );
 			$audio_location_link = wp_upload_dir()['baseurl'] . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name;
