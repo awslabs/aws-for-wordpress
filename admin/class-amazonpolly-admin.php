@@ -616,11 +616,10 @@ class Amazonpolly_Admin {
 	 */
 	private function convert_to_audio( $post_id, $sample_rate, $voice_id, $sentences, $wp_filesystem ) {
 
-		$sample_rate_values = array("22050", "16000", "8000");
-		if ( !in_array($sample_rate, $sample_rate_values) ) {
-		    $sample_rate = "22050";
+		$sample_rate_values = array( '22050', '16000', '8000' );
+		if ( ! in_array( $sample_rate, $sample_rate_values, true ) ) {
+			$sample_rate = '22050';
 		}
-
 
 		$upload_dir           = wp_upload_dir()['basedir'];
 		$file_prefix          = '/amazon_polly_';
@@ -676,8 +675,9 @@ class Amazonpolly_Admin {
 			// We are storing audio file on the WP server.
 			// Moving file to it's final location and deleting temporary file.
 			if ( ! $wp_filesystem->is_dir( $dir_final_full_name ) ) {
-				$wp_filesystem->mkdir( $dir_final_full_name );
+				wp_mkdir_p( $dir_final_full_name );
 			}
+
 
 			$wp_filesystem->move( $file_temp_full_name, $file_final_full_name, true );
 			$wp_filesystem->delete( $file_temp_full_name );
@@ -1315,7 +1315,7 @@ class Amazonpolly_Admin {
 		// We are using a hash of these values to improve the speed of queries.
 		$amazon_polly_settings_hash = md5( $amazon_polly_voice_id . $amazon_polly_sample_rate . $amazon_polly_audio_location );
 
-		$args     = array(
+		$args = array(
 			'posts_per_page' => $batch_size,
 			'post_type'      => $post_types_supported,
 			'meta_query'     => array(
@@ -1341,6 +1341,7 @@ class Amazonpolly_Admin {
 				),
 			),
 		);
+
 		$query    = new WP_Query( $args );
 		$post_ids = wp_list_pluck( $query->posts, 'ID' );
 
@@ -1348,7 +1349,6 @@ class Amazonpolly_Admin {
 			foreach ( $post_ids as $post_id ) {
 				$sentences     = $this->prepare_post_text( $post_id );
 				$wp_filesystem = $this->prepare_wp_filesystem();
-
 				$this->convert_to_audio( $post_id, $amazon_polly_sample_rate, $amazon_polly_voice_id, $sentences, $wp_filesystem );
 			}
 		} else {
@@ -1371,19 +1371,20 @@ class Amazonpolly_Admin {
 	 * @since  1.0.0
 	 */
 	public function get_percentage_complete() {
-		$counter              = 0;
-		$post_types_supported = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
+		$total_posts               = 0;
+		$post_types_supported      = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
+		$posts_needing_translation = $this->get_num_posts_needing_transcription();
 
 		foreach ( $post_types_supported as $post_type ) {
 			$post_type_count = wp_count_posts( $post_type )->publish;
-			$counter        += $post_type_count;
+			$total_posts    += $post_type_count;
 		}
-
-		if ( $counter > 0 ) {
-			return round( $this->get_num_posts_needing_transcription() / ( $counter / 100 ), 2 );
+		if ( 0 >= $total_posts || 0 >= $posts_needing_translation ) {
+			$percentage = 100;
 		} else {
-			return 0;
+			$percentage = round( $posts_needing_translation / $total_posts * 100, 2 );
 		}
+		return $percentage;
 	}
 
 	/**
