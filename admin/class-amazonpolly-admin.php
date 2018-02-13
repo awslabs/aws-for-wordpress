@@ -675,8 +675,9 @@ class Amazonpolly_Admin {
 			// We are storing audio file on the WP server.
 			// Moving file to it's final location and deleting temporary file.
 			if ( ! $wp_filesystem->is_dir( $dir_final_full_name ) ) {
-				$wp_filesystem->mkdir( $dir_final_full_name );
+				wp_mkdir_p( $dir_final_full_name );
 			}
+
 
 			$wp_filesystem->move( $file_temp_full_name, $file_final_full_name, true );
 			$wp_filesystem->delete( $file_temp_full_name );
