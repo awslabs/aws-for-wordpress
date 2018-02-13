@@ -6,7 +6,7 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 4.9 |
-| Stable tag | 1.0.2 |
+| Stable tag | 1.0.1 |
 | License | GPLv2 or later |
 | License URI | http://www.gnu.org/licenses/gpl-2.0.html |
 
@@ -142,10 +142,6 @@ Submit your Amazon PollyCast to the iTunes iConnect directory: https://podcastsc
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
 #### Changelog
-
-= 1.0.2 =
-* Updates percentage done calculation during bulk updates.
-* Updates upload directory creation method!
 
 = 1.0.1 =
 * Fix the issue with converting special characters.

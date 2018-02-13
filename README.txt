@@ -4,7 +4,7 @@ Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 1.0.2
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ Additional configuration options which you can change:
 General:
 - Sample rate: The audio frequency specified in Hz.
 - Voice name: The voice which should be used to create audio.
-- Player position: Position of the ‘play’ button on your WordPress page. (Below or After the post, or no button)
+- Player oosition: Position of the ‘play’ button on your WordPress page. (Below or After the post, or no button)
 - New post default: Define if transcription should be enabled by default for new posts.
 - Autoplay: Information if the audio should be played automatically on ’singular’ post page.
 
@@ -135,13 +135,6 @@ Submit your Amazon PollyCast to the iTunes iConnect directory: https://itunescon
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
 == Changelog ==
-
-= 1.0.2 =
-* Updates percentage done calculation during bulk updates.
-* Updates upload directory creation method!
-
-= 1.0.1 =
-* Fix the issue with converting special characters.
 
 = 1.0 =
 * Release of the plugin
