@@ -202,10 +202,10 @@ class Amazonpolly_Admin {
 			$s3_bucket_name = get_option( $this->s3_bucket_metakey );
 
 			$result = $this->s3_client->deleteObject(
-				[
+				array(
 					'Bucket' => $s3_bucket_name,
 					'Key'    => $year . '/' . $month . '/' . $file,
-				]
+				)
 			);
 		}
 
@@ -436,22 +436,22 @@ class Amazonpolly_Admin {
 		if ( empty( get_option( 'amazon_polly_access_key' ) ) ) {
 
 			// Set AWS SDK settings.
-			$aws_sdk_config = [
+			$aws_sdk_config = array(
 				'region'  => 'us-east-1',
 				'version' => 'latest',
-			];
+			);
 
 		} else {
 
 			// Set AWS SDK settings.
-			$aws_sdk_config = [
+			$aws_sdk_config = array(
 				'region'      => 'us-east-1',
 				'version'     => 'latest',
-				'credentials' => [
+				'credentials' => array(
 					'key'    => get_option( 'amazon_polly_access_key' ),
 					'secret' => get_option( 'amazon_polly_secret_key' ),
-				],
-			];
+				),
+			);
 
 		}//end if
 
@@ -499,9 +499,9 @@ class Amazonpolly_Admin {
 			} else {
 				try {
 					$result = $this->s3_client->headBucket(
-						[
+						array(
 							'Bucket' => $s3_bucket_name,
-						]
+						)
 					);
 
 				} catch ( Aws\S3\Exception\S3Exception $e ) {
@@ -616,9 +616,9 @@ class Amazonpolly_Admin {
 	 */
 	private function convert_to_audio( $post_id, $sample_rate, $voice_id, $sentences, $wp_filesystem ) {
 
-		$sample_rate_values = array("22050", "16000", "8000");
-		if ( !in_array($sample_rate, $sample_rate_values) ) {
-		    $sample_rate = "22050";
+		$sample_rate_values = array( '22050', '16000', '8000' );
+		if ( ! in_array( $sample_rate, $sample_rate_values, true ) ) {
+			$sample_rate = '22050';
 		}
 
 
@@ -645,13 +645,13 @@ class Amazonpolly_Admin {
 
 			// Synthesize the text.
 			$result = $this->client->synthesizeSpeech(
-				[
+				array(
 					'OutputFormat' => 'mp3',
 					'SampleRate'   => $sample_rate,
 					'Text'         => $ssml_text_content,
 					'TextType'     => 'ssml',
 					'VoiceId'      => $voice_id,
-				]
+				)
 			);
 			// Grab the stream and output to a file.
 			$contents = $result['AudioStream']->getContents();
@@ -676,7 +676,7 @@ class Amazonpolly_Admin {
 			// We are storing audio file on the WP server.
 			// Moving file to it's final location and deleting temporary file.
 			if ( ! $wp_filesystem->is_dir( $dir_final_full_name ) ) {
-				$wp_filesystem->mkdir( $dir_final_full_name );
+				wp_mkdir_p( $dir_final_full_name );
 			}
 
 			$wp_filesystem->move( $file_temp_full_name, $file_final_full_name, true );
@@ -687,12 +687,12 @@ class Amazonpolly_Admin {
 			$s3_bucket_name = get_option( $this->s3_bucket_metakey );
 			$audio_location = 's3';
 			$result         = $this->s3_client->putObject(
-				[
+				array(
 					'ACL'        => 'public-read',
 					'Bucket'     => $s3_bucket_name,
 					'Key'        => get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name,
 					'SourceFile' => $file_temp_full_name,
-				]
+				)
 			);
 			$wp_filesystem->delete( $file_temp_full_name );
 			$cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
@@ -853,7 +853,7 @@ class Amazonpolly_Admin {
 
 		if ( $is_key_valid ) {
 			$selected_position = get_option( 'amazon_polly_position' );
-			$positions_values  = [ 'Before post', 'After post', 'Do not show' ];
+			$positions_values  = array( 'Before post', 'After post', 'Do not show' );
 
 			echo '<select name="amazon_polly_position" id="amazon_polly_position" >';
 			foreach ( $positions_values as $position ) {
@@ -993,7 +993,7 @@ class Amazonpolly_Admin {
 		if ( $is_key_valid ) {
 
 			$sample_rate  = get_option( 'amazon_polly_sample_rate' );
-			$sample_array = [ '22050', '16000', '8000' ];
+			$sample_array = array( '22050', '16000', '8000' );
 
 			echo '<select name="amazon_polly_sample_rate" id="amazon_polly_sample_rate" >';
 			foreach ( $sample_array as $rate ) {
@@ -1315,7 +1315,7 @@ class Amazonpolly_Admin {
 		// We are using a hash of these values to improve the speed of queries.
 		$amazon_polly_settings_hash = md5( $amazon_polly_voice_id . $amazon_polly_sample_rate . $amazon_polly_audio_location );
 
-		$args     = array(
+		$args	= array(
 			'posts_per_page' => $batch_size,
 			'post_type'      => $post_types_supported,
 			'meta_query'     => array(
@@ -1348,7 +1348,6 @@ class Amazonpolly_Admin {
 			foreach ( $post_ids as $post_id ) {
 				$sentences     = $this->prepare_post_text( $post_id );
 				$wp_filesystem = $this->prepare_wp_filesystem();
-
 				$this->convert_to_audio( $post_id, $amazon_polly_sample_rate, $amazon_polly_voice_id, $sentences, $wp_filesystem );
 			}
 		} else {
@@ -1371,19 +1370,23 @@ class Amazonpolly_Admin {
 	 * @since  1.0.0
 	 */
 	public function get_percentage_complete() {
-		$counter              = 0;
-		$post_types_supported = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
+		$total_posts               = 0;
+		$post_types_supported      = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
+		$posts_needing_translation = $this->get_num_posts_needing_transcription();
+
 
 		foreach ( $post_types_supported as $post_type ) {
 			$post_type_count = wp_count_posts( $post_type )->publish;
-			$counter        += $post_type_count;
+			$total_posts    += $post_type_count;
 		}
 
-		if ( $counter > 0 ) {
-			return round( $this->get_num_posts_needing_transcription() / ( $counter / 100 ), 2 );
+		if ( 0 >= $total_posts || 0 >= $posts_needing_translation ) {
+			$percentage = 100;
 		} else {
-			return 0;
+			$percentage = round( $posts_needing_translation / $total_posts * 100, 2 );
 		}
+
+		return $percentage;
 	}
 
 	/**

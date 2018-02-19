@@ -82,6 +82,12 @@ class Amazonpolly_Public {
 				$autoplay = '';
 			}
 
+			if ( is_singular() ) {
+				$voice_by_part = 'Voiced by <a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer">Amazon Polly</a>';
+			} else {
+				$voice_by_part = '';
+			}
+
 			$original_content = $content;
 			// preserve the original ...
 			$new_content = '
@@ -94,9 +100,7 @@ class Amazonpolly_Public {
 							<source type="audio/mpeg" src="' . $audio_location . '">
 						</audio>
 					</div>
-					<div id="amazon-polly-by-tab">
-						Voiced by <a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer">Amazon Polly</a>
-					</div>
+					<div id="amazon-polly-by-tab">' . $voice_by_part . '</div>
 				</td>
 				</tr>
 			</table>';
