@@ -36,6 +36,7 @@ class Amazonpolly_Activator {
 		update_option( 'amazon_polly_defconf', 'Amazon Polly enabled' );
 		update_option( 'amazon_polly_voice_id', 'Matthew' );
 		update_option( 'amazon_polly_sample_rate', '22050' );
+		update_option( 'amazon_polly_region', 'us-east-1' );
 
 	}
 

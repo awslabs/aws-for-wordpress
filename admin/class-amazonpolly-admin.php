@@ -76,6 +76,15 @@ class Amazonpolly_Admin {
 	private $s3_bucket_metakey = 'amazon_polly_s3_bucket';
 
 	/**
+	 * The options name to be used if S3 should be used to store audio files.
+	 *
+	 * @since   1.0.3
+	 * @access  private
+	 * @var     string      $option_name    Option name of this plugin
+	 */
+	private $s3_enabled_metakey = 'amazon_polly_s3';
+
+	/**
 	 * The polly client
 	 *
 	 * @since   1.0.0
@@ -305,6 +314,15 @@ class Amazonpolly_Admin {
 		);
 
 		add_settings_field(
+			'amazon_polly_region',
+			__( 'AWS Region:', 'amazonpolly' ),
+			array( $this, 'amazon_polly_region_cb' ),
+			$this->plugin_name,
+			'amazon_polly_general',
+			array( 'label_for' => 'amazon_polly_region' )
+		);
+
+		add_settings_field(
 			'amazon_polly_sample_rate',
 			__( 'Sample rate:', 'amazonpolly' ),
 			array( $this, 'amazon_polly_sample_rate_cb' ),
@@ -329,6 +347,15 @@ class Amazonpolly_Admin {
 			$this->plugin_name,
 			'amazon_polly_general',
 			array( 'label_for' => 'amazon_polly_position' )
+		);
+
+		add_settings_field(
+			'amazon_polly_player_label',
+			__( 'Player label:', 'amazonpolly' ),
+			array( $this, 'amazon_polly_player_label_cb' ),
+			$this->plugin_name,
+			'amazon_polly_general',
+			array( 'label_for' => 'amazon_polly_player_label' )
 		);
 
 		add_settings_field(
@@ -433,11 +460,18 @@ class Amazonpolly_Admin {
 			array( 'label_for' => 'amazon_polly_update_all' )
 		);
 
+		$selected_region = get_option( 'amazon_polly_region' );
+
+		if ( empty ( $selected_region ) ) {
+			update_option( 'amazon_polly_region', 'us-east-1' );
+			$selected_region = 'us-east-1';
+		}
+
 		if ( empty( get_option( 'amazon_polly_access_key' ) ) ) {
 
 			// Set AWS SDK settings.
 			$aws_sdk_config = array(
-				'region'  => 'us-east-1',
+				'region'  => $selected_region,
 				'version' => 'latest',
 			);
 
@@ -445,7 +479,7 @@ class Amazonpolly_Admin {
 
 			// Set AWS SDK settings.
 			$aws_sdk_config = array(
-				'region'      => 'us-east-1',
+				'region'      => $selected_region,
 				'version'     => 'latest',
 				'credentials' => array(
 					'key'    => get_option( 'amazon_polly_access_key' ),
@@ -463,9 +497,11 @@ class Amazonpolly_Admin {
 
 		register_setting( $this->plugin_name, 'amazon_polly_access_key', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_secret_key', 'strval' );
+		register_setting( $this->plugin_name, 'amazon_polly_region', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_sample_rate', 'intval' );
 		register_setting( $this->plugin_name, 'amazon_polly_voice_id', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_position', 'strval' );
+		register_setting( $this->plugin_name, 'amazon_polly_player_label', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_defconf', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_autoplay', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_s3', 'strval' );
@@ -514,14 +550,16 @@ class Amazonpolly_Admin {
 					try {
 						$rand1 = wp_rand( 10000000000, 99999999999 );
 						$rand2 = md5( microtime() );
-						$name  = 'audio_for_wordpress_' . $rand1 . $rand2;
+						$name  = 'audio-for-wordpress-' . $rand1 . $rand2;
 						$name  = substr( $name, 0, 60 );
 
 						$result = $this->s3_client->createBucket( array( 'Bucket' => $name ) );
 						update_option( $this->s3_bucket_metakey, $name );
 						$create_new_bucket = false;
+
 					} catch ( Aws\S3\Exception\S3Exception $e ) {
 						update_option( $this->s3_bucket_metakey, '' );
+						update_option( $this->s3_enabled_metakey, '' );
 					}
 				}
 			}
@@ -543,6 +581,10 @@ class Amazonpolly_Admin {
 		$post_content = strip_tags( $post_content, '<break>' );
 		$post_content = esc_html( $post_content );
 		$post_content = str_replace( '&nbsp;', ' ', $post_content );
+
+		$post_content = str_replace( '-AMAZONPOLLY-ONLYAUDIO-START-', '', $post_content );
+		$post_content = str_replace( '-AMAZONPOLLY-ONLYAUDIO-END-', '', $post_content );
+		$post_content = preg_replace("/-AMAZONPOLLY-ONLYWORDS-START-[\S\s]*?-AMAZONPOLLY-ONLYWORDS-END-/", "", $post_content);
 
 		$post_content_temp = '';
 		$paragraphs        = explode( "\n", $post_content );
@@ -621,7 +663,6 @@ class Amazonpolly_Admin {
 			$sample_rate = '22050';
 		}
 
-
 		$upload_dir           = wp_upload_dir()['basedir'];
 		$file_prefix          = '/amazon_polly_';
 		$file_name            = $file_prefix . $post_id . '.mp3';
@@ -697,7 +738,10 @@ class Amazonpolly_Admin {
 			$wp_filesystem->delete( $file_temp_full_name );
 			$cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
 			if ( empty( $cloudfront_domain_name ) ) {
-				$audio_location_link = 'https://s3.amazonaws.com/' . $s3_bucket_name . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name;
+
+				$selected_region = get_option( 'amazon_polly_region' );
+
+				$audio_location_link = 'https://s3.' . $selected_region . '.amazonaws.com/' . $s3_bucket_name . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name;
 			} else {
 				$audio_location_link = 'https://' . $cloudfront_domain_name . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name;
 			}
@@ -870,6 +914,26 @@ class Amazonpolly_Admin {
 
 	}
 
+
+		/**
+		 * Render the Player Label input.
+		 *
+		 * @since  1.0.3
+		 */
+	public function amazon_polly_player_label_cb() {
+
+		$this->amazon_polly_validate_credentials();
+		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+
+		if ( $is_key_valid ) {
+			$player_label = get_option( 'amazon_polly_player_label' );
+			echo '<input type="text" class="regular-text" name="amazon_polly_player_label" id="amazon_polly_player_label" value="' . esc_attr( $player_label ) . '"> ';
+		} else {
+			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
+
+	}
+
 	/**
 	 * Render the text for the storage section
 	 *
@@ -901,8 +965,11 @@ class Amazonpolly_Admin {
 			$selected_s3    = get_option( 'amazon_polly_s3' );
 			$s3_bucket_name = get_option( $this->s3_bucket_metakey );
 
+			$message = '';
+
 			if ( empty( $s3_bucket_name ) ) {
 				$checkbox_disabled = 'disabled';
+				$message = 'Please check your IAM policy';
 			} else {
 				$checkbox_disabled = '';
 			}
@@ -915,7 +982,7 @@ class Amazonpolly_Admin {
 				$bucket_name_visibility = ' ';
 			}
 
-			echo '<input type="checkbox" name="amazon_polly_s3" id="amazon_polly_s3" ' . esc_attr( $checked ) . ' ' . esc_attr( $checkbox_disabled ) . '> ';
+			echo '<input type="checkbox" name="amazon_polly_s3" id="amazon_polly_s3" ' . esc_attr( $checked ) . ' ' . esc_attr( $checkbox_disabled ) . '> <p class="description">' . esc_attr( $message ) . '</p>' ;
 			echo '<label for="amazon_polly_s3" id="amazon_polly_s3_bucket_name_box" style="' . esc_attr( $bucket_name_visibility ) . '"> Your S3 Bucket name is <b>' . esc_attr( $s3_bucket_name ) . '</b></label>';
 			echo '<p class="description">Audio files are saved on and streamed from Amazon S3. Learn more <a target="_blank" href="https://aws.amazon.com/s3">https://aws.amazon.com/s3</a></p>';
 		} else {
@@ -978,6 +1045,48 @@ class Amazonpolly_Admin {
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
 		}
+	}
+
+	public function amazon_polly_region_cb() {
+
+		$this->amazon_polly_validate_credentials();
+		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+
+		if ( $is_key_valid ) {
+
+			$selected_region = get_option( 'amazon_polly_region' );
+
+			$regions = array(
+				'us-east-1'      => 'US East (N. Virginia)',
+				'us-east-2'      => 'US East (Ohio)',
+				'us-west-1'      => 'US West (N. California)',
+				'us-west-2'      => 'US West (Oregon)',
+				'eu-west-1'      => 'EU (Ireland)',
+				'eu-west-2'      => 'EU (London)',
+				'eu-west-3'      => 'EU (Paris)',
+				'eu-central-1'   => 'EU (Frankfurt)',
+				'ca-central-1'   => 'Canada (Central)',
+				'sa-east-1'      => 'South America (Sao Paulo)',
+				'ap-southeast-1' => 'Asia Pacific (Singapore)',
+				'ap-northeast-1' => 'Asia Pacific (Tokyo)',
+				'ap-southeast-2' => 'Asia Pacific (Sidney)',
+				'ap-northeast-2' => 'Asia Pacific (Seul)',
+				'ap-south-1'     => 'Asia Pacific (Mumbai)',
+			);
+
+			echo '<select name="amazon_polly_region" id="amazon_polly_region" >';
+			foreach ( $regions as $region_name => $region_label ) {
+				echo '<option label="' . $region_label . '" value="' . esc_attr( $region_name ) . '" ';
+				if ( strcmp( $selected_region, $region_name ) === 0 ) {
+					echo 'selected="selected"';
+				}
+				echo '></option>';
+			}
+			echo '</select>';
+		} else {
+			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
+
 	}
 
 	/**
@@ -1261,14 +1370,19 @@ class Amazonpolly_Admin {
 		$post_types_supported = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
 		$number_of_characters = 0;
 
+		$posts_per_page  = apply_filters( 'amazon_polly_posts_per_page', 5 );
+		$count_posts     = wp_count_posts()->publish;
+		$max_count_posts = 100;
+
 		// Retrieving the number of characters in all posts.
-		$paged = 0;
+		$paged      = 0;
+		$post_count = 0;
 
 		do {
 			$paged++;
 			$wp_query = new WP_Query(
 				array(
-					'posts_per_page' => 1,
+					'posts_per_page' => $posts_per_page,
 					'post_type'      => $post_types_supported,
 					'fields'         => 'ids',
 					'paged'          => $paged,
@@ -1278,22 +1392,41 @@ class Amazonpolly_Admin {
 			$number_of_posts = $wp_query->max_num_pages;
 
 			while ( $wp_query->have_posts() ) {
+				$post_count++;
 				$wp_query->the_post();
 				$post_id = get_the_ID();
 
 				$post_sentences = $this->prepare_post_text( $post_id );
 				if ( ! empty( $post_sentences ) ) {
 					foreach ( $post_sentences as $sentence ) {
+						$sentence              = str_replace( '<break time="1s"/>', '', $sentence );
+						$sentence              = str_replace( '<break time="500ms"/>', '', $sentence );
 						$number_of_characters += strlen( $sentence );
 					}
 				}
 			}
+
+			// If we reached the number of posts which we wanted to read, we stop
+			// reading next posts.
+			if ( $post_count >= $max_count_posts ) {
+				break;
+			}
 		} while ( $paged < $number_of_posts );
 
+		// Price for converting single character according to Amazon Polly pricing.
 		$amazon_polly_price = 0.000004;
-		$total_price        = $amazon_polly_price * $number_of_characters;
 
-		$message = 'You are about to convert ' . number_format( $number_of_posts, 0, '.', ',' ) . ' pieces of text-based content, which totals approximately ' . number_format( $number_of_characters, 0, '.', ',' ) . ' characters. Based on the Amazon Polly pricing ($4 dollars per 1 million characters) it will cost you about $' . money_format( '%i', $total_price ) . ' to convert all of your content into to speech-based audio. Some or all of your costs might be covered by the Free Tier (conversion of 5 million characters per month for free, for the first 12 months, starting from the first request for speech). Learn more https://aws.amazon.com/polly/';
+		// Estimating average number of characters per post.
+		if ( $post_count !== 0 ) {
+			$post_chars_count_avg = $number_of_characters / $post_count;
+		} else {
+			$post_chars_count_avg = 0;
+		}
+
+		// Estimating the total price of convertion of all posts.
+		$total_price = $amazon_polly_price * $count_posts * $post_chars_count_avg;
+
+		$message = 'You are about to convert ' . number_format( $count_posts, 0, '.', ',' ) . ' pieces of text-based content, which totals approximately ' . number_format( $number_of_characters, 0, '.', ',' ) . ' characters. Based on the Amazon Polly pricing ($4 dollars per 1 million characters) it will cost you about $' . money_format( '%i', $total_price ) . ' to convert all of your content into to speech-based audio. Some or all of your costs might be covered by the Free Tier (conversion of 5 million characters per month for free, for the first 12 months, starting from the first request for speech). Learn more https://aws.amazon.com/polly/';
 
 		return $message;
 	}
@@ -1315,7 +1448,7 @@ class Amazonpolly_Admin {
 		// We are using a hash of these values to improve the speed of queries.
 		$amazon_polly_settings_hash = md5( $amazon_polly_voice_id . $amazon_polly_sample_rate . $amazon_polly_audio_location );
 
-		$args	= array(
+		$args     = array(
 			'posts_per_page' => $batch_size,
 			'post_type'      => $post_types_supported,
 			'meta_query'     => array(
@@ -1373,7 +1506,6 @@ class Amazonpolly_Admin {
 		$total_posts               = 0;
 		$post_types_supported      = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
 		$posts_needing_translation = $this->get_num_posts_needing_transcription();
-
 
 		foreach ( $post_types_supported as $post_type ) {
 			$post_type_count = wp_count_posts( $post_type )->publish;

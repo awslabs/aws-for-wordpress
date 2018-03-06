@@ -6,7 +6,7 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 4.9 |
-| Stable tag | 1.0.2 |
+| Stable tag | 1.0.4 |
 | License | GPLv2 or later |
 | License URI | http://www.gnu.org/licenses/gpl-2.0.html |
 
@@ -25,9 +25,11 @@ Amazon Polly is a service that turns text into lifelike speech. With dozens of v
 Below list presents configurations options which can be modified by the user.
 
 ##### General:
+- AWS Region: AWS region which will be use to convert content into audio and store data (if S3 storage will be selected). In most of the cases you should choose the region which is the closest to your readers.
 - Sample rate:  The audio frequency specified in Hz.
 - Voice name: The voice which should be used to create audio.
 - Player position: Position of the ‘play’ button on your WordPress page. (Below or After the post, or no button).
+- Player Label: You can provide text (HTML tags are supported) which will be shown above the audio player, so that readers will know better what is it for. For example: <div style="color:grey">Listen to this article:</div>
 - New post default: Define if transcription should be enabled by default for new posts.
 - Autoplay: Information if the audio should be played automatically on ’singular’ post page.
 
@@ -78,7 +80,7 @@ Below list presents configurations options which can be modified by the user.
                 "s3:CreateBucket",
                 "s3:PutObjectAcl"
             ],
-            "Resource": "arn:aws:s3:::audio_for_wordpress*"
+            "Resource": ["arn:aws:s3:::audio_for_wordpress*","arn:aws:s3:::audio-for-wordpress*"]
         }
     ]
 }
@@ -133,6 +135,31 @@ Attach '/amazon-pollycast/' to any page URL.
 
 Submit your Amazon PollyCast to the iTunes iConnect directory: https://podcastsconnect.apple.com/
 
+#### Q: How is the bulk update cost calculated?
+
+The information about cost of converting all posts using bulk update functionality provide a rough estimation. If you have got less than 100 posts, plugin will calculate the number of characters in all of those posts and based on Amazon Polly pricing it will provide estimation about the cost of conversion. If you have got more than 100 posts, the plugin will calculate the average number of characters in first 100 posts, and based on this estimate the total number of characters in all posts.
+
+#### Q: What is "Audio Only" functionality?
+
+Sometimes you might want to add something to the audio  but you still don't want to display it in the browser. To allow it, the plugin use special type of tags, which you can use in your post/page, which will inform it, to not display it in the browser but still convert it to audio. To use this feature, just use following example:
+
+-AMAZONPOLLY-ONLYAUDIO-START-
+
+This part won't be shown in the browser, but will be read by the plugin.
+
+-AMAZONPOLLY-ONLYAUDIO-END-
+
+#### Q: What is "Words Only" functionality?
+
+In opposite to "Audio Only" functionality. Sometimes you might have a peace of content in your post/page and you don't want it to be read. To do it use -AMAZONPOLLY-ONLYAUDIO- tag. Below example.
+
+-AMAZONPOLLY-ONLYAUDIO-END-
+
+This part will be shown in the browser, but won't be read by the plugin.
+
+-AMAZONPOLLY-ONLYWORDS-START-
+
+
 ## Other
 
 #### Screenshots
@@ -142,6 +169,18 @@ Submit your Amazon PollyCast to the iTunes iConnect directory: https://podcastsc
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
 #### Changelog
+
+= 1.0.4 =
+* Bug fixes
+
+= 1.0.3 =
+* IMPORTANT: YOU NEED TO UPDATE IAM Policy based on new template.
+* Add "Audio Only" functionality.
+* Add "Words Only" functionality.
+* Add possibility of changing AWS region.
+* Add possibility to add player label.
+* Updates logic for estimating the total cost of bulk update.
+* Updates the branding of the player (text changed to image).
 
 = 1.0.2 =
 * Updates percentage done calculation during bulk updates.

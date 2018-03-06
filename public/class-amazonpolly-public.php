@@ -74,6 +74,7 @@ class Amazonpolly_Public {
 
 			$audio_location    = get_post_meta( $GLOBALS['post']->ID, 'amazon_polly_audio_link_location', true );
 			$selected_autoplay = get_option( 'amazon_polly_autoplay' );
+			$player_label      = get_option( 'amazon_polly_player_label' );
 
 			// Checks if this is single post view and if there is autoplay options selected.
 			if ( is_singular() && ! empty( $selected_autoplay ) ) {
@@ -83,18 +84,26 @@ class Amazonpolly_Public {
 			}
 
 			if ( is_singular() ) {
-				$voice_by_part = 'Voiced by <a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer">Amazon Polly</a>';
+				$image         = plugin_dir_url( __FILE__ ) . 'images/Voiced_by_Amazon_Polly_EN.png';
+				$voice_by_part = '<a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer"><img src=" ' . $image . '" width="100" ></a>';
 			} else {
 				$voice_by_part = '';
 			}
 
 			$original_content = $content;
-			// preserve the original ...
+
+			// Removing Amazon Polly special tags.
+			$original_content = preg_replace("/-AMAZONPOLLY-ONLYAUDIO-START-[\S\s]*?-AMAZONPOLLY-ONLYAUDIO-END-/", "", $original_content);
+			$original_content = str_replace( '-AMAZONPOLLY-ONLYWORDS-START-', '', $original_content );
+			$original_content = str_replace( '-AMAZONPOLLY-ONLYWORDS-END-', '', $original_content );
+
 			$new_content = '
 
 			<table id="amazon-polly-audio-table">
 				<tr>
+
 				<td id="amazon-polly-audio-tab">
+					<div id="amazon-polly-label-tab">' . $player_label . '</div>
 					<div id="amazon-polly-play-tab">
 						<audio id="amazon-polly-audio-play" preload="none" controls ' . $autoplay . '>
 							<source type="audio/mpeg" src="' . $audio_location . '">
