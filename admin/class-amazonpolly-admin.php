@@ -576,6 +576,7 @@ class Amazonpolly_Admin {
 
 		$post_content = get_the_title( $post_id ) . '**AMAZONPOLLY*SSML*BREAKTIME*1s**';
 		$post_content = $post_content . get_post_field( 'post_content', $post_id );
+		$post_content = apply_filters( 'amazon_polly_content', $post_content );
 		$post_content = str_replace( '&nbsp;', ' ', $post_content );
 		$post_content = strip_shortcodes( $post_content );
 		$post_content = strip_tags( $post_content, '<break>' );
