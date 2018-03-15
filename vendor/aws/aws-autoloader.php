@@ -712,13 +712,25 @@ $mapping = array(
 );
 
 spl_autoload_register(function ($class) use ($mapping) {
-    if (isset($mapping[$class])) {
+    if (isset($mapping[$class]) && ! class_exists( $class ) ) {
         require $mapping[$class];
     }
 }, true);
 
-require __DIR__ . '/Aws/functions.php';
-require __DIR__ . '/GuzzleHttp/functions.php';
-require __DIR__ . '/GuzzleHttp/Psr7/functions.php';
-require __DIR__ . '/GuzzleHttp/Promise/functions.php';
+/**
+ * PHP's autoloader does not support functions so we will check namespaced functions
+ * that have existed in these dependencies for a long time.
+ */
+if ( ! function_exists( '\Aws\default_http_handler' ) ) {
+    require __DIR__ . '/Aws/functions.php';
+}
+if ( ! function_exists( '\GuzzleHttp\uri_template' ) ) {
+    require __DIR__ . '/GuzzleHttp/functions.php';
+}
+if ( ! function_exists( '\GuzzleHttp\Psr7\str' ) ) {
+    require __DIR__ . '/GuzzleHttp/Psr7/functions.php';
+}
+if ( ! function_exists( '\GuzzleHttp\Promise\queue' ) ) {
+    require __DIR__ . '/GuzzleHttp/Promise/functions.php';
+}
 require __DIR__ . '/JmesPath/JmesPath.php';

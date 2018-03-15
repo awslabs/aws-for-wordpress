@@ -376,6 +376,15 @@ class Amazonpolly_Admin {
 			array( 'label_for' => 'amazon_polly_autoplay' )
 		);
 
+		add_settings_field(
+			'amazon_polly_speed',
+			__( 'Audio speed [%]:', 'amazonpolly' ),
+			array( $this, 'amazon_polly_speed_cb' ),
+			$this->plugin_name,
+			'amazon_polly_general',
+			array( 'label_for' => 'amazon_polly_speed' )
+		);
+
 		add_settings_section(
 			'amazon_polly_storage',
 			__( 'Cloud storage', 'amazonpolly' ),
@@ -462,7 +471,7 @@ class Amazonpolly_Admin {
 
 		$selected_region = get_option( 'amazon_polly_region' );
 
-		if ( empty ( $selected_region ) ) {
+		if ( empty( $selected_region ) ) {
 			update_option( 'amazon_polly_region', 'us-east-1' );
 			$selected_region = 'us-east-1';
 		}
@@ -504,6 +513,7 @@ class Amazonpolly_Admin {
 		register_setting( $this->plugin_name, 'amazon_polly_player_label', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_defconf', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_autoplay', 'strval' );
+		register_setting( $this->plugin_name, 'amazon_polly_speed', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_s3', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_cloudfront', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_podcast_email', 'strval' );
@@ -585,7 +595,7 @@ class Amazonpolly_Admin {
 
 		$post_content = str_replace( '-AMAZONPOLLY-ONLYAUDIO-START-', '', $post_content );
 		$post_content = str_replace( '-AMAZONPOLLY-ONLYAUDIO-END-', '', $post_content );
-		$post_content = preg_replace("/-AMAZONPOLLY-ONLYWORDS-START-[\S\s]*?-AMAZONPOLLY-ONLYWORDS-END-/", "", $post_content);
+		$post_content = preg_replace( '/-AMAZONPOLLY-ONLYWORDS-START-[\S\s]*?-AMAZONPOLLY-ONLYWORDS-END-/', '', $post_content );
 
 		$post_content_temp = '';
 		$paragraphs        = explode( "\n", $post_content );
@@ -644,8 +654,39 @@ class Amazonpolly_Admin {
 			}//end foreach
 		}//end if
 
+		// Modify speed
+		$parts = $this->modify_speed($parts);
+
+
 		return $parts;
 	}
+
+
+	/**
+	 * Method update sentences (input of the method), and modify their speed,
+	 * by adding SSML prosody tag for each sentence.
+	 *
+	 * @param           string $sentences                 Sentences which should be updated.
+	 * @since           1.0.5
+	 */
+	private function modify_speed($sentences) {
+
+		$new_sentences	= [];
+		$new_sentence_id	= 0;
+
+		$speed = $this->amazon_polly_get_speed();
+
+		if ( 100 !== $speed ) {
+			foreach ( $sentences as $sentence ) {
+				$new_sentence = '<prosody rate="' . $speed . '%">' . $sentence . '</prosody>';
+				$new_sentences[$new_sentence_id] = $new_sentence;
+				$new_sentence_id++;
+			}
+		}
+
+		return $new_sentences;
+	}
+
 
 	/**
 	 * Method execute Amazon Polly API and convert content which was provided to audio file.
@@ -970,7 +1011,7 @@ class Amazonpolly_Admin {
 
 			if ( empty( $s3_bucket_name ) ) {
 				$checkbox_disabled = 'disabled';
-				$message = 'Please check your IAM policy';
+				$message           = 'Please check your IAM policy';
 			} else {
 				$checkbox_disabled = '';
 			}
@@ -983,7 +1024,7 @@ class Amazonpolly_Admin {
 				$bucket_name_visibility = ' ';
 			}
 
-			echo '<input type="checkbox" name="amazon_polly_s3" id="amazon_polly_s3" ' . esc_attr( $checked ) . ' ' . esc_attr( $checkbox_disabled ) . '> <p class="description">' . esc_attr( $message ) . '</p>' ;
+			echo '<input type="checkbox" name="amazon_polly_s3" id="amazon_polly_s3" ' . esc_attr( $checked ) . ' ' . esc_attr( $checkbox_disabled ) . '> <p class="description">' . esc_attr( $message ) . '</p>';
 			echo '<label for="amazon_polly_s3" id="amazon_polly_s3_bucket_name_box" style="' . esc_attr( $bucket_name_visibility ) . '"> Your S3 Bucket name is <b>' . esc_attr( $s3_bucket_name ) . '</b></label>';
 			echo '<p class="description">Audio files are saved on and streamed from Amazon S3. Learn more <a target="_blank" href="https://aws.amazon.com/s3">https://aws.amazon.com/s3</a></p>';
 		} else {
@@ -1048,6 +1089,55 @@ class Amazonpolly_Admin {
 		}
 	}
 
+	/**
+	 * Render the autoplay input.
+	 *
+	 * @since  1.0.5
+	 */
+	public function amazon_polly_speed_cb() {
+
+		$this->amazon_polly_validate_credentials();
+		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+
+		if ( $is_key_valid ) {
+			$speed = $this->amazon_polly_get_speed();
+			echo '<input type="number" name="amazon_polly_speed" id="amazon_polly_speed" value="' . esc_attr( $speed ) . '">';
+		} else {
+			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
+	}
+
+	/**
+	 * Return speed for audio files.
+	 *
+	 * @since  1.0.5
+	 */
+	public function amazon_polly_get_speed() {
+		$speed = get_option( 'amazon_polly_speed' );
+
+		if ( empty ($speed) ) {
+			$speed = "100";
+		}
+
+		if ( intval($speed) < 20 ) {
+			$speed = "20";
+		}
+
+		if ( intval($speed) > 200 ) {
+			$speed = "200";
+		}
+
+		update_option( 'amazon_polly_speed', $speed );
+
+		return $speed;
+
+	}
+
+	/**
+	 * Render the region input.
+	 *
+	 * @since  1.0.3
+	 */
 	public function amazon_polly_region_cb() {
 
 		$this->amazon_polly_validate_credentials();
@@ -1077,7 +1167,7 @@ class Amazonpolly_Admin {
 
 			echo '<select name="amazon_polly_region" id="amazon_polly_region" >';
 			foreach ( $regions as $region_name => $region_label ) {
-				echo '<option label="' . $region_label . '" value="' . esc_attr( $region_name ) . '" ';
+				echo '<option label="' . esc_attr( $region_label ) . '" value="' . esc_attr( $region_name ) . '" ';
 				if ( strcmp( $selected_region, $region_name ) === 0 ) {
 					echo 'selected="selected"';
 				}
@@ -1086,7 +1176,7 @@ class Amazonpolly_Admin {
 			echo '</select>';
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
-		}
+		}//end if
 
 	}
 
@@ -1418,7 +1508,7 @@ class Amazonpolly_Admin {
 		$amazon_polly_price = 0.000004;
 
 		// Estimating average number of characters per post.
-		if ( $post_count !== 0 ) {
+		if ( 0 !== $post_count ) {
 			$post_chars_count_avg = $number_of_characters / $post_count;
 		} else {
 			$post_chars_count_avg = 0;

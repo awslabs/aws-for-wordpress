@@ -6,8 +6,8 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 4.9 |
-| Stable tag | 1.0.4 |
-| License | GPLv2 or later |
+| Stable tag | 1.0.5 |
+| License | GPLv3 |
 | License URI | http://www.gnu.org/licenses/gpl-2.0.html |
 
 
@@ -32,6 +32,7 @@ Below list presents configurations options which can be modified by the user.
 - Player Label: You can provide text (HTML tags are supported) which will be shown above the audio player, so that readers will know better what is it for. For example: <div style="color:grey">Listen to this article:</div>
 - New post default: Define if transcription should be enabled by default for new posts.
 - Autoplay: Information if the audio should be played automatically on ’singular’ post page.
+- Audio speed: Speed in which audio files should be generated. 100% is default value. Minimum is 20%, Maximum is 200%.
 
 ##### Cloud Storage:
 - Store audio in Amazon S3: If you will select this option, audio files won’t be stored on WordPress server, but instead they will be stored on Amazon S3 service. For additional information and pricing, please visit: https://aws.amazon.com/s3.
@@ -45,7 +46,7 @@ Below list presents configurations options which can be modified by the user.
 - iTunes email: The editorial contact for the podcast channel.
 
 ##### Additional Configuration
-- Bulk ipdate: Update all posts with new configurations: If you will click on the button, the plugin will update all your posts according to your new plugin configuration.
+- Bulk update: Update all posts with new configurations (if one of following parameters changed: voice, sample rate or storage location): If you will click on the button, the plugin will update all your posts according to your new plugin configuration.
 
 
 ## How to obtain AWS Access Key and Secret Key?
@@ -139,6 +140,15 @@ Submit your Amazon PollyCast to the iTunes iConnect directory: https://podcastsc
 
 The information about cost of converting all posts using bulk update functionality provide a rough estimation. If you have got less than 100 posts, plugin will calculate the number of characters in all of those posts and based on Amazon Polly pricing it will provide estimation about the cost of conversion. If you have got more than 100 posts, the plugin will calculate the average number of characters in first 100 posts, and based on this estimate the total number of characters in all posts.
 
+#### Q: What kind of filters can I use?
+
+The plugin has got a couple of different filters, which can be used by developers and WordPress users to modify its behavior.
+
+Available filters:
+-	amazon_polly_post_types - defines what kind of WordPress post types should be used by the plugin. Default value is 'post'.
+-	amazon_polly_content - which can be used to modify the content of the post before it will be send to Amazon Polly service for text-to-speech conversion.
+
+
 #### Q: What is "Audio Only" functionality?
 
 Sometimes you might want to add something to the audio  but you still don't want to display it in the browser. To allow it, the plugin use special type of tags, which you can use in your post/page, which will inform it, to not display it in the browser but still convert it to audio. To use this feature, just use following example:
@@ -169,6 +179,11 @@ This part will be shown in the browser, but won't be read by the plugin.
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
 #### Changelog
+
+= 1.0.5 =
+* License change to GPLv3
+* Added possibility of changing speed of generated audio files.
+* Fixing problems with 3rd party libraries.
 
 = 1.0.4 =
 * Bug fixes

@@ -93,7 +93,7 @@ class Amazonpolly_Public {
 			$original_content = $content;
 
 			// Removing Amazon Polly special tags.
-			$original_content = preg_replace("/-AMAZONPOLLY-ONLYAUDIO-START-[\S\s]*?-AMAZONPOLLY-ONLYAUDIO-END-/", "", $original_content);
+			$original_content = preg_replace( '/-AMAZONPOLLY-ONLYAUDIO-START-[\S\s]*?-AMAZONPOLLY-ONLYAUDIO-END-/', '', $original_content );
 			$original_content = str_replace( '-AMAZONPOLLY-ONLYWORDS-START-', '', $original_content );
 			$original_content = str_replace( '-AMAZONPOLLY-ONLYWORDS-END-', '', $original_content );
 
