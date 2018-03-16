@@ -18,7 +18,7 @@
  * Version:           1.0.5
  * Author:            AWS Labs, WP Engine
  * Author URI:        https://aws.amazon.com/
- * License:           GPL-3.0
+ * License:           GPL-3.0 only
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       amazonpolly
  * Domain Path:       /languages
