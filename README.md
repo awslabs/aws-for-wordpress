@@ -6,7 +6,7 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 4.9 |
-| Stable tag | 1.0.5 |
+| Stable tag | 1.0.6 |
 | License | GPLv3 ONLY |
 | License URI | https://www.gnu.org/licenses/gpl-3.0.html |
 
@@ -147,6 +147,7 @@ The plugin has got a couple of different filters, which can be used by developer
 Available filters:
 -	amazon_polly_post_types - defines what kind of WordPress post types should be used by the plugin. Default value is 'post'.
 -	amazon_polly_content - which can be used to modify the content of the post before it will be send to Amazon Polly service for text-to-speech conversion.
+- amazon_polly_s3_bucket_name - let you to define your own bucket name where audio files will be stored. The bucket should already exists, and should be in this same region, as you specify in plugin configuration. You need to modify also IAM policy and provide access to this bucket.
 
 
 #### Q: What is "Audio Only" functionality?
@@ -179,6 +180,9 @@ This part will be shown in the browser, but won't be read by the plugin.
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
 #### Changelog
+
+= 1.0.6 =
+* Added new filter, which let to specify S3 bucket name where files will be stored.
 
 = 1.0.5 =
 * License change to GPLv3

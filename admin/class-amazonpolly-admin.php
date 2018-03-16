@@ -208,7 +208,7 @@ class Amazonpolly_Admin {
 
 		// Deleting audio file stored on S3.
 		if ( 's3' === $audio_location ) {
-			$s3_bucket_name = get_option( $this->s3_bucket_metakey );
+			$s3_bucket_name = $this->get_bucket_name();
 
 			$result = $this->s3_client->deleteObject(
 				array(
@@ -537,7 +537,7 @@ class Amazonpolly_Admin {
 		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
 
 		if ( $is_key_valid ) {
-			$s3_bucket_name    = get_option( $this->s3_bucket_metakey );
+			$s3_bucket_name    = $this->get_bucket_name();
 			$create_new_bucket = false;
 
 			if ( empty( $s3_bucket_name ) ) {
@@ -767,7 +767,7 @@ class Amazonpolly_Admin {
 			$audio_location_link = wp_upload_dir()['baseurl'] . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name;
 		} else {
 			// We are storing audio file on Amazon S3.
-			$s3_bucket_name = get_option( $this->s3_bucket_metakey );
+			$s3_bucket_name = $this->get_bucket_name();
 			$audio_location = 's3';
 			$result         = $this->s3_client->putObject(
 				array(
@@ -883,7 +883,7 @@ class Amazonpolly_Admin {
 	 */
 	public function amazon_polly_access_key_cb() {
 		$access_key = get_option( 'amazon_polly_access_key' );
-		echo '<input type="text" class="regular-text" name="amazon_polly_access_key" id="amazon_polly_access_key" value="' . esc_attr( $access_key ) . '"> ';
+		echo '<input type="text" class="regular-text" name="amazon_polly_access_key" id="amazon_polly_access_key" value="' . esc_attr( $access_key ) . '" autocomplete="off"> ';
 		echo '<p class="description" id="amazon_polly_access_key">Required only if you aren\'t using IAM roles</p>';
 	}
 
@@ -894,7 +894,7 @@ class Amazonpolly_Admin {
 				 */
 	public function amazon_polly_secret_key_cb() {
 		$secret_key = get_option( 'amazon_polly_secret_key' );
-		echo '<input type="password" class="regular-text" name="amazon_polly_secret_key" id="amazon_polly_secret_key" value="' . esc_attr( $secret_key ) . '"> ';
+		echo '<input type="password" class="regular-text" name="amazon_polly_secret_key" id="amazon_polly_secret_key" value="' . esc_attr( $secret_key ) . '" autocomplete="off"> ';
 		echo '<p class="description" id="amazon_polly_access_key">Required only if you aren\'t using IAM roles</p>';
 	}
 
@@ -1005,7 +1005,7 @@ class Amazonpolly_Admin {
 		if ( $is_key_valid ) {
 
 			$selected_s3    = get_option( 'amazon_polly_s3' );
-			$s3_bucket_name = get_option( $this->s3_bucket_metakey );
+			$s3_bucket_name = $this->get_bucket_name();
 
 			$message = '';
 
@@ -1623,4 +1623,19 @@ class Amazonpolly_Admin {
 		array_unshift( $links, $settings_link );
 		return $links;
 	}
+
+	/**
+	 * Get S3 bucket name. The method uses filter 'amazon_polly_s3_bucket_name,
+	 * which allows to use customer S3 bucket name instead of default one.
+	 *
+	 * @since  1.0.6
+	 */
+	private function get_bucket_name() {
+
+		$s3_bucket_name = get_option( $this->s3_bucket_metakey );
+		$s3_bucket_name = apply_filters( 'amazon_polly_s3_bucket_name', $s3_bucket_name );
+
+		return $s3_bucket_name;
+	}
+
 }
