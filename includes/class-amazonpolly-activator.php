@@ -27,6 +27,7 @@ class Amazonpolly_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
+
 		// Flush the permalinks to enable the "amazon-pollycast" route.
 		$amazon_pollycast = new Amazonpolly_PollyCast();
 		$amazon_pollycast->create_podcast();

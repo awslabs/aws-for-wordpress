@@ -114,7 +114,7 @@ class Amazonpolly_Admin {
 	 */
 	public function amazon_polly_field_checkbox() {
 
-		$post_types_supported = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
+		$post_types_supported = $this->amazon_polly_get_posttypes_array();
 
 		add_meta_box(
 			'amazon_polly_box_id',
@@ -145,6 +145,28 @@ class Amazonpolly_Admin {
 		}
 		$this->delete_post_audio( $post_id );
 	}
+
+	/**
+	 * Add Amazon Pollu QuickTag button.
+	 *
+	 * @since    1.0.7
+	 */
+	public function amazon_polly_add_quicktags() {
+
+		$is_ssml_enabled = $this->amazon_polly_is_ssml_enabled();
+
+		if ( $is_ssml_enabled ) {
+			if ( wp_script_is( 'quicktags' ) ) {
+				?>
+					<script type="text/javascript">
+						QTags.addButton( 'eg_ssmlbreak', 'SSML Break', '<ssml><break time="1s"/></ssml>','','', 'Amazon Polly SSML Break Tag', 111 );
+					</script>
+				<?php
+			}
+		}
+	}
+
+
 
 	/**
 	 * Important. Run whenever new post is being created (or updated). The method executes Amazon Polly API to create audio file.
@@ -322,12 +344,26 @@ class Amazonpolly_Admin {
 			array( 'label_for' => 'amazon_polly_region' )
 		);
 
+		add_settings_section(
+			'amazon_polly_pollysettings',
+			__( 'Amazon Polly settings', 'amazonpolly' ),
+			array( $this, 'amazon_polly_pollysettings_cb' ),
+			$this->plugin_name
+		);
+
+		add_settings_section(
+			'amazon_polly_playersettings',
+			__( 'Player settings', 'amazonpolly' ),
+			array( $this, 'amazon_polly_playersettings_cb' ),
+			$this->plugin_name
+		);
+
 		add_settings_field(
 			'amazon_polly_sample_rate',
 			__( 'Sample rate:', 'amazonpolly' ),
 			array( $this, 'amazon_polly_sample_rate_cb' ),
 			$this->plugin_name,
-			'amazon_polly_general',
+			'amazon_polly_pollysettings',
 			array( 'label_for' => 'amazon_polly_sample_rate' )
 		);
 
@@ -336,8 +372,26 @@ class Amazonpolly_Admin {
 			__( 'Voice name:', 'amazonpolly' ),
 			array( $this, 'amazon_polly_voice_id_cb' ),
 			$this->plugin_name,
-			'amazon_polly_general',
+			'amazon_polly_pollysettings',
 			array( 'label_for' => 'amazon_polly_voice_id' )
+		);
+
+		add_settings_field(
+			'amazon_polly_auto_breaths',
+			__( 'Automated breaths:', 'amazonpolly' ),
+			array( $this, 'amazon_polly_auto_breaths_cb' ),
+			$this->plugin_name,
+			'amazon_polly_pollysettings',
+			array( 'label_for' => 'amazon_polly_auto_breaths_id' )
+		);
+
+		add_settings_field(
+			'amazon_polly_ssml',
+			__( 'Enable SSML support:', 'amazonpolly' ),
+			array( $this, 'amazon_polly_ssml_cb' ),
+			$this->plugin_name,
+			'amazon_polly_pollysettings',
+			array( 'label_for' => 'amazon_polly_ssml' )
 		);
 
 		add_settings_field(
@@ -345,7 +399,7 @@ class Amazonpolly_Admin {
 			__( 'Player position:', 'amazonpolly' ),
 			array( $this, 'amazon_polly_position_cb' ),
 			$this->plugin_name,
-			'amazon_polly_general',
+			'amazon_polly_playersettings',
 			array( 'label_for' => 'amazon_polly_position' )
 		);
 
@@ -354,7 +408,7 @@ class Amazonpolly_Admin {
 			__( 'Player label:', 'amazonpolly' ),
 			array( $this, 'amazon_polly_player_label_cb' ),
 			$this->plugin_name,
-			'amazon_polly_general',
+			'amazon_polly_playersettings',
 			array( 'label_for' => 'amazon_polly_player_label' )
 		);
 
@@ -363,7 +417,7 @@ class Amazonpolly_Admin {
 			__( 'New post default:', 'amazonpolly' ),
 			array( $this, 'amazon_polly_defconf_cb' ),
 			$this->plugin_name,
-			'amazon_polly_general',
+			'amazon_polly_playersettings',
 			array( '' => 'amazon_polly_defconf' )
 		);
 
@@ -372,7 +426,7 @@ class Amazonpolly_Admin {
 			__( 'Autoplay:', 'amazonpolly' ),
 			array( $this, 'amazon_polly_autoplay_cb' ),
 			$this->plugin_name,
-			'amazon_polly_general',
+			'amazon_polly_playersettings',
 			array( 'label_for' => 'amazon_polly_autoplay' )
 		);
 
@@ -381,7 +435,7 @@ class Amazonpolly_Admin {
 			__( 'Audio speed [%]:', 'amazonpolly' ),
 			array( $this, 'amazon_polly_speed_cb' ),
 			$this->plugin_name,
-			'amazon_polly_general',
+			'amazon_polly_pollysettings',
 			array( 'label_for' => 'amazon_polly_speed' )
 		);
 
@@ -415,6 +469,15 @@ class Amazonpolly_Admin {
 			__( 'Amazon Pollycast', 'amazonpolly' ),
 			array( $this, 'amazon_pollycast_cb' ),
 			$this->plugin_name
+		);
+
+		add_settings_field(
+			'amazon_polly_podcast_enabled',
+			__( 'Pollycast enabled:', 'amazonpolly' ),
+			array( $this, 'amazon_polly_podcast_enabled_cb' ),
+			$this->plugin_name,
+			'amazon_polly_podcast',
+			array( 'label_for' => 'amazon_polly_podcast_enabled' )
 		);
 
 		add_settings_field(
@@ -469,6 +532,24 @@ class Amazonpolly_Admin {
 			array( 'label_for' => 'amazon_polly_update_all' )
 		);
 
+		add_settings_field(
+			'amazon_polly_add_post_title',
+			__( 'Add post title to audio:', 'amazonpolly' ),
+			array( $this, 'amazon_polly_add_post_title_cb' ),
+			$this->plugin_name,
+			'amazon_polly_additional',
+			array( 'label_for' => 'amazon_polly_add_post_title' )
+		);
+
+		add_settings_field(
+			'amazon_polly_posttypes',
+			__( 'Post types:', 'amazonpolly' ),
+			array( $this, 'amazon_polly_posttypes_cb' ),
+			$this->plugin_name,
+			'amazon_polly_additional',
+			array( 'label_for' => 'amazon_polly_posttypes' )
+		);
+
 		$selected_region = get_option( 'amazon_polly_region' );
 
 		if ( empty( $selected_region ) ) {
@@ -506,23 +587,37 @@ class Amazonpolly_Admin {
 
 		register_setting( $this->plugin_name, 'amazon_polly_access_key', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_secret_key', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_region', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_sample_rate', 'intval' );
-		register_setting( $this->plugin_name, 'amazon_polly_voice_id', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_position', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_player_label', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_defconf', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_autoplay', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_speed', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_s3', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_cloudfront', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_podcast_email', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_podcast_category', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_podcast_explicit', 'strval' );
-		register_setting( $this->plugin_name, 'amazon_polly_settings_hash', 'strval' );
+
+
+		if ( $this->amazon_polly_is_ok() ) {
+			register_setting( $this->plugin_name, 'amazon_polly_podcast_enabled', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_s3', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_cloudfront', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_region', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_sample_rate', 'intval' );
+			register_setting( $this->plugin_name, 'amazon_polly_voice_id', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_ssml', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_auto_breaths', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_position', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_player_label', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_defconf', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_autoplay', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_speed', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_podcast_email', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_podcast_category', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_podcast_explicit', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_settings_hash', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_podcast_explicit', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_add_post_title', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_posttypes', 'strval' );
+		}
 
 		$this->amazon_polly_validate_credentials();
-		$this->prepare_s3_bucket();
+
+		$is_s3_enabled = $this->amazon_polly_is_s3_enabled();
+		if ( $is_s3_enabled ) {
+			$this->prepare_s3_bucket();
+		}
 
 	}
 
@@ -584,11 +679,25 @@ class Amazonpolly_Admin {
 	 */
 	private function prepare_post_text( $post_id ) {
 
-		$post_content = get_the_title( $post_id ) . '**AMAZONPOLLY*SSML*BREAKTIME*1s**';
+		// Depending on the plugin configurations, post's title will be added to the audio.
+		$is_title_adder_enabled = $this->amazon_polly_is_title_adder_enabled();
+		if ( $is_title_adder_enabled ) {
+			$post_content = get_the_title( $post_id ) . '**AMAZONPOLLY*SSML*BREAKTIME*1s**';
+		} else {
+			$post_content = '';
+		}
+
 		$post_content = $post_content . get_post_field( 'post_content', $post_id );
 		$post_content = apply_filters( 'amazon_polly_content', $post_content );
+
 		$post_content = str_replace( '&nbsp;', ' ', $post_content );
 		$post_content = strip_shortcodes( $post_content );
+
+		$is_ssml_enabled = $this->amazon_polly_is_ssml_enabled();
+		if ( $is_ssml_enabled ) {
+			$post_content = $this->amazon_polly_encode_ssml_tags( $post_content );
+		}
+
 		$post_content = strip_tags( $post_content, '<break>' );
 		$post_content = esc_html( $post_content );
 		$post_content = str_replace( '&nbsp;', ' ', $post_content );
@@ -612,7 +721,8 @@ class Amazonpolly_Admin {
 		$post_content = str_replace( '<', ' ', $post_content );
 		$post_content = str_replace( '>', ' ', $post_content );
 		$post_content = str_replace( '**AMAZONPOLLY*SSML*BREAKTIME*1s**', '<break time="1s"/>', $post_content );
-		$parts        = [];
+
+		$parts = [];
 
 		if ( ! empty( $post_content ) ) {
 			$part_id    = 0;
@@ -655,8 +765,7 @@ class Amazonpolly_Admin {
 		}//end if
 
 		// Modify speed
-		$parts = $this->modify_speed($parts);
-
+		$parts = $this->modify_speed( $parts );
 
 		return $parts;
 	}
@@ -669,17 +778,17 @@ class Amazonpolly_Admin {
 	 * @param           string $sentences                 Sentences which should be updated.
 	 * @since           1.0.5
 	 */
-	private function modify_speed($sentences) {
+	private function modify_speed( $sentences ) {
 
-		$new_sentences	= [];
-		$new_sentence_id	= 0;
+		$new_sentences   = [];
+		$new_sentence_id = 0;
 
 		$speed = $this->amazon_polly_get_speed();
 
 		if ( 100 !== $speed ) {
 			foreach ( $sentences as $sentence ) {
-				$new_sentence = '<prosody rate="' . $speed . '%">' . $sentence . '</prosody>';
-				$new_sentences[$new_sentence_id] = $new_sentence;
+				$new_sentence                      = '<prosody rate="' . $speed . '%">' . $sentence . '</prosody>';
+				$new_sentences[ $new_sentence_id ] = $new_sentence;
 				$new_sentence_id++;
 			}
 		}
@@ -721,6 +830,19 @@ class Amazonpolly_Admin {
 		}
 		$first_part = true;
 		foreach ( $sentences as $key => $text_content ) {
+
+			// Depending on the plugin configuration SSML tags for automated breaths sound will be added.
+			$is_breaths_enabled = $this->amazon_polly_is_auto_breaths_enabled();
+			if ( $is_breaths_enabled ) {
+				$text_content = '<amazon:auto-breaths>' . $text_content . '</amazon:auto-breaths>';
+			}
+
+			// If plugin SSML support option is enabled, plugin will try to decode all SSML tags.
+			$is_ssml_enabled = $this->amazon_polly_is_ssml_enabled();
+			if ( $is_ssml_enabled ) {
+				$text_content = $this->amazon_polly_decode_ssml_tags( $text_content );
+			}
+
 			$amazon_polly_mark_value = 'wp-plugin-awslabs';
 			$amazon_polly_mark_value = apply_filters( 'amazon_polly_mark_value', $amazon_polly_mark_value );
 
@@ -899,6 +1021,90 @@ class Amazonpolly_Admin {
 	}
 
 	/**
+	 * Render the Automated Breath input.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_auto_breaths_cb() {
+
+		$this->amazon_polly_validate_credentials();
+		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+
+		if ( $is_key_valid ) {
+
+			$is_breaths_enabled = $this->amazon_polly_is_auto_breaths_enabled();
+
+			if ( $is_breaths_enabled ) {
+				$checked = ' checked ';
+			} else {
+				$checked = ' ';
+			}
+
+			echo '<input type="checkbox" name="amazon_polly_auto_breaths" id="amazon_polly_auto_breaths" ' . esc_attr( $checked ) . '> ';
+			echo '<p class="description" for="amazon_polly_auto_breaths">If enabled, Amazon Polly automatically creates breathing noises at appropriate intervals</p>';
+		} else {
+			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
+
+	}
+
+	/**
+	 * Render the Podcast enabled input.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_podcast_enabled_cb() {
+
+		$this->amazon_polly_validate_credentials();
+		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+
+		if ( $is_key_valid ) {
+
+			$is_podcast_enabled = $this->amazon_polly_is_podcast_enabled();
+
+			if ( $is_podcast_enabled ) {
+				$checked = ' checked ';
+			} else {
+				$checked = ' ';
+			}
+
+			echo '<input type="checkbox" name="amazon_polly_podcast_enabled" id="amazon_polly_podcast_enabled" ' . esc_attr( $checked ) . '> ';
+			echo '<p class="description" for="amazon_polly_podcast_enabled">If enabled, Amazon Pollycast will be generated</p>';
+		} else {
+			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
+
+	}
+
+	/**
+	 * Render the Add post title to audio input.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_add_post_title_cb() {
+
+		$this->amazon_polly_validate_credentials();
+		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+
+		if ( $is_key_valid ) {
+
+			$is_title_adder_enabled = $this->amazon_polly_is_title_adder_enabled();
+
+			if ( $is_title_adder_enabled ) {
+				$checked = ' checked ';
+			} else {
+				$checked = ' ';
+			}
+
+			echo '<input type="checkbox" name="amazon_polly_add_post_title" id="amazon_polly_add_post_title" ' . esc_attr( $checked ) . '> ';
+			echo '<p class="description" for="amazon_polly_add_post_title">If enabled, each audio file will start from post title.</p>';
+		} else {
+			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
+
+	}
+
+	/**
 	 * Render the Default Configuration input.
 	 *
 	 * @since  1.0.0
@@ -977,6 +1183,44 @@ class Amazonpolly_Admin {
 	}
 
 	/**
+	 * Render the Post Type input box.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_posttypes_cb() {
+
+		$this->amazon_polly_validate_credentials();
+		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+
+		if ( $is_key_valid ) {
+
+			$posttypes = $this->amazon_polly_get_posttypes();
+
+			echo '<input type="text" class="regular-text" name="amazon_polly_posttypes" id="amazon_polly_posttypes" value="' . esc_attr( $posttypes ) . '"> ';
+			echo '<p class="description" for="amazon_polly_posttypes">Post types in your WordPress environment</p>';
+		} else {
+			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
+
+	}
+
+	/**
+	 * Render the text for the Amazon Polly settings section
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_pollysettings_cb() {
+	}
+
+	/**
+	 * Render the text for Player settings section
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_playersettings_cb() {
+	}
+
+	/**
 	 * Render the text for the storage section
 	 *
 	 * @since  1.0.0
@@ -1025,7 +1269,12 @@ class Amazonpolly_Admin {
 			}
 
 			echo '<input type="checkbox" name="amazon_polly_s3" id="amazon_polly_s3" ' . esc_attr( $checked ) . ' ' . esc_attr( $checkbox_disabled ) . '> <p class="description">' . esc_attr( $message ) . '</p>';
-			echo '<label for="amazon_polly_s3" id="amazon_polly_s3_bucket_name_box" style="' . esc_attr( $bucket_name_visibility ) . '"> Your S3 Bucket name is <b>' . esc_attr( $s3_bucket_name ) . '</b></label>';
+
+			$is_s3_enabled = $this->amazon_polly_is_s3_enabled();
+			if ( $is_s3_enabled ) {
+				echo '<label for="amazon_polly_s3" id="amazon_polly_s3_bucket_name_box" style="' . esc_attr( $bucket_name_visibility ) . '"> Your S3 Bucket name is <b>' . esc_attr( $s3_bucket_name ) . '</b></label>';
+			}
+
 			echo '<p class="description">Audio files are saved on and streamed from Amazon S3. Learn more <a target="_blank" href="https://aws.amazon.com/s3">https://aws.amazon.com/s3</a></p>';
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
@@ -1044,23 +1293,57 @@ class Amazonpolly_Admin {
 		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
 
 		if ( $is_key_valid ) {
+			$is_s3_enabled = $this->amazon_polly_is_s3_enabled();
+			if ( $is_s3_enabled ) {
 
-			$cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
-			$s3_enabled             = get_option( 'amazon_polly_s3' );
+				$cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
+				$s3_enabled             = get_option( 'amazon_polly_s3' );
 
-			if ( empty( $s3_enabled ) ) {
-				$disabled = ' disabled="disabled" ';
+				if ( empty( $s3_enabled ) ) {
+					$disabled = ' disabled="disabled" ';
+				} else {
+					$disabled = ' ';
+				}
+
+				echo '<input type="text" name="amazon_polly_cloudfront" class="regular-text" "id="amazon_polly_cloudfront" value="' . esc_attr( $cloudfront_domain_name ) . '" ' . esc_attr( $disabled ) . '> ';
+				echo '<p class="description">If you have set up CloudFront distribution for your S3 bucket, the name of the domain. For additional information and pricing, see: <a target="_blank" href="https://aws.amazon.com/cloudfront">https://aws.amazon.com/cloudfront</a> </p>';
 			} else {
-				$disabled = ' ';
+				echo '<p class="description">Amazon S3 Storage needs to be enabled</p>';
 			}
-
-			echo '<input type="text" name="amazon_polly_cloudfront" class="regular-text" "id="amazon_polly_cloudfront" value="' . esc_attr( $cloudfront_domain_name ) . '" ' . esc_attr( $disabled ) . '> ';
-			echo '<p class="description">If you have set up CloudFront distribution for your S3 bucket, the name of the domain. For additional information and pricing, see: <a target="_blank" href="https://aws.amazon.com/cloudfront">https://aws.amazon.com/cloudfront</a> </p>';
-
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
 		}
 
+	}
+
+	/**
+	 * Render the enable SSML input.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_ssml_cb() {
+
+		$this->amazon_polly_validate_credentials();
+		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+
+		if ( $is_key_valid ) {
+			$is_s3_enabled = $this->amazon_polly_is_s3_enabled();
+			if ( $is_s3_enabled ) {
+				$is_ssml_enabled = $this->amazon_polly_is_ssml_enabled();
+
+				if ( $is_ssml_enabled ) {
+					$checked = ' checked ';
+				} else {
+					$checked = ' ';
+				}
+
+				echo '<input type="checkbox" name="amazon_polly_ssml" id="amazon_polly_ssml" ' . esc_attr( $checked ) . '> ';
+			} else {
+				echo '<p class="description">Amazon S3 Storage needs to be enabled</p>';
+			}
+		} else {
+			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
 	}
 
 	/**
@@ -1083,7 +1366,7 @@ class Amazonpolly_Admin {
 				$checked = ' checked ';
 			}
 			echo '<input type="checkbox" name="amazon_polly_autoplay" id="amazon_polly_autoplay" ' . esc_attr( $checked ) . '> ';
-			echo '<label for="amazon_polly_autoplay">Automatically play audio content when page loads</label>';
+			echo '<p class="description" for="amazon_polly_autoplay">Automatically play audio content when page loads</p>';
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
 		}
@@ -1108,6 +1391,69 @@ class Amazonpolly_Admin {
 	}
 
 	/**
+	 * Return post type value.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_get_posttypes() {
+		$posttypes = get_option( 'amazon_polly_posttypes', 'post' );
+		return $posttypes;
+	}
+
+	/**
+	 * Return post type value array.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_get_posttypes_array() {
+		$posttypes_array = get_option( 'amazon_polly_posttypes', 'post' );
+		$posttypes_array = explode( ' ', $posttypes_array );
+		$posttypes_array = apply_filters( 'amazon_polly_post_types', $posttypes_array );
+
+		return $posttypes_array;
+
+	}
+
+	/**
+	 * Check if AWS credentials are correct
+	 *
+	 * @since  1.0.7
+	 */
+	private function amazon_polly_is_ok() {
+
+		$this->amazon_polly_validate_credentials();
+		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+		if ( $is_key_valid ) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	/**
+	 * Check if SSML is enabled.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_is_ssml_enabled() {
+		$ssml_enabled = get_option( 'amazon_polly_ssml', 'on' );
+
+		if ( empty( $ssml_enabled ) ) {
+			$result = false;
+		} else {
+			$result = true;
+		}
+
+		$is_s3_enabled = $this->amazon_polly_is_s3_enabled();
+		if ( $is_s3_enabled ) {
+		  return $result;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Return speed for audio files.
 	 *
 	 * @since  1.0.5
@@ -1115,22 +1461,73 @@ class Amazonpolly_Admin {
 	public function amazon_polly_get_speed() {
 		$speed = get_option( 'amazon_polly_speed' );
 
-		if ( empty ($speed) ) {
-			$speed = "100";
+		if ( empty( $speed ) ) {
+			$speed = '100';
 		}
 
-		if ( intval($speed) < 20 ) {
-			$speed = "20";
+		if ( intval( $speed ) < 20 ) {
+			$speed = '20';
 		}
 
-		if ( intval($speed) > 200 ) {
-			$speed = "200";
+		if ( intval( $speed ) > 200 ) {
+			$speed = '200';
 		}
 
 		update_option( 'amazon_polly_speed', $speed );
 
 		return $speed;
 
+	}
+
+	/**
+	 * Checks if pollycast is enabled.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_is_podcast_enabled() {
+		$value = get_option( 'amazon_polly_podcast_enabled', 'on' );
+
+		if ( empty( $value ) ) {
+			$result = false;
+		} else {
+			$result = true;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Checks if auto breaths are enabled.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_is_auto_breaths_enabled() {
+		$value = get_option( 'amazon_polly_auto_breaths', 'on' );
+
+		if ( empty( $value ) ) {
+			$result = false;
+		} else {
+			$result = true;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Checks if post title should be added.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_is_title_adder_enabled() {
+		$value = get_option( 'amazon_polly_add_post_title', 'on' );
+
+		if ( empty( $value ) ) {
+			$result = false;
+		} else {
+			$result = true;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -1300,8 +1697,10 @@ class Amazonpolly_Admin {
 	 * @since  1.0.0
 	 */
 	public function amazon_pollycast_cb() {
-		echo '<p>Amazon Pollycast available at: <a target = "_blank" href="' . esc_attr( get_feed_link( 'amazon-pollycast' ) ) . '">' . esc_html( get_feed_link( 'amazon-pollycast' ) ) . '</a></p>';
-		echo '<p>Submit your Amazon Pollycast to iTunes iConnect: <a target = "_blank" href="https://podcastsconnect.apple.com/">' . esc_html( 'https://podcastsconnect.apple.com/' ) . '</a></p>';
+		if ( $this->amazon_polly_is_podcast_enabled() ) {
+			echo '<p>Amazon Pollycast available at: <a target = "_blank" href="' . esc_attr( get_feed_link( 'amazon-pollycast' ) ) . '">' . esc_html( get_feed_link( 'amazon-pollycast' ) ) . '</a></p>';
+			echo '<p>Submit your Amazon Pollycast to iTunes iConnect: <a target = "_blank" href="https://podcastsconnect.apple.com/">' . esc_html( 'https://podcastsconnect.apple.com/' ) . '</a></p>';
+		}
 	}
 
 	/**
@@ -1313,8 +1712,12 @@ class Amazonpolly_Admin {
 		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
 
 		if ( $is_key_valid ) {
-			$selected_email = get_option( 'amazon_polly_podcast_email' );
-			echo '<input class="regular-text" name="amazon_polly_podcast_email" id="amazon_polly_podcast_email" value="' . esc_attr( $selected_email ) . '"/>';
+			if ( $this->amazon_polly_is_podcast_enabled() ) {
+				$selected_email = get_option( 'amazon_polly_podcast_email' );
+				echo '<input class="regular-text" name="amazon_polly_podcast_email" id="amazon_polly_podcast_email" value="' . esc_attr( $selected_email ) . '"/>';
+			} else {
+				echo '<p class="description">Amazon Pollycast is disabled</p>';
+			}
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
 		}
@@ -1349,19 +1752,23 @@ class Amazonpolly_Admin {
 		);
 
 		if ( $is_key_valid ) {
-			$selected_category = get_option( 'amazon_polly_podcast_category' );
-			if ( ! $selected_category ) {
-				$selected_category = 'News & Politics';
-			}
-			echo '<select name="amazon_polly_podcast_category" id="amazon_polly_podcast_category">';
-			foreach ( $select_categories as $category ) {
-				echo '<option value="' . esc_attr( $category ) . '" ';
-				if ( strcmp( $selected_category, $category ) === 0 ) {
-					echo 'selected="selected"';
+			if ( $this->amazon_polly_is_podcast_enabled() ) {
+				$selected_category = get_option( 'amazon_polly_podcast_category' );
+				if ( ! $selected_category ) {
+					$selected_category = 'News & Politics';
 				}
-				echo '>' . esc_attr( $category ) . '</option>';
+				echo '<select name="amazon_polly_podcast_category" id="amazon_polly_podcast_category">';
+				foreach ( $select_categories as $category ) {
+					echo '<option value="' . esc_attr( $category ) . '" ';
+					if ( strcmp( $selected_category, $category ) === 0 ) {
+						echo 'selected="selected"';
+					}
+					echo '>' . esc_attr( $category ) . '</option>';
+				}
+				echo '</select>';
+			} else {
+				echo '<p class="description">Amazon Pollycast is disabled</p>';
 			}
-			echo '</select>';
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
 		}
@@ -1381,16 +1788,20 @@ class Amazonpolly_Admin {
 		);
 
 		if ( $is_key_valid ) {
-			$selected_explicit = get_option( 'amazon_polly_podcast_explicit' );
-			echo '<select name="amazon_polly_podcast_explicit" id="amazon_polly_podcast_explicit">';
-			foreach ( $select_explicits as $explicit ) {
-				echo '<option value="' . esc_attr( $explicit ) . '" ';
-				if ( strcmp( $selected_explicit, $explicit ) === 0 ) {
-					echo 'selected="selected"';
+			if ( $this->amazon_polly_is_podcast_enabled() ) {
+				$selected_explicit = get_option( 'amazon_polly_podcast_explicit' );
+				echo '<select name="amazon_polly_podcast_explicit" id="amazon_polly_podcast_explicit">';
+				foreach ( $select_explicits as $explicit ) {
+					echo '<option value="' . esc_attr( $explicit ) . '" ';
+					if ( strcmp( $selected_explicit, $explicit ) === 0 ) {
+						echo 'selected="selected"';
+					}
+					echo '>' . esc_attr( ucfirst( $explicit ) ) . '</option>';
 				}
-				echo '>' . esc_attr( ucfirst( $explicit ) ) . '</option>';
+				echo '</select>';
+			} else {
+				echo '<p class="description">Amazon Pollycast is disabled</p>';
 			}
-			echo '</select>';
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
 		}
@@ -1405,9 +1816,13 @@ class Amazonpolly_Admin {
 		$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
 
 		if ( $is_key_valid ) {
-			$query['autofocus[section]'] = 'amazonpolly';
-			$section_link                = add_query_arg( $query, admin_url( 'customize.php' ) );
-			echo '<p>Upload a podcast icon using the <a target="_blank" href="' . esc_url( $section_link ) . '">Customizer</a>.</p>';
+			if ( $this->amazon_polly_is_podcast_enabled() ) {
+				$query['autofocus[section]'] = 'amazonpolly';
+				$section_link                = add_query_arg( $query, admin_url( 'customize.php' ) );
+				echo '<p>Upload a podcast icon using the <a target="_blank" href="' . esc_url( $section_link ) . '">Customizer</a>.</p>';
+			} else {
+				echo '<p class="description">Amazon Pollycast is disabled</p>';
+			}
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
 		}
@@ -1417,7 +1832,7 @@ class Amazonpolly_Admin {
 	 * Determine how many posts should be transcribed.
 	 */
 	public function get_num_posts_needing_transcription() {
-		$post_types_supported        = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
+		$post_types_supported        = $this->amazon_polly_get_posttypes_array();
 		$amazon_polly_voice_id       = get_option( 'amazon_polly_voice_id' );
 		$amazon_polly_sample_rate    = get_option( 'amazon_polly_sample_rate' );
 		$amazon_polly_audio_location = ( 'on' === get_option( 'amazon_polly_s3' ) ) ? 's3' : 'local';
@@ -1458,7 +1873,7 @@ class Amazonpolly_Admin {
 	 * @since  1.0.0
 	 */
 	private function get_price_message_for_update_all() {
-		$post_types_supported = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
+		$post_types_supported = $this->amazon_polly_get_posttypes_array();
 		$number_of_characters = 0;
 
 		$posts_per_page  = apply_filters( 'amazon_polly_posts_per_page', 5 );
@@ -1531,7 +1946,7 @@ class Amazonpolly_Admin {
 		check_ajax_referer( 'pollyajaxnonce', 'nonce' );
 
 		$batch_size                  = 1;
-		$post_types_supported        = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
+		$post_types_supported        = $this->amazon_polly_get_posttypes_array();
 		$amazon_polly_voice_id       = get_option( 'amazon_polly_voice_id' );
 		$amazon_polly_sample_rate    = get_option( 'amazon_polly_sample_rate' );
 		$amazon_polly_audio_location = ( 'on' === get_option( 'amazon_polly_s3' ) ) ? 's3' : 'local';
@@ -1595,7 +2010,7 @@ class Amazonpolly_Admin {
 	 */
 	public function get_percentage_complete() {
 		$total_posts               = 0;
-		$post_types_supported      = apply_filters( 'amazon_polly_post_types', array( 'post' ) );
+		$post_types_supported      = $this->amazon_polly_get_posttypes_array();
 		$posts_needing_translation = $this->get_num_posts_needing_transcription();
 
 		foreach ( $post_types_supported as $post_type ) {
@@ -1636,6 +2051,96 @@ class Amazonpolly_Admin {
 		$s3_bucket_name = apply_filters( 'amazon_polly_s3_bucket_name', $s3_bucket_name );
 
 		return $s3_bucket_name;
+	}
+
+	/**
+	 * Configure supported HTML tags.
+	 *
+	 * @since  1.0.7
+	 * @param  string $tags supported tags.
+	 */
+	private function amazon_polly_allowed_tags_kses( $tags ) {
+		$tags['ssml']  = true;
+		$tags['speak'] = true;
+		$tags['break'] = array(
+			'time' => true,
+		);
+		return $tags;
+	}
+
+	/**
+	 * Configure supported HTML tags.
+	 *
+	 * @since  1.0.7
+	 * @param  string $tags supported tags.
+	 */
+	public function amazon_polly_allowed_tags_tinymce( $tags ) {
+		$ssml_tags                       = array(
+			'ssml',
+			'speak',
+			'break[time|whatever]',
+			'emphasis[level]',
+			'lang',
+			'mark',
+			'p',
+			'phoneme',
+			'prosody',
+			's',
+			'say-as',
+			'sub',
+			'w',
+			'amazon:breath',
+			'amazon:auto-breaths',
+			'amazon:effect[name]',
+			'amazon:effect[phonation]',
+			'amazon:effect[vocal-tract-length]',
+			'amazon:effect[name]',
+		);
+		$tags['extended_valid_elements'] = implode( ',', $ssml_tags );
+		return $tags;
+	}
+
+	/**
+	 * Checks if auto breaths are enabled.
+	 *
+	 * @since  1.0.7
+	 */
+	public function amazon_polly_is_s3_enabled() {
+		$value = get_option( 'amazon_polly_s3', 'on' );
+
+		if ( empty( $value ) ) {
+			$result = false;
+		} else {
+			$result = true;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Encode SSML tags.
+	 *
+	 * @since  1.0.7
+	 * @param  string $text text which should be encoded.
+	 */
+	private function amazon_polly_encode_ssml_tags( $text ) {
+
+		$text = preg_replace( '/<ssml><break ([\S\s]*?)["\'](.*?)["\'](.*?)<\/ssml>/', '**AMAZONPOLLY*SSML*BREAK*$1***$2***SSML**', $text );
+
+		return $text;
+	}
+
+	/**
+	 * Encode SSML tags.
+	 *
+	 * @since  1.0.7
+	 * @param  string $text text which should be decoded.
+	 */
+	private function amazon_polly_decode_ssml_tags( $text ) {
+
+		$text = preg_replace( '/(\*\*AMAZONPOLLY\*SSML\*BREAK\*)(.*?)(\*\*\*)(.*?)(\*\*\*SSML\*\*)/', '<break $2"$4"/>', $text );
+
+		return $text;
 	}
 
 }

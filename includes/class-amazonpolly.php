@@ -162,6 +162,9 @@ class Amazonpolly {
 
 		$plugin_admin = new Amazonpolly_Admin( $this->get_plugin_name(), $this->get_version() );
 
+
+
+		$this->loader->add_action( 'admin_print_footer_scripts', $plugin_admin, 'amazon_polly_add_quicktags' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'amazon_polly_field_checkbox' );
@@ -173,6 +176,10 @@ class Amazonpolly {
 
 		$plugin = plugin_basename( plugin_dir_path( dirname( __FILE__ ) ) . 'amazonpolly.php' );
 		$this->loader->add_filter( "plugin_action_links_$plugin", $plugin_admin, 'plugin_add_settings_link' );
+		$this->loader->add_filter( "plugin_action_links_$plugin", $plugin_admin, 'plugin_add_settings_link' );
+
+		$this->loader->add_filter( 'wp_kses_allowed_html', $plugin_admin, 'amazon_polly_allowed_tags' );
+		$this->loader->add_filter( 'tiny_mce_before_init', $plugin_admin, 'amazon_polly_allowed_tags_tinymce' );
 	}
 
 	/**
@@ -193,10 +200,14 @@ class Amazonpolly {
 
 		// Podcast
 		$amazon_pollycast = new Amazonpolly_PollyCast();
-
-		$this->loader->add_action( 'init', $amazon_pollycast, 'create_podcast' );
 		$this->loader->add_filter( 'pre_get_posts', $amazon_pollycast, 'filter_pre_get_posts' );
 		$this->loader->add_filter( 'the_excerpt_rss', $amazon_pollycast, 'filter_force_html_decode', 99999 );
+
+		// Pollycast Feed
+		$plugin_admin = new Amazonpolly_Admin( $this->get_plugin_name(), $this->get_version() );
+		if ( $plugin_admin->amazon_polly_is_podcast_enabled() ) {
+			$this->loader->add_action( 'init', $amazon_pollycast, 'create_podcast' );
+		}
 	}
 
 	/**

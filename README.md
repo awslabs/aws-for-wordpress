@@ -6,7 +6,7 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 4.9 |
-| Stable tag | 1.0.6 |
+| Stable tag | 1.0.7 |
 | License | GPLv3 ONLY |
 | License URI | https://www.gnu.org/licenses/gpl-3.0.html |
 
@@ -25,19 +25,25 @@ Amazon Polly is a service that turns text into lifelike speech. With dozens of v
 Below list presents configurations options which can be modified by the user.
 
 ##### General:
+- AWS access key: AWS access key which is require to connect to AWS.
+- AWS secret key: AWS secret key which is require to connect to AWS.
 - AWS Region: AWS region which will be use to convert content into audio and store data (if S3 storage will be selected). In most of the cases you should choose the region which is the closest to your readers.
+
+##### Amazon Polly settings:
 - Sample rate:  The audio frequency specified in Hz.
 - Voice name: The voice which should be used to create audio.
+- Automated breaths: If enabled, Amazon Polly automatically creates breathing noises at appropriate intervals.
+- Audio speed: Speed in which audio files should be generated. 100% is default value. Minimum is 20%, Maximum is 200%.
+
+##### Player settings:
 - Player position: Position of the ‘play’ button on your WordPress page. (Below or After the post, or no button).
 - Player Label: You can provide text (HTML tags are supported) which will be shown above the audio player, so that readers will know better what is it for. For example: <div style="color:grey">Listen to this article:</div>
 - New post default: Define if transcription should be enabled by default for new posts.
 - Autoplay: Information if the audio should be played automatically on ’singular’ post page.
-- Audio speed: Speed in which audio files should be generated. 100% is default value. Minimum is 20%, Maximum is 200%.
 
 ##### Cloud Storage:
 - Store audio in Amazon S3: If you will select this option, audio files won’t be stored on WordPress server, but instead they will be stored on Amazon S3 service. For additional information and pricing, please visit: https://aws.amazon.com/s3.
 - Amazon CloudFront (CDN) domain name: The name of you CloudFront domain, which should be used to stream audio. You will need to create it first in AWS, and then provide it’s name here.
-
 
 ##### Amazon Pollycast:
 - iTunes category: Category of your podcast.
@@ -47,7 +53,8 @@ Below list presents configurations options which can be modified by the user.
 
 ##### Additional Configuration
 - Bulk update: Update all posts with new configurations (if one of following parameters changed: voice, sample rate or storage location): If you will click on the button, the plugin will update all your posts according to your new plugin configuration.
-
+- Add post title to audio: If enabled, each audio file will start from post title.
+- Post Types: List (separated by spaces) of post types which you use in your WordPress environment.
 
 ## How to obtain AWS Access Key and Secret Key?
 1. We assume, that you have got already AWS Account. If not, please got to https://aws.amazon.com/ and create one.
@@ -120,6 +127,19 @@ Yes, as part of the AWS Free Usage Tier (https://aws.amazon.com/free/), you can 
 
 No. All audio files are being preserved. Depending on your configuration, they will be stored on your WordPress server, or on your Amazon S3 bucket.
 
+#### Q: Does plugin supports SSML tags?
+
+Amazon Polly itself support multiple SSML tags (You can find more about them here: https://docs.aws.amazon.com/polly/latest/dg/ssml.html). Using SSML-enhanced input text enables you to exert additional control over how Amazon Polly generates speech from the text you provide. For example, you can include a long pause within your text, or alter it in another way such as changing the speech rate or pitch.
+
+Plugin currently supports following SSML tags (you can find more about them at this page: https://docs.aws.amazon.com/polly/latest/dg/supported-ssml.html):
+* <break>
+
+To use those SSML tags, you will need to enable Amazon S3 as storage location for your files and enable SSML support in plugin configuration page. If you will do it, in the wizard for creating new post, in "Text View" you will be able to add ssml tags. Example of content with SSML break tag below:
+
+Mary had a little lamb <ssml><break time="3s"/></ssml> Whose fleece was white as snow.
+
+
+
 #### Q: Is there additional price for storing audio files on S3?
 
 Amazon S3 (Simple Storage Service) has got it’s own pricing, you can find information here: https://aws.amazon.com/s3/pricing/
@@ -180,6 +200,13 @@ This part will be shown in the browser, but won't be read by the plugin.
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
 #### Changelog
+
+= 1.0.7 =
+* Added possibility to enable adding breathing sounds to audio files.
+* Added possibility to enable/disable adding post's title to audio file.
+* Added possibility to specify post type in GUI.
+* Added possibility to disable podcast functionality.
+* Added support for SSML break tag.
 
 = 1.0.6 =
 * Added new filter, which let to specify S3 bucket name where files will be stored.

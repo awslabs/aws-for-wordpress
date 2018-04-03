@@ -38,6 +38,7 @@ class Amazonpolly_Deactivator {
 		delete_option( 'amazon_polly_voice_id' );
 		delete_option( 'amazon_polly_access_key' );
 		delete_option( 'amazon_polly_secret_key' );
+		delete_option( 'amazon_polly_auto_breaths' );
 
 		// Flush the permalinks to disable the "amazon-pollycast" route.
 		flush_rewrite_rules();
