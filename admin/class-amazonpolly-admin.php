@@ -587,11 +587,10 @@ class Amazonpolly_Admin {
 
 		register_setting( $this->plugin_name, 'amazon_polly_access_key', 'strval' );
 		register_setting( $this->plugin_name, 'amazon_polly_secret_key', 'strval' );
-
+		register_setting( $this->plugin_name, 'amazon_polly_s3', 'strval' );
 
 		if ( $this->amazon_polly_is_ok() ) {
 			register_setting( $this->plugin_name, 'amazon_polly_podcast_enabled', 'strval' );
-			register_setting( $this->plugin_name, 'amazon_polly_s3', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_cloudfront', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_region', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_sample_rate', 'intval' );
@@ -732,7 +731,7 @@ class Amazonpolly_Admin {
 				$paragraph_size = strlen( trim( $paragraph ) );
 				if ( $paragraph_size > 0 ) {
 
-					if ( $paragraph_size <= 1450 ) {
+					if ( $paragraph_size <= 2800 ) {
 						$parts[ $part_id ] = $paragraph . '<break time="500ms"/>';
 						$part_id++;
 					} else {
@@ -744,7 +743,7 @@ class Amazonpolly_Admin {
 						foreach ( $words as $word ) {
 							$word_length         = strlen( $word );
 							$current_part_length = strlen( $current_part );
-							if ( $word_length + $current_part_length < 1400 ) {
+							if ( $word_length + $current_part_length < 2800 ) {
 								$current_part = $current_part . $word . ' ';
 								$last_part    = $current_part;
 							} else {
@@ -847,6 +846,8 @@ class Amazonpolly_Admin {
 			$amazon_polly_mark_value = apply_filters( 'amazon_polly_mark_value', $amazon_polly_mark_value );
 
 			$ssml_text_content = '<speak><mark name="' . esc_attr( $amazon_polly_mark_value ) . '"/>' . $text_content . '</speak>';
+
+			$abc = strlen( trim( $ssml_text_content ) );
 
 			// Synthesize the text.
 			$result = $this->client->synthesizeSpeech(
@@ -1254,8 +1255,7 @@ class Amazonpolly_Admin {
 			$message = '';
 
 			if ( empty( $s3_bucket_name ) ) {
-				$checkbox_disabled = 'disabled';
-				$message           = 'Please check your IAM policy';
+				$checkbox_disabled = '';
 			} else {
 				$checkbox_disabled = '';
 			}
@@ -2059,7 +2059,7 @@ class Amazonpolly_Admin {
 	 * @since  1.0.7
 	 * @param  string $tags supported tags.
 	 */
-	private function amazon_polly_allowed_tags_kses( $tags ) {
+	public function amazon_polly_allowed_tags_kses( $tags ) {
 		$tags['ssml']  = true;
 		$tags['speak'] = true;
 		$tags['break'] = array(
@@ -2082,7 +2082,7 @@ class Amazonpolly_Admin {
 			'emphasis[level]',
 			'lang',
 			'mark',
-			'p',
+			'paragraph',
 			'phoneme',
 			'prosody',
 			's',

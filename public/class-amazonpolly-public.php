@@ -84,7 +84,7 @@ class Amazonpolly_Public {
 			}
 
 			if ( is_singular() ) {
-				$image         = plugin_dir_url( __FILE__ ) . 'images/Voiced_by_Amazon_Polly_EN.png';
+				$image         = 'https://d12ee1u74lotna.cloudfront.net/images/Voiced_by_Amazon_Polly_EN.png';
 				$voice_by_part = '<a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer"><img src=" ' . $image . '" width="100" ></a>';
 			} else {
 				$voice_by_part = '';

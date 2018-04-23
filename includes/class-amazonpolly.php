@@ -178,7 +178,7 @@ class Amazonpolly {
 		$this->loader->add_filter( "plugin_action_links_$plugin", $plugin_admin, 'plugin_add_settings_link' );
 		$this->loader->add_filter( "plugin_action_links_$plugin", $plugin_admin, 'plugin_add_settings_link' );
 
-		$this->loader->add_filter( 'wp_kses_allowed_html', $plugin_admin, 'amazon_polly_allowed_tags' );
+		$this->loader->add_filter( 'wp_kses_allowed_html', $plugin_admin, 'amazon_polly_allowed_tags_kses' );
 		$this->loader->add_filter( 'tiny_mce_before_init', $plugin_admin, 'amazon_polly_allowed_tags_tinymce' );
 	}
 

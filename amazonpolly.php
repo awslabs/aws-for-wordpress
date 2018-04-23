@@ -15,7 +15,7 @@
  * Plugin Name:       Amazon Polly
  * Plugin URI:        https://aws.amazon.com/polly/
  * Description:       Amazon Polly is a service that turns text into lifelike speech. With dozens of  voices across a variety of languages, you can select the ideal voice and build engaging speech-enabled applications that work in many different countries. With the Amazon Polly plugin for WordPress, you can generate an audio feed for text-based content and insert it into an embedded player to increase the accessibility of your WordPress site. With this feature, you can also easily publish podcasts directly from your site and make them available for listeners in form of podcasts.
- * Version:           1.0.7
+ * Version:           1.0.11
  * Author:            AWS Labs, WP Engine
  * Author URI:        https://aws.amazon.com/
  * License:           GPL-3.0 ONLY

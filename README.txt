@@ -4,7 +4,7 @@ Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 1.0.7
+Stable tag: 1.0.11
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -29,7 +29,8 @@ General:
 Amazon Polly settings:
 - Sample rate:  The audio frequency specified in Hz.
 - Voice name: The voice which should be used to create audio.
-- Automated breaths: If enabled, Amazon Polly automatically creates breathing noises at appropriate intervals.
+- Automated breaths: If enabled, Amazon Polly automatically creates breathing noises at appropriate intervals. Using SSML-enhanced input text enables you to exert additional control over how Amazon Polly generates speech from the text you provide.
+- Enable SSML Support: If enabled, you will be able to add SSML tags inside your post content.
 - Audio speed: Speed in which audio files should be generated. 100% is default value. Minimum is 20%, Maximum is 200%.
 
 Player settings:
@@ -43,6 +44,7 @@ Cloud Storage:
 - Amazon CloudFront (CDN) domain name: The name of you CloudFront domain, which should be used to stream audio. You will need to create it first in AWS, and then provide it’s name here.
 
 Amazon Pollycast:
+- Podcast enabled: Enable/Disable Amazon Podcast functionality.
 - iTunes category: Category of your podcast.
 - iTunes explicit: Define if podcast functionality should be created for your posts.
 - iTunes image: Icon for your iTunes podcast channel.
@@ -193,6 +195,14 @@ This part will be shown in the browser, but won't be read by the plugin.
 
 
 == Changelog ==
+
+= 1.0.11 =
+* Modified according to new Amazon Polly limits for single text conversion (1500 -> 3000 characters).
+* Modified the logic for presenting “Voiced by" image.
+* Bug fixing.
+
+= 1.0.8-10 =
+* Bug fixing
 
 = 1.0.7 =
 * Added possibility to enable adding breathing sounds to audio files.
