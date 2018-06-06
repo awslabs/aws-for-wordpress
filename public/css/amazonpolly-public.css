@@ -32,6 +32,17 @@ font-family: "Arial", Helvetica, sans-serif;
 font-size: .6em;
 text-align: right;
 }
-#amazon-polly-audio-play {
+#amazon-polly-trans-src {
+	font-weight: bold;
+}
+.amazon-polly-trans-label  {
+	display:inline;
+	font-size: .6em;
+}
+.amazon-polly-audio-player {
 width: 100%;
+}
+.amazon-polly-transcript-area {
+    height: 6em;
+    width: 100%;
 }

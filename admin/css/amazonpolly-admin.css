@@ -17,3 +17,7 @@
 #label_amazon_polly_update_all, #amazon_polly_update_all_pricing_message {
   display: none;
 }
+#amazon-polly-translate-reminder {
+  font-size: .8em;
+  color: blue;
+}

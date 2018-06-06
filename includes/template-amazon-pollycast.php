@@ -113,7 +113,7 @@ $itunes_explicit = $amazon_pollycast->get_itunes_explicit();
 		the_post();
 		$audio_file      = $amazon_pollycast->get_audio_file_location( get_the_ID() );
 		$categories_list = $amazon_pollycast->get_itunes_categories( get_the_ID() );
-	?>
+		?>
 	<item>
 		<title><?php the_title_rss(); ?></title>
 		<link><?php echo esc_url( $audio_file ); ?></link>

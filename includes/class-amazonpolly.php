@@ -162,17 +162,16 @@ class Amazonpolly {
 
 		$plugin_admin = new Amazonpolly_Admin( $this->get_plugin_name(), $this->get_version() );
 
-
-
 		$this->loader->add_action( 'admin_print_footer_scripts', $plugin_admin, 'amazon_polly_add_quicktags' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'amazon_polly_field_checkbox' );
-		$this->loader->add_action( 'save_post', $plugin_admin, 'amazon_polly_save_post' );
+		$this->loader->add_action( 'save_post', $plugin_admin, 'amazon_polly_save_post', 10, 3 );
 		$this->loader->add_action( 'before_delete_post', $plugin_admin, 'amazon_polly_delete_post' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'amazon_polly_add_options_page' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'amazon_polly_register_settings' );
 		$this->loader->add_action( 'wp_ajax_polly_transcribe', $plugin_admin, 'amazon_polly_ajax_transcribe' );
+		$this->loader->add_action( 'wp_ajax_polly_translate', $plugin_admin, 'amazon_polly_ajax_translate' );
 
 		$plugin = plugin_basename( plugin_dir_path( dirname( __FILE__ ) ) . 'amazonpolly.php' );
 		$this->loader->add_filter( "plugin_action_links_$plugin", $plugin_admin, 'plugin_add_settings_link' );

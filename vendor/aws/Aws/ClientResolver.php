@@ -6,13 +6,10 @@ use Aws\Api\ApiProvider;
 use Aws\Api\Service;
 use Aws\Credentials\Credentials;
 use Aws\Credentials\CredentialsInterface;
-use Aws\Endpoint\Partition;
 use Aws\Endpoint\PartitionEndpointProvider;
-use Aws\Endpoint\PartitionProviderInterface;
 use Aws\Signature\SignatureProvider;
 use Aws\Endpoint\EndpointProvider;
 use Aws\Credentials\CredentialProvider;
-use GuzzleHttp\Promise;
 use InvalidArgumentException as IAE;
 use Psr\Http\Message\RequestInterface;
 
@@ -363,7 +360,7 @@ class ClientResolver
         foreach ($this->argDefinitions as $k => $a) {
             if (empty($a['required'])
                 || isset($a['default'])
-                || array_key_exists($k, $args)
+                || isset($args[$k])
             ) {
                 continue;
             }
@@ -389,7 +386,9 @@ class ClientResolver
     {
         if (is_callable($value)) {
             return;
-        } elseif ($value instanceof CredentialsInterface) {
+        }
+
+        if ($value instanceof CredentialsInterface) {
             $args['credentials'] = CredentialProvider::fromCredentials($value);
         } elseif (is_array($value)
             && isset($value['key'])
@@ -567,6 +566,9 @@ class ClientResolver
 
         $value = array_map('strval', $value);
 
+        if (defined('HHVM_VERSION')) {
+            array_unshift($value, 'HHVM/' . HHVM_VERSION);
+        }
         array_unshift($value, 'aws-sdk-php/' . Sdk::VERSION);
         $args['ua_append'] = $value;
 
