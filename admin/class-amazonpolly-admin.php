@@ -10,7 +10,7 @@
  */
 
 /**
- * The admin-specific functionality of the plugin.
+ * The admin-specific functionality of the plugin.f
  *
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
@@ -158,7 +158,11 @@ class Amazonpolly_Admin {
 			return;
 		}
 
-		if ( isset( $_POST['amazon-polly-post-nonce'] ) && wp_verify_nonce( sanitize_key( $_POST['amazon-polly-post-nonce'] ), 'amazon-polly' ) ) {
+		$is_quick_edit = isset($_POST['_inline_edit']) && wp_verify_nonce($_POST['_inline_edit'], 'inlineeditnonce');
+		$is_polly_nonce_ok = isset( $_POST['amazon-polly-post-nonce'] ) && wp_verify_nonce( sanitize_key( $_POST['amazon-polly-post-nonce'] ), 'amazon-polly' );
+
+		// Check if this post is saved in 'regular' way.
+		if (  $is_polly_nonce_ok || $is_quick_edit ) {
 
 			$is_post_available = isset( $_POST['content'] );
 			// Input var okay.
@@ -167,6 +171,13 @@ class Amazonpolly_Admin {
 			$is_post_id_available = isset( $post_id );
 			// Input var okay.
 			$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
+
+			// If this is quick edit, we need to check other place to see if polly was already enabled for this post.
+			if ( $is_post_id_available && $is_quick_edit ) {
+				if ( 1 == get_post_meta( $post_id, 'amazon_polly_enable', true)) {
+					$is_polly_enabled = true;
+				}
+			}
 
 			if ( $is_post_id_available && $is_post_available && $is_polly_enabled && $is_key_valid ) {
 
@@ -183,34 +194,14 @@ class Amazonpolly_Admin {
 				update_post_meta( $post_id, 'amazon_polly_transcript_' . $src_lang, $clean_text );
 				update_post_meta( $post_id, 'amazon_polly_transcript_source_lan', $src_lang );
 
-				if ( $this->amazon_polly_is_translation_enabled() ) {
-
-					$src_lang = $this->get_src_lang();
-					if ( 'en' != $src_lang ) {
-						$clean_text = $this->translate( $clean_text, $src_lang, 'en' );
-						$src_lang   = 'en';
-						if ( $this->check_if_translate( 'en' ) ) {
-
-							// update_post_meta( $post_id, 'amazon_polly_transcript_en', $clean_text );
-							// $clean_text_en     = $this->break_text( $clean_text );
-							// $this->convert_to_audio( $post_id, $sample_rate, $voice_id, $clean_text_en, $wp_filesystem, 'en' );
-						}
-					}
-
-					foreach ( $this->translate_langs as $supported_lan ) {
-						if ( 'en' != $supported_lan ) {
-							// $this->do_translation($src_lang, $clean_text, $wp_filesystem, $post_id, $sample_rate, $voice_id, $supported_lan );
-						}
-					}
-				}
-			}//end if
+			}
 
 			if ( $is_post_id_available && ! $is_polly_enabled ) {
 				$this->delete_post_audio( $post_id );
 				update_post_meta( $post_id, 'amazon_polly_enable', 0 );
 				update_post_meta( $post_id, 'amazon_polly_audio_location', '' );
 			}
-		}//end if
+		}
 	}
 
 	/**
@@ -221,20 +212,11 @@ class Amazonpolly_Admin {
 	private function do_translation( $src_lang, $clean_text, $wp_filesystem, $post_id, $sample_rate, $voice_id, $lan_code ) {
 
 		if ( $this->check_if_translate( $lan_code ) and ( $lan_code != $src_lang ) ) {
-			error_log("___");
-			error_log("Tekst:");
-			error_log($clean_text);
 			$traslated_text = $this->translate( $clean_text, $src_lang, $lan_code );
-
-			error_log("Wynik:");
-			error_log($traslated_text);
 			update_post_meta( $post_id, 'amazon_polly_transcript_' . $lan_code, $traslated_text );
 			$sentences = $this->break_text( $traslated_text );
 			$this->convert_to_audio( $post_id, $sample_rate, $voice_id, $sentences, $wp_filesystem, $lan_code );
 
-			if ( 'en' == $lan_code ) {
-				update_post_meta( $post_id, 'amazon_polly_transcript_en', $traslated_text );
-			}
 		}
 
 	}
@@ -268,14 +250,20 @@ class Amazonpolly_Admin {
 		$year           = get_the_date( 'Y', $post_id );
 		$month          = get_the_date( 'm', $post_id );
 
+		if ( get_option('uploads_use_yearmonth_folders') ) {
+		  $prefix = get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . '/';
+		} else {
+		  $prefix = '';
+		}
+
 		// Deleting audio file stored on S3.
 		if ( 's3' === $audio_location ) {
 			$s3_bucket = $this->get_bucket_name();
-			$this->delete_s3_object( $s3_bucket, $year . '/' . $month . '/' . $file );
+			$this->delete_s3_object( $s3_bucket, $prefix . $file );
 
 			foreach ( $this->translate_langs as $supported_lan ) {
 				if ( ! empty( get_post_meta( $post_id, 'amazon_polly_translation_' . $supported_lan, true ) ) ) {
-					$this->delete_s3_object( $s3_bucket, $year . '/' . $month . '/' . 'amazon_polly_' . $post_id . $supported_lan . '.mp3' );
+					$this->delete_s3_object( $s3_bucket, $prefix . 'amazon_polly_' . $post_id . $supported_lan . '.mp3' );
 				}
 			}
 		}
@@ -512,6 +500,9 @@ class Amazonpolly_Admin {
 			$s3_bucket_name    = $this->get_bucket_name();
 			$create_new_bucket = false;
 
+			// Check if user specified bucket name in using filter.
+			$s3_bucket_name = apply_filters( 'amazon_polly_s3_bucket_name', $s3_bucket_name );
+
 			if ( empty( $s3_bucket_name ) ) {
 				$create_new_bucket = true;
 			} else {
@@ -728,8 +719,6 @@ class Amazonpolly_Admin {
 
 		}
 
-		// $translated_text = preg_replace( '/(\*\*AMAZONPOLLY\*SSML\*BREAK\*)(.*?)(\*\*\*)(.*?)(\*\*\*SSML\*\*)/', '--AMAZONPOLLY-SSML-BREAK-$2$4---SSML--', $source_text );
-		// $translated_text = preg_replace("/(--|-)(AMAZONPOLLY)(--|-)(SSML)(--|-)(BREAK)(--|-)(time)(.*?)(\s*)(--|-)(\s*)(SSM)(.*?)(\s*)(--|-)/", " **AMAZONPOLLY*SSML*BREAK*time***$9***SSML** ", $translated_text);
 		return $translated_text;
 
 	}
@@ -803,11 +792,16 @@ class Amazonpolly_Admin {
 		}
 
 		$upload_dir           = wp_upload_dir()['basedir'];
-		$file_prefix          = '/amazon_polly_';
+		$file_prefix          = 'amazon_polly_';
 		$file_name            = $file_prefix . $post_id . $lang . '.mp3';
-		$file_temp_full_name  = $upload_dir . $file_name;
-		$dir_final_full_name  = $upload_dir . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id );
+		$file_temp_full_name  = trailingslashit($upload_dir) . 'temp_' . $file_name;
+
+		$dir_final_full_name  = trailingslashit($upload_dir);
+		if ( get_option('uploads_use_yearmonth_folders') ) {
+		   $dir_final_full_name .= get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . "/";
+		}
 		$file_final_full_name = $dir_final_full_name . $file_name;
+
 		// Delete temporary file if already exists.
 		if ( $wp_filesystem->exists( $file_temp_full_name ) ) {
 			$wp_filesystem->delete( $file_temp_full_name );
@@ -843,6 +837,7 @@ class Amazonpolly_Admin {
 			$lexicons_array = explode( ' ', $lexicons );
 
 			if ( ! empty( $lexicons ) and ( count( $lexicons_array ) > 0 ) ) {
+
 				$result = $this->client->synthesizeSpeech(
 					array(
 						'OutputFormat' => 'mp3',
@@ -890,9 +885,17 @@ class Amazonpolly_Admin {
 			if ( ! $wp_filesystem->is_dir( $dir_final_full_name ) ) {
 				wp_mkdir_p( $dir_final_full_name );
 			}
+
 			$wp_filesystem->move( $file_temp_full_name, $file_final_full_name, true );
 			$wp_filesystem->delete( $file_temp_full_name );
-			$audio_location_link = wp_upload_dir()['baseurl'] . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name;
+
+
+			$audio_location_link = trailingslashit(wp_upload_dir()['baseurl']);
+			if ( get_option('uploads_use_yearmonth_folders') ) {
+			   $audio_location_link .= get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . '/';
+			}
+			$audio_location_link .= $file_name;
+
 			$this->add_to_media_library( $file_final_full_name, $post_id );
 
 		} else {
@@ -902,6 +905,12 @@ class Amazonpolly_Admin {
 				wp_delete_attachment( $media_library_att_id, true );
 			}
 
+			if ( get_option('uploads_use_yearmonth_folders') ) {
+				$key = get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . "/" . $file_name;
+			} else {
+				$key = $file_name;
+			}
+
 			// We are storing audio file on Amazon S3.
 			$s3_bucket_name = $this->get_bucket_name();
 			$audio_location = 's3';
@@ -909,19 +918,26 @@ class Amazonpolly_Admin {
 				array(
 					'ACL'        => 'public-read',
 					'Bucket'     => $s3_bucket_name,
-					'Key'        => get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name,
+					'Key'        => $key,
 					'SourceFile' => $file_temp_full_name,
 				)
 			);
 			$wp_filesystem->delete( $file_temp_full_name );
 			$cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
+
+			if ( get_option('uploads_use_yearmonth_folders') ) {
+			  $key = get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . '/' . $file_name;
+			} else {
+			  $key = $file_name;
+			}
+
 			if ( empty( $cloudfront_domain_name ) ) {
 
 				$selected_region = get_option( 'amazon_polly_region' );
 
-				$audio_location_link = 'https://s3.' . $selected_region . '.amazonaws.com/' . $s3_bucket_name . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name;
+				$audio_location_link = 'https://s3.' . $selected_region . '.amazonaws.com/' . $s3_bucket_name . '/' . $key;
 			} else {
-				$audio_location_link = 'https://' . $cloudfront_domain_name . '/' . get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . $file_name;
+				$audio_location_link = 'https://' . $cloudfront_domain_name . '/' . $key;
 			}
 		}//end if
 
@@ -951,7 +967,7 @@ class Amazonpolly_Admin {
 	 *
 	 * @param                   $post_id    Id of the post.
 	 * @param           $filename                 Path to file.
-	 * @since           1.0.0
+	 * @since           2.0.0
 	 */
 	private function add_to_media_library( $filename, $post_id ) {
 
@@ -984,8 +1000,6 @@ class Amazonpolly_Admin {
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 
 		update_post_meta( $post_id, 'amazon_polly_media_library_attachment_id', $attach_id );
-
-		set_post_thumbnail( $parent_post_id, $attach_id );
 
 	}
 
@@ -1785,7 +1799,7 @@ class Amazonpolly_Admin {
 				$this->show_translate_option( $src_lang, $voice_list, 'en', 'English', 'English' );
 				$this->show_translate_option( $src_lang, $voice_list, 'es', 'Spanish', 'Español' );
 				$this->show_translate_option( $src_lang, $voice_list, 'de', 'German', 'Deutsch' );
-				$this->show_translate_option( $src_lang, $voice_list, 'fr', 'French', 'Françis' );
+				$this->show_translate_option( $src_lang, $voice_list, 'fr', 'French', 'Français' );
 				$this->show_translate_option( $src_lang, $voice_list, 'pt', 'Portuguese', 'Português' );
 				echo '</table>';
 
@@ -2640,6 +2654,11 @@ class Amazonpolly_Admin {
 	private function get_src_lang() {
 
 		$value = get_option( 'amazon_polly_trans_src_lang', 'en' );
+
+		if ( empty($value) ) {
+			$value = 'en';
+		}
+
 		return $value;
 	}
 

@@ -95,8 +95,8 @@ class Amazonpolly_Public {
 			}
 
 			if ( is_singular() ) {
-				$image         = 'https://d12ee1u74lotna.cloudfront.net/images/Voiced_by_Amazon_Polly_EN.png';
-				$voice_by_part = '<a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer"><img src=" ' . $image . '" width="100" ></a>';
+				$image  = __('<img src="https://d12ee1u74lotna.cloudfront.net/images/Voiced_by_Amazon_Polly_EN.png" width="100" >', $this->plugin_name);
+				$voice_by_part = '<a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer">' . $image . '</a>';
 			} else {
 				$voice_by_part = '';
 			}

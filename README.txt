@@ -4,7 +4,7 @@ Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -236,6 +236,11 @@ If you have a piece of content that you want on your page but not read by the pl
 Important: Text will be read in translated audio files if translate functionality is enabled, even if it was marked as "Words Only".
 
 == Changelog ==
+
+= 2.0.2 =
+* Enabling plugin to be invoked with by quick edit.
+* Respecting  uploads_use_yearmonth_folders param.
+* Bug fixing.
 
 = 2.0.1 =
 * IMPORTANT: YOU NEED TO UPDATE IAM Policy based on new template.
