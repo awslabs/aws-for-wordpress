@@ -1761,7 +1761,7 @@ class Amazonpolly_Admin {
 				'ap-southeast-1' => 'Asia Pacific (Singapore)',
 				'ap-northeast-1' => 'Asia Pacific (Tokyo)',
 				'ap-southeast-2' => 'Asia Pacific (Sidney)',
-				'ap-northeast-2' => 'Asia Pacific (Seul)',
+				'ap-northeast-2' => 'Asia Pacific (Seoul)',
 				'ap-south-1'     => 'Asia Pacific (Mumbai)',
 			);
 
