@@ -1761,7 +1761,7 @@ class Amazonpolly_Admin {
 				'ap-southeast-1' => 'Asia Pacific (Singapore)',
 				'ap-northeast-1' => 'Asia Pacific (Tokyo)',
 				'ap-southeast-2' => 'Asia Pacific (Sidney)',
-				'ap-northeast-2' => 'Asia Pacific (Seoul)',
+				'ap-northeast-2' => 'Asia Pacific (Seul)',
 				'ap-south-1'     => 'Asia Pacific (Mumbai)',
 			);
 
@@ -1771,7 +1771,7 @@ class Amazonpolly_Admin {
 				if ( strcmp( $selected_region, $region_name ) === 0 ) {
 					echo 'selected="selected"';
 				}
-				echo '></option>';
+				echo '>' . esc_attr( $region_label ) . '</option>';
 			}
 			echo '</select>';
 		} else {
@@ -1945,7 +1945,7 @@ class Amazonpolly_Admin {
 					if ( strcmp( $selected_src_lang, $lang_name ) === 0 ) {
 						echo 'selected="selected"';
 					}
-					echo '></option>';
+					echo '>' . esc_attr( $lang_label ) . '</option>';
 				}
 				echo '</select>';
 
