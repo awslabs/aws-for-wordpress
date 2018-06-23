@@ -230,13 +230,13 @@ Important: Text will be shown in transcript if translate functionality is enable
 
 #### Q: What is "Words Only" functionality?
 
-If you have a piece of content that you want on your page but not read by the plugin, you use the -AMAZONPOLLY-ONLYWORD- tag. For example:
+If you have a piece of content that you want on your page but not read by the plugin, you use the -AMAZONPOLLY-ONLYWORDS- tag. For example:
 
--AMAZONPOLLY-ONLYAUDIO-END-
+-AMAZONPOLLY-ONLYWORDS-START-
 
 [Text that will be shown in the browser but not read by the plugin.]
 
--AMAZONPOLLY-ONLYWORDS-START-
+-AMAZONPOLLY-ONLYWORDS-END-
 
 Important: Text will be read in translated audio files if translate functionality is enabled, even if it was marked as "Words Only".
 
