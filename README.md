@@ -6,7 +6,7 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 4.9 |
-| Stable tag | 2.0.3 |
+| Stable tag | 2.0.4 |
 | License | GPLv3 ONLY |
 | License URI | https://www.gnu.org/licenses/gpl-3.0.html |
 
@@ -244,6 +244,10 @@ Important: Text will be read in translated audio files if translate functionalit
 
 
 #### Changelog
+
+
+= 2.0.4 =
+* Change way creating Amazon PollyCast description field.
 
 = 2.0.3 =
 * Adding possibility to specify RSS feed size.
