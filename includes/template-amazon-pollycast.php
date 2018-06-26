@@ -29,6 +29,7 @@ $podcast_icon = $amazon_pollycast->get_podcast_icon();
 $itunes_email    = $amazon_pollycast->get_itunes_email();
 $itunes_category = $amazon_pollycast->get_itunes_category();
 $itunes_explicit = $amazon_pollycast->get_itunes_explicit();
+$itunes_description = $amazon_pollycast->get_itunes_description();
 
 ?>
 <rss version="2.0"
@@ -46,6 +47,7 @@ $itunes_explicit = $amazon_pollycast->get_itunes_explicit();
 	 * @since 2.0.0
 	 */
 	do_action( 'rss2_ns' );
+
 	?>
 >
 
@@ -53,7 +55,7 @@ $itunes_explicit = $amazon_pollycast->get_itunes_explicit();
 	<title><?php wp_title_rss(); ?></title>
 	<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
 	<link><?php bloginfo_rss( 'url' ); ?></link>
-	<description><?php bloginfo_rss( 'description' ); ?></description>
+	<description><?php	echo esc_attr($itunes_description); ?></description>
 	<image>
 		<url><?php echo esc_url( $podcast_icon ); ?></url>
 		<title><?php wp_title_rss(); ?></title>
@@ -67,8 +69,8 @@ $itunes_explicit = $amazon_pollycast->get_itunes_explicit();
 	<itunes:explicit><?php echo esc_html( $itunes_explicit ); ?></itunes:explicit>
 	<itunes:image href="<?php echo esc_url( $podcast_icon ); ?>"/>
 	<itunes:author><?php wp_title_rss(); ?></itunes:author>
-	<itunes:summary><?php bloginfo_rss( 'description' ); ?></itunes:summary>
-	<itunes:subtitle><?php bloginfo_rss( 'description' ); ?></itunes:subtitle>
+	<itunes:summary><?php	echo esc_attr($itunes_description); ?></itunes:summary>
+	<itunes:subtitle><?php	echo esc_attr($itunes_description); ?></itunes:subtitle>
 	<copyright><?php echo esc_html( $amazon_pollycast->get_copyright() ); ?></copyright>
 	<lastBuildDate>
 	<?php

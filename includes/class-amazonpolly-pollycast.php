@@ -156,6 +156,28 @@ class Amazonpolly_PollyCast {
 	}
 
 	/**
+	 * Returns description
+	 *
+	 * @since    2.0.4
+	 * @return   string The description
+	 */
+	public function get_itunes_description() {
+
+		$itunes_title =  get_bloginfo( 'title' );
+		$itunes_description = get_bloginfo( 'description' );
+
+		if ( empty($itunes_description) ) {
+			$itunes_description = $itunes_title;
+		}
+
+		if ( empty($itunes_description) ) {
+			$itunes_description = "pollycast";
+		}
+
+		return $itunes_description;
+	}
+
+	/**
 	 * Returns a the iTunes Email setting.
 	 *
 	 * @since    1.0.0
