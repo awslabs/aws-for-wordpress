@@ -348,6 +348,7 @@ class Amazonpolly_Admin {
 		add_settings_field( 'amazon_polly_podcast_icon', __( 'iTunes image:', 'amazonpolly' ), array( $this, 'amazon_polly_podcast_icon_cb' ), $this->plugin_name, 'amazon_polly_podcast', array( 'label_for' => 'amazon_polly_podcast_icon' ) );
 		add_settings_field( 'amazon_polly_podcast_feedsize', __( 'Feed size:', 'amazonpolly' ), array( $this, 'amazon_polly_podcast_feedsize_cb' ), $this->plugin_name, 'amazon_polly_podcast', array( 'label_for' => 'amazon_polly_podcast_feedsize' ) );
 		add_settings_field( 'amazon_polly_podcast_post_cat', __( 'Post categories:', 'amazonpolly' ), array( $this, 'amazon_polly_podcast_post_cat_cb' ), $this->plugin_name, 'amazon_polly_podcast', array( 'label_for' => 'amazon_polly_podcast_post_cat' ) );
+		add_settings_field( 'amazon_polly_podcast_https', __( 'Use HTTPS for audio files:', 'amazonpolly' ), array( $this, 'amazon_polly_podcast_https_cb' ), $this->plugin_name, 'amazon_polly_podcast', array( 'label_for' => 'amazon_polly_podcast_https' ) );
 
 		// ************************************************* *
 		// ************** ADDITIONAL SECTION ************** *
@@ -429,6 +430,7 @@ class Amazonpolly_Admin {
 			register_setting( $this->plugin_name, 'amazon_polly_podcast_category', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_podcast_explicit', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_podcast_post_cat', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_podcast_https', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_settings_hash', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_podcast_explicit', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_add_post_title', 'strval' );
@@ -989,6 +991,25 @@ class Amazonpolly_Admin {
 			echo '<p class="description" for="amazon_polly_podcast_enabled">If enabled, Amazon Pollycast will be generated</p>';
 		} else {
 			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
+
+	}
+
+	/**
+	 * Render the HTTPS podcast  input.
+	 *
+	 * @since  4.0.5
+	 */
+	public function amazon_polly_podcast_https_cb() {
+
+		if ( $this->amazon_polly_is_ok() ) {
+		  if ( $this->amazon_polly_is_podcast_enabled() ) {
+		    echo '<input type="checkbox" name="amazon_polly_podcast_https" id="amazon_polly_podcast_https" ' . $this->amazon_polly_checked_validator( 'amazon_polly_podcast_https' ) . '> ';
+		  } else {
+		    echo '<p class="description">Amazon Pollycast is disabled</p>';
+		  }
+		} else {
+		  echo '<p>Please verify your AWS Credentials are accurate</p>';
 		}
 
 	}

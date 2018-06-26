@@ -136,8 +136,15 @@ class Amazonpolly_PollyCast {
 	 * @return   string The location of the audio file.
 	 */
 	public function get_audio_file_location( $post_id ) {
+
+
 		$audio_file_location = get_post_meta( $post_id, 'amazon_polly_audio_link_location', true );
-		$audio_file_location = str_replace( 'https://', 'http://', $audio_file_location );
+
+		$https_enabled = get_option( 'amazon_polly_podcast_https' );
+		if ( empty( $https_enabled ) ) {
+		  $audio_file_location = str_replace( 'https://', 'http://', $audio_file_location );
+		}
+
 
 		return $audio_file_location;
 	}
