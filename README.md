@@ -6,7 +6,7 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 4.9 |
-| Stable tag | 2.0.2 |
+| Stable tag | 2.0.3 |
 | License | GPLv3 ONLY |
 | License URI | https://www.gnu.org/licenses/gpl-3.0.html |
 
@@ -53,6 +53,7 @@ The list below presents configurations options which can be modified by the user
 - iTunes explicit: Specifies whether to the Amazon Pollycast contains explicit content.
 - iTunes image: Specifies the icon uploaded for the podcast.
 - iTunes email: Specifies the contact email for the podcast with ITunes.
+- Feed size: Number of items (posts/pages) which will be shown in RSS feed. Max value is 1000.
 
 ##### Additional Configuration
 - Bulk update: Specifies whether you want to bulk update all posts to use new plugin settings.The bulk update functionality doesn't use translate functionality of the plugin.
@@ -218,7 +219,7 @@ Pronunciation lexicons enable you to customize the pronunciation of words. In th
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 #### Q: What is "Audio Only" functionality?
 
-If you want to add something to the audio but you don't want to display it in the browser, you use the -AMAZONPOLLY-ONLYAUDIO- tag.  For example:
+If you want to add something to the audio but you don't want to display it in the browser, you use the -AMAZONPOLLY-ONLYAUDIO- tag. For example:
 
 -AMAZONPOLLY-ONLYAUDIO-START-
 
@@ -243,6 +244,10 @@ Important: Text will be read in translated audio files if translate functionalit
 
 
 #### Changelog
+
+= 2.0.3 =
+* Adding possibility to specify RSS feed size.
+* Bug fixing.
 
 = 2.0.2 =
 * Enabling plugin to be invoked with by quick edit.

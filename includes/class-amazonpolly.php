@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The file that defines the core plugin class
  *
@@ -113,6 +114,11 @@ class Amazonpolly {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-amazonpolly-admin.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/amazonpolly-metabox.php';
 
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-Translator.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-FileHandler.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-LocalFileHandler.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-S3FileHandler.php';
+
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
@@ -127,7 +133,9 @@ class Amazonpolly {
 		/**
 		 * Load AWS PHP SDK
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/aws/aws-autoloader.php';
+		 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/aws/aws-autoloader.php';
+
+
 
 		$this->loader = new Amazonpolly_Loader();
 
@@ -160,7 +168,7 @@ class Amazonpolly {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new Amazonpolly_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new Amazonpolly_Admin($this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_print_footer_scripts', $plugin_admin, 'amazon_polly_add_quicktags' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );

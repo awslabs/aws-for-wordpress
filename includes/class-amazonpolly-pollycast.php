@@ -70,9 +70,56 @@ class Amazonpolly_PollyCast {
 		);
 		$query->set( 'meta_query', $meta_query );
 
+		$post_types_supported        = $this->get_posttypes_array();
+		$query->set( 'post_type', $post_types_supported );
+
 		// How many items to show in the Amazon PollyCast feed.
-		$query->set( 'posts_per_rss', 20 );
+		$query->set( 'posts_per_rss', $this->get_feedsize() );
 		return $query;
+	}
+
+	/**
+	 * Returns types of posts which should be in feed.
+	 *
+	 * @since    2.1.0
+	 * @return   list list of types.
+	 */
+	public function get_posttypes_array() {
+		$posttypes_array = get_option( 'amazon_polly_posttypes', 'post' );
+		$posttypes_array = explode( ' ', $posttypes_array );
+		$posttypes_array = apply_filters( 'amazon_polly_post_types', $posttypes_array );
+
+		return $posttypes_array;
+
+	}
+
+	/**
+	 * Returns the feed size.
+	 *
+	 * @since    2.1.0
+	 * @return   string Feed size.
+	 */
+	private function get_feedsize() {
+		$feedsize = get_option( 'amazon_polly_podcast_feedsize' );
+
+		$value = intval( $feedsize );
+
+		if ( empty( $feedsize ) ) {
+			$value = 20;
+		}
+
+		if ( intval( $feedsize ) < 1 ) {
+			$value = 1;
+		}
+
+		if ( intval( $feedsize ) > 1000 ) {
+			$value = 1000;
+		}
+
+		update_option( 'amazon_polly_podcast_feedsize', $value );
+
+		return $value;
+
 	}
 
 	/**

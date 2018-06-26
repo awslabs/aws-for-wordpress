@@ -165,8 +165,10 @@ class Amazonpolly_Public {
 
 		foreach ( $this->translate_langs as $supported_lan ) {
 
-			if ( ! empty( get_option( 'amazon_polly_trans_langs_' . $supported_lan ) ) or ( 'en' == $supported_lan ) ) {
-				if ( ! empty( get_post_meta( $post_id, 'amazon_polly_translation_' . $supported_lan, true ) ) ) {
+			$value = get_option( 'amazon_polly_trans_langs_' . $supported_lan );
+			if ( ! empty( $value ) or ( 'en' == $supported_lan ) ) {
+				$value = get_post_meta( $post_id, 'amazon_polly_translation_' . $supported_lan, true );
+				if ( ! empty( $value ) ) {
 					$options = $options + 1;
 				}
 			}
@@ -194,8 +196,10 @@ class Amazonpolly_Public {
 		$response = '';
 
 		if ( $lan_code != $src_lang ) {
-			if ( ! empty( get_option( 'amazon_polly_trans_langs_' . $lan_code ) ) or ( 'src' == $lan_code ) or ( 'en' == $lan_code ) ) {
-				if ( ! empty( get_post_meta( $post_id, 'amazon_polly_translation_' . $lan_code, true ) ) or ( 'src' == $lan_code ) ) {
+			$option = get_option( 'amazon_polly_trans_langs_' . $lan_code );
+			if ( !empty( $option ) or ( 'src' == $lan_code ) or ( 'en' == $lan_code ) ) {
+				$meta = get_post_meta( $post_id, 'amazon_polly_translation_' . $lan_code, true );
+				if ( !empty( $meta ) or ( 'src' == $lan_code ) ) {
 					// Display player .
 					$response = $response . $this->include_play( $lan_code, $audio_location, $autoplay );
 
@@ -295,8 +299,10 @@ class Amazonpolly_Public {
 		$response = '';
 
 		if ( $lan_code != $src_lang ) {
-			if ( ! empty( get_option( 'amazon_polly_trans_langs_' . $lan_code ) ) or ( 'en' == $lan_code ) ) {
-				if ( ! empty( get_post_meta( $post_id, 'amazon_polly_translation_' . $lan_code, true ) ) ) {
+			$option = get_option( 'amazon_polly_trans_langs_' . $lan_code );
+			if ( !empty( $option ) or ( 'en' == $lan_code ) ) {
+				$meta = get_post_meta( $post_id, 'amazon_polly_translation_' . $lan_code, true );
+				if ( !empty( $meta ) ) {
 					$es_label = get_option( 'amazon_polly_trans_langs_' . $lan_code . '_label', $default_label );
 					$response = '<div class="amazon-polly-trans-label" id="amazon-polly-trans-' . $lan_code . '"> ' . $es_label . ' </div>';
 				}

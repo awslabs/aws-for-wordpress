@@ -4,7 +4,7 @@ Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -40,6 +40,7 @@ Player settings:
 - Player Label: Specifies optional text that will be shown above the audio player. HTML tags are supported with this label.
 - New post default: Specifies whether Amazon Polly is automatically enabled for all new posts. Choose this option if you want Amazon Polly to use the configuration settings to create an audio file for each new post.
 - Autoplay: Specifies whether the audio player automatically starts playing the audio when a user visits an individual post on the website.
+- Feed size: Number of items (posts/pages) which will be shown in RSS feed. Max value is 1000.
 
 Cloud Storage:
 - Store audio in Amazon S3: If you want to store audio files using the Amazon S3 service instead of on the WordPress server, choose this option. For additional information and pricing, see: https://aws.amazon.com/s3.
@@ -213,7 +214,7 @@ Pronunciation lexicons enable you to customize the pronunciation of words. In th
 
 == What is "Audio Only" functionality? ==
 
-If you want to add something to the audio but you don't want to display it in the browser, you use the -AMAZONPOLLY-ONLYAUDIO- tag.  For example:
+If you want to add something to the audio but you don't want to display it in the browser, you use the -AMAZONPOLLY-ONLYAUDIO- tag. For example:
 
 -AMAZONPOLLY-ONLYAUDIO-START-
 
@@ -225,17 +226,21 @@ Important: Text will be shown in transcript if translate functionality is enable
 
 == What is "Words Only" functionality? ==
 
-If you have a piece of content that you want on your page but not read by the plugin, you use the -AMAZONPOLLY-ONLYWORD- tag. For example:
+If you have a piece of content that you want on your page but not read by the plugin, you use the -AMAZONPOLLY-ONLYWORDS- tag. For example:
 
--AMAZONPOLLY-ONLYAUDIO-END-
+-AMAZONPOLLY-ONLYWORDS-START-
 
 [Text that will be shown in the browser but not read by the plugin.]
 
--AMAZONPOLLY-ONLYWORDS-START-
+-AMAZONPOLLY-ONLYWORDS-END-
 
 Important: Text will be read in translated audio files if translate functionality is enabled, even if it was marked as "Words Only".
 
 == Changelog ==
+
+= 2.0.3 =
+* Adding possibility to specify RSS feed size.
+* Bug fixing.
 
 = 2.0.2 =
 * Enabling plugin to be invoked with by quick edit.
