@@ -52,6 +52,8 @@ Amazon Pollycast:
 - iTunes explicit: Specifies whether to the Amazon Pollycast contains explicit content.
 - iTunes image: Specifies the icon uploaded for the podcast.
 - iTunes email: Specifies the contact email for the podcast with ITunes.
+- Feed size: Number of items (posts/pages) which will be shown in RSS feed. Max value is 1000.
+- Post category: category of posts which will be added to RSS feed. If field is empty, all posts will be added. You can specify multiple category, separated by comma. Example of values: "personal", "personal,business" 
 
 Additional Configuration
 - Bulk update: Specifies whether you want to bulk update all posts to use new plugin settings.The bulk update functionality doesn't use translate functionality of the plugin.
@@ -239,6 +241,7 @@ Important: Text will be read in translated audio files if translate functionalit
 == Changelog ==
 
 = 2.0.4 =
+* Added possibility to specify category of posts to be displayed in RSS feed.
 * Change way creating Amazon PollyCast description field.
 
 = 2.0.3 =

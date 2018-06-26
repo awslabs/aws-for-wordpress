@@ -73,6 +73,12 @@ class Amazonpolly_PollyCast {
 		$post_types_supported        = $this->get_posttypes_array();
 		$query->set( 'post_type', $post_types_supported );
 
+		// Filtering posts based on cateogiry (if specified)
+		$post_category = get_option( 'amazon_polly_podcast_post_cat' );
+		if ( !empty( $post_category )) {
+			$query->set( 'category_name', $post_category );
+		}
+
 		// How many items to show in the Amazon PollyCast feed.
 		$query->set( 'posts_per_rss', $this->get_feedsize() );
 		return $query;

@@ -347,6 +347,7 @@ class Amazonpolly_Admin {
 		add_settings_field( 'amazon_polly_podcast_explicit', __( 'iTunes explicit content:', 'amazonpolly' ), array( $this, 'amazon_polly_podcast_explicit_cb' ), $this->plugin_name, 'amazon_polly_podcast', array( 'label_for' => 'amazon_polly_podcast_explicit' ) );
 		add_settings_field( 'amazon_polly_podcast_icon', __( 'iTunes image:', 'amazonpolly' ), array( $this, 'amazon_polly_podcast_icon_cb' ), $this->plugin_name, 'amazon_polly_podcast', array( 'label_for' => 'amazon_polly_podcast_icon' ) );
 		add_settings_field( 'amazon_polly_podcast_feedsize', __( 'Feed size:', 'amazonpolly' ), array( $this, 'amazon_polly_podcast_feedsize_cb' ), $this->plugin_name, 'amazon_polly_podcast', array( 'label_for' => 'amazon_polly_podcast_feedsize' ) );
+		add_settings_field( 'amazon_polly_podcast_post_cat', __( 'Post categories:', 'amazonpolly' ), array( $this, 'amazon_polly_podcast_post_cat_cb' ), $this->plugin_name, 'amazon_polly_podcast', array( 'label_for' => 'amazon_polly_podcast_post_cat' ) );
 
 		// ************************************************* *
 		// ************** ADDITIONAL SECTION ************** *
@@ -427,6 +428,7 @@ class Amazonpolly_Admin {
 			register_setting( $this->plugin_name, 'amazon_polly_podcast_email', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_podcast_category', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_podcast_explicit', 'strval' );
+			register_setting( $this->plugin_name, 'amazon_polly_podcast_post_cat', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_settings_hash', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_podcast_explicit', 'strval' );
 			register_setting( $this->plugin_name, 'amazon_polly_add_post_title', 'strval' );
@@ -1853,6 +1855,25 @@ class Amazonpolly_Admin {
 			if ( $this->amazon_polly_is_podcast_enabled() ) {
 				$value = get_option( 'amazon_polly_podcast_feedsize', 20 );
 				echo '<input type="number" name="amazon_polly_podcast_feedsize" id="amazon_polly_podcast_feedsize" value="' . esc_attr( $value ) . '"/>';
+			} else {
+				echo '<p class="description">Amazon Pollycast is disabled</p>';
+			}
+		} else {
+			echo '<p>Please verify your AWS Credentials are accurate</p>';
+		}
+	}
+
+
+	/**
+	 * Render the possibility for specify category of posts which will be added in feed.
+	 *
+	 * @since  2.0.4
+	 */
+	public function amazon_polly_podcast_post_cat_cb() {
+		if ( $this->amazon_polly_is_ok() ) {
+			if ( $this->amazon_polly_is_podcast_enabled() ) {
+				$value = get_option( 'amazon_polly_podcast_post_cat' );
+				echo '<input class="regular-text" name="amazon_polly_podcast_post_cat" id="amazon_polly_podcast_post_cat" value="' . esc_attr( $value ) . '"/>';
 			} else {
 				echo '<p class="description">Amazon Pollycast is disabled</p>';
 			}
