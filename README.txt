@@ -4,7 +4,7 @@ Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -241,10 +241,12 @@ Important: Text will be read in translated audio files if translate functionalit
 
 == Changelog ==
 
+= 2.0.5 =
+* Added possibility to use HTTPS in RSS Feed.
+
 = 2.0.4 =
 * Added possibility to specify category of posts to be displayed in RSS feed.
 * Change way creating Amazon PollyCast description field.
-* Added possibility to use HTTPS in RSS Feed.
 
 = 2.0.3 =
 * Adding possibility to specify RSS feed size.
