@@ -31,6 +31,9 @@ $itunes_category = $amazon_pollycast->get_itunes_category();
 $itunes_explicit = $amazon_pollycast->get_itunes_explicit();
 $itunes_description = $amazon_pollycast->get_itunes_description();
 
+$common = new AmazonAI_Common();
+$itunes_author = $common->get_podcast_author();
+
 ?>
 <rss version="2.0"
 	xmlns:content="http://purl.org/rss/1.0/modules/content/"
@@ -62,7 +65,7 @@ $itunes_description = $amazon_pollycast->get_itunes_description();
 		<link><?php bloginfo_rss( 'url' ); ?></link>
 	</image>
 	<itunes:owner>
-		<itunes:name><?php wp_title_rss(); ?></itunes:name>
+		<itunes:name><?php echo $itunes_author; ?></itunes:name>
 		<itunes:email><?php echo $amazon_pollycast->get_itunes_email(); ?></itunes:email>
 	</itunes:owner>
 	<itunes:category text="<?php echo esc_attr( $itunes_category ); ?>"></itunes:category>

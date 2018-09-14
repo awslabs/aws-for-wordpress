@@ -79,8 +79,11 @@ class Amazonpolly_PollyCast {
 			$query->set( 'category_name', $post_category );
 		}
 
+		$common = new AmazonAI_Common();
+		$feed_size = $common->get_feed_size();
+
 		// How many items to show in the Amazon PollyCast feed.
-		$query->set( 'posts_per_rss', $this->get_feedsize() );
+		$query->set( 'posts_per_rss', $feed_size );
 		return $query;
 	}
 
@@ -99,34 +102,6 @@ class Amazonpolly_PollyCast {
 
 	}
 
-	/**
-	 * Returns the feed size.
-	 *
-	 * @since    2.1.0
-	 * @return   string Feed size.
-	 */
-	private function get_feedsize() {
-		$feedsize = get_option( 'amazon_polly_podcast_feedsize' );
-
-		$value = intval( $feedsize );
-
-		if ( empty( $feedsize ) ) {
-			$value = 20;
-		}
-
-		if ( intval( $feedsize ) < 1 ) {
-			$value = 1;
-		}
-
-		if ( intval( $feedsize ) > 1000 ) {
-			$value = 1000;
-		}
-
-		update_option( 'amazon_polly_podcast_feedsize', $value );
-
-		return $value;
-
-	}
 
 	/**
 	 * Returns the location of the transcribed audio file.
@@ -136,15 +111,8 @@ class Amazonpolly_PollyCast {
 	 * @return   string The location of the audio file.
 	 */
 	public function get_audio_file_location( $post_id ) {
-
-
 		$audio_file_location = get_post_meta( $post_id, 'amazon_polly_audio_link_location', true );
-
-		$https_enabled = get_option( 'amazon_polly_podcast_https' );
-		if ( empty( $https_enabled ) ) {
-		  $audio_file_location = str_replace( 'https://', 'http://', $audio_file_location );
-		}
-
+		$audio_file_location = str_replace( 'https://', 'http://', $audio_file_location );
 
 		return $audio_file_location;
 	}

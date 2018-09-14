@@ -85,7 +85,6 @@ class Amazonpolly {
 	 *
 	 * - Amazonpolly_Loader. Orchestrates the hooks of the plugin.
 	 * - Amazonpolly_I18n. Defines internationalization functionality.
-	 * - Amazonpolly_Admin. Defines all hooks for the admin area.
 	 * - Amazonpolly_Public. Defines all hooks for the public side of the site.
 	 *
 	 * Create an instance of the loader which will be used to register the hooks
@@ -111,13 +110,20 @@ class Amazonpolly {
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-amazonpolly-admin.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/amazonpolly-metabox.php';
 
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-Exceptions.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-Translator.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-FileHandler.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-LocalFileHandler.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-S3FileHandler.php';
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-Common.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-PollyService.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-GeneralConfiguration.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-PollyConfiguration.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-TranslateConfiguration.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-PodcastConfiguration.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -133,7 +139,7 @@ class Amazonpolly {
 		/**
 		 * Load AWS PHP SDK
 		 */
-		 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/aws/aws-autoloader.php';
+		 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
 
 
 
@@ -168,25 +174,42 @@ class Amazonpolly {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new Amazonpolly_Admin($this->get_plugin_name(), $this->get_version() );
+		$general_configuration = new AmazonAI_GeneralConfiguration();
+		$polly_configuration = new AmazonAI_PollyConfiguration();
+		$translate_configuration = new AmazonAI_TranslateConfiguration();
+		$podcast_configuration = new AmazonAI_PodcastConfiguration();
+		$polly_service = new AmazonAI_PollyService();
+		$common = new AmazonAI_Common();
+		$translate_service = new AmazonAI_Translator();
 
-		$this->loader->add_action( 'admin_print_footer_scripts', $plugin_admin, 'amazon_polly_add_quicktags' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'amazon_polly_field_checkbox' );
-		$this->loader->add_action( 'save_post', $plugin_admin, 'amazon_polly_save_post', 10, 3 );
-		$this->loader->add_action( 'before_delete_post', $plugin_admin, 'amazon_polly_delete_post' );
-		$this->loader->add_action( 'admin_menu', $plugin_admin, 'amazon_polly_add_options_page' );
-		$this->loader->add_action( 'admin_init', $plugin_admin, 'amazon_polly_register_settings' );
-		$this->loader->add_action( 'wp_ajax_polly_transcribe', $plugin_admin, 'amazon_polly_ajax_transcribe' );
-		$this->loader->add_action( 'wp_ajax_polly_translate', $plugin_admin, 'amazon_polly_ajax_translate' );
+		$this->loader->add_action( 'admin_print_footer_scripts', $common, 'add_quicktags' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $common, 'enqueue_styles' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $common, 'enqueue_scripts' );
+		$this->loader->add_action( 'add_meta_boxes', $common, 'field_checkbox' );
+		$this->loader->add_action( 'save_post', $polly_service, 'save_post', 10, 3 );
+
+
+		$this->loader->add_action( 'before_delete_post', $common, 'delete_post' );
+		$this->loader->add_action( 'wp_ajax_polly_transcribe', $polly_service, 'ajax_bulk_synthesize' );
+		$this->loader->add_action( 'wp_ajax_polly_translate', $translate_service, 'ajax_translate' );
+
+		$this->loader->add_action( 'admin_menu', $general_configuration, 'amazon_ai_add_menu' );
+		$this->loader->add_action( 'admin_init', $general_configuration, 'display_options' );
+
+		$this->loader->add_action( 'admin_menu', $polly_configuration, 'amazon_ai_add_menu' );
+		$this->loader->add_action( 'admin_menu', $polly_configuration, 'display_options' );
+
+		$this->loader->add_action( 'admin_menu', $translate_configuration, 'amazon_ai_add_menu' );
+		$this->loader->add_action( 'admin_menu', $translate_configuration, 'display_options' );
+
+		$this->loader->add_action( 'admin_menu', $podcast_configuration, 'amazon_ai_add_menu' );
+		$this->loader->add_action( 'admin_menu', $podcast_configuration, 'display_options' );
+
 
 		$plugin = plugin_basename( plugin_dir_path( dirname( __FILE__ ) ) . 'amazonpolly.php' );
-		$this->loader->add_filter( "plugin_action_links_$plugin", $plugin_admin, 'plugin_add_settings_link' );
-		$this->loader->add_filter( "plugin_action_links_$plugin", $plugin_admin, 'plugin_add_settings_link' );
 
-		$this->loader->add_filter( 'wp_kses_allowed_html', $plugin_admin, 'amazon_polly_allowed_tags_kses' );
-		$this->loader->add_filter( 'tiny_mce_before_init', $plugin_admin, 'amazon_polly_allowed_tags_tinymce' );
+		$this->loader->add_filter( 'wp_kses_allowed_html', $common, 'allowed_tags_kses' );
+		$this->loader->add_filter( 'tiny_mce_before_init', $common, 'allowed_tags_tinymce' );
 	}
 
 	/**
@@ -202,7 +225,8 @@ class Amazonpolly {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-		$this->loader->add_filter( 'the_content', $plugin_public, 'amazon_polly_filter', 99999 );
+		$this->loader->add_filter( 'the_content', $plugin_public, 'content_filter', 99999 );
+		$this->loader->add_filter( 'the_title', $plugin_public, 'title_filter', 99999, 2 );
 		$this->loader->add_action( 'customize_register', $plugin_public, 'customize_register' );
 
 		// Podcast
@@ -210,9 +234,8 @@ class Amazonpolly {
 		$this->loader->add_filter( 'pre_get_posts', $amazon_pollycast, 'filter_pre_get_posts' );
 		$this->loader->add_filter( 'the_excerpt_rss', $amazon_pollycast, 'filter_force_html_decode', 99999 );
 
-		// Pollycast Feed
-		$plugin_admin = new Amazonpolly_Admin( $this->get_plugin_name(), $this->get_version() );
-		if ( $plugin_admin->amazon_polly_is_podcast_enabled() ) {
+		$common = new AmazonAI_Common();
+		if ( $common->is_podcast_enabled() ) {
 			$this->loader->add_action( 'init', $amazon_pollycast, 'create_podcast' );
 		}
 	}

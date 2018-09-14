@@ -31,11 +31,12 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
   	 *
   	 * @param           $wp_filesystem         Not used here.
   	 * @param           $file                  File name.
-  	 * @param           $translate_langs       Supported translated languages.
   	 * @param           $post_id               ID of the post.
   	 * @since           2.0.3
   	 */
-    public function delete($wp_filesystem, $file, $translate_langs, $post_id) {
+    public function delete($wp_filesystem, $file, $post_id) {
+
+      $common = new AmazonAI_Common();
 
       // Retrieve the name of the bucket where audio files are stored.
       $s3_bucket  = $this->get_bucket_name();
@@ -45,10 +46,10 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
       $this->delete_s3_object( $s3_bucket, $prefix . $file );
 
       // Delete translations if available.
-      foreach ( $translate_langs as $lan ) {
-        $value = get_post_meta( $post_id, 'amazon_polly_translation_' . $lan, true );
+      foreach ( $common->get_all_polly_languages() as $language_code ) {
+        $value = get_post_meta( $post_id, 'amazon_polly_translation_' . $language_code, true );
         if ( ! empty( $value ) ) {
-          $s3_key = $prefix . 'amazon_polly_' . $post_id . $lan . '.mp3';
+          $s3_key = $prefix . 'amazon_polly_' . $post_id . $language_code . '.mp3';
           $this->delete_s3_object( $s3_bucket, $s3_key );
         }
       }
@@ -87,56 +88,65 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
   				)
   			);
   			$wp_filesystem->delete( $file_temp_full_name );
-  			$cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
 
-  			if ( get_option('uploads_use_yearmonth_folders') ) {
-  			  $key = get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . '/' . $file_name;
-  			} else {
-  			  $key = $file_name;
-  			}
-
-  			if ( empty( $cloudfront_domain_name ) ) {
-
-  				$selected_region = get_option( 'amazon_polly_region' );
-
-  				$audio_location_link = 'https://s3.' . $selected_region . '.amazonaws.com/' . $s3BucketName . '/' . $key;
-  			} else {
-  				$audio_location_link = 'https://' . $cloudfront_domain_name . '/' . $key;
-  			}
-
-        return $audio_location_link;
+        return $this->get_s3_object_link($post_id, $file_name);
     }
 
+    public function get_s3_object_link($post_id, $file_name) {
 
-    /**
-  	 * Method creates (if it doesn't already exists) a S3 bucket
-  	 *
-  	 * @since       1.0.0
-  	 */
-  	public function prepare_s3_bucket() {
+      $s3BucketName = $this->get_bucket_name();
+      $cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
+
+      if ( get_option('uploads_use_yearmonth_folders') ) {
+        $key = get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . '/' . $file_name;
+      } else {
+        $key = $file_name;
+      }
+
+      if ( empty( $cloudfront_domain_name ) ) {
+
+        $selected_region = get_option( 'amazon_polly_region' );
+
+        $audio_location_link = 'https://s3.' . $selected_region . '.amazonaws.com/' . $s3BucketName . '/' . $key;
+      } else {
+        $audio_location_link = 'https://' . $cloudfront_domain_name . '/' . $key;
+      }
+
+      return $audio_location_link;
+
+    }
+
+    public function check_if_s3_bucket_accessible() {
 
       $s3BucketName    = $this->get_bucket_name();
-      $createNewBucket = false;
 
       // Check if user specified bucket name in using filter.
       $s3BucketName = apply_filters( 'amazon_polly_s3_bucket_name', $s3BucketName );
 
       //Check if bucket is provided and can be access.
       if ( empty( $s3BucketName ) ) {
-        $createNewBucket = true;
+        return false;
       } else {
         try {
           $result = $this->s3_client->headBucket(array('Bucket' => $s3BucketName));
-  			} catch ( Aws\S3\Exception\S3Exception $e ) {
-  				$createNewBucket = true;
-  			}
-  		}
+        } catch ( Aws\S3\Exception\S3Exception $e ) {
+          throw new S3BucketNotAccException('S3 Bucket not Accessible');
+        }
+      }
+
+      return true;
+    }
+
+    public function create_s3_bucket() {
+
+      $createNewBucket = true;
 
       // If bucket was not provided (or was not accessible), we need to create new bucket.
       // We will try to do it 10 times.
       for ( $i = 0; $i <= 10; $i++ ) {
         if ( $createNewBucket ) {
           try {
+
             $rand1 = wp_rand( 10000000000, 99999999999 );
             $rand2 = md5( microtime() );
             $name  = 'audio-for-wordpress-' . $rand1 . $rand2;
@@ -147,13 +157,16 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
   					$createNewBucket = false;
 
   				} catch ( Aws\S3\Exception\S3Exception $e ) {
+            error_log($e);
   					update_option( 'amazon_polly_s3_bucket', '' );
   					update_option( 'amazon_polly_s3', '' );
-  				}
-  			}
-  		}
-  	}
 
+            throw new S3BucketNotCreException('Could not create S3 Bucket');
+  				}
+        }
+  		}
+
+    }
 
 
         /**
@@ -180,7 +193,7 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
          *
          * @since  1.0.6
          */
-        private function get_bucket_name() {
+        public function get_bucket_name() {
 
           $s3BucketName = get_option( 'amazon_polly_s3_bucket' );
           $s3BucketName = apply_filters( 'amazon_polly_s3_bucket_name', $s3BucketName );

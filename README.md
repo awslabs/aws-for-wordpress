@@ -2,11 +2,11 @@
 |  |  |
 | ------ | ------ |
 | Contributors | awslabs, wpengine, tstachlewski, stevenkword |
-| Tags | AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly |
+| Tags | AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly, Amazon Translate, Translate, Translation, Podcast, AI |
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 4.9 |
-| Stable tag | 2.0.5 |
+| Stable tag | 2.5.5 |
 | License | GPLv3 ONLY |
 | License URI | https://www.gnu.org/licenses/gpl-3.0.html |
 
@@ -18,36 +18,61 @@ Create audio of your posts, translate them into other languages and create podca
 ## Installation
 
 1. Install this plugin from the ‘Add new Plugin’ option from your WordPress installation.
-2. After you install (and activate) the plugin, go to the ‘Amazon Polly Settings’ tab in your WordPress admin interface and configure the settings for your plugin. You will need to have the Access Key and Secret Key to your own AWS account in order to finish the configuration of the plugin - you can find instructions about obtaining those below.
+2. After you install (and activate) the plugin, go to the ‘Amazon Polly’ and ‘General’ tab in your WordPress admin interface and configure the settings for your plugin. You will need to have the Access Key and Secret Key to your own AWS account in order to finish the configuration of the plugin - you can find instructions about obtaining those below.
 2.1 If you deployed WordPress on EC2, you can also use the IAM Roles functionality for the pluin - in this case you won’t need to provide the keys on the configuration page. For more details please visit: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html.
 
 ## Configuration
 The list below presents configurations options which can be modified by the user.
 
-##### General:
-- AWS access key: the access key which is required to connect to AWS.
-- AWS secret key: the secret key which is required to connect to AWS.
-- AWS Region: The AWS region which will be used to convert content into audio and to store the data (if S3 storage is selected). In most cases, you should choose the region closest to your readers.
+##### Tab “General”
 
-##### Amazon Polly settings:
+###### General configuration:
+- AWS access key: The access key which is required to connect to AWS.
+- AWS secret key: The secret key which is required to connect to AWS.
+- AWS Region: The AWS region which will be used to convert content into audio and to store the data (if S3 storage is selected). In most cases, you should choose the region closest to your readers.
+- Source language: The language in which the content is written.
+
+###### Cloud storage:
+- Store audio in Amazon S3: If you want to store audio files using the Amazon S3 service instead of on the WordPress server, choose this option. For additional information and pricing, see: https://aws.amazon.com/s3.
+- Amazon CloudFront (CDN) domain name: If you want to broadcast your audio files with Amazon CloudFront, provide the name of your CloudFront domain, which the plugin will use for streaming audio. You must first create the domain in Amazon CloudFront
+
+###### Other settings:
+- Post Types: Specifies on which type of WordPress page plugin will be used. The default value is ‘posts’
+
+
+##### Tab “Text-To-Speech”
+
+###### Amazon Polly configurations:
+- Enable text-to-speech support: specify if text-to-speech functionality should be enabled.
 - Sample rate:  The sample rate of the audio files that will be generated, in Hz. Higher sampling rates mean higher quality audio.
 - Voice name: The Amazon Polly voice to use to create the audio file.
 - Automated breaths: If enabled, Amazon Polly automatically creates breathing noises at appropriate intervals.
 - Enable SSML Support: If enabled, you can add SSML tags to your post content.
-- Audio speed: The speed at which your audio files are recorded, proportional to the natural speed of your preferred voice.  100% is the default value; minimum is 20% and maximum is 200%.
 - Lexicons: The names of lexicons used for audio generation. These lexicons must already be uploaded to your AWS account to be used.
+- Audio speed: The speed at which your audio files are recorded, proportional to the natural speed of your preferred voice.  100% is the default value; minimum is 20% and maximum is 200%.
 
-##### Player settings:
+###### Player settings:
 - Player position: The position of the audio player on your WordPress page. You can put it before or after the post, or not use it at all. If you want to make your files available using Amazon Pollycast, choose to not display the audio player.
-- Player Label: Specifies optional text that will be shown above the audio player. HTML tags are supported with this label.
+- Player label: Specifies optional text that will be shown above the audio player. HTML tags are supported with this label.
 - New post default: Specifies whether Amazon Polly is automatically enabled for all new posts. Choose this option if you want Amazon Polly to use the configuration settings to create an audio file for each new post.
 - Autoplay: Specifies whether the audio player automatically starts playing the audio when a user visits an individual post on the website.
 
-##### Cloud Storage:
-- Store audio in Amazon S3: If you want to store audio files using the Amazon S3 service instead of on the WordPress server, choose this option. For additional information and pricing, see: https://aws.amazon.com/s3.
-- Amazon CloudFront (CDN) domain name: If you want to broadcast your audio files with Amazon CloudFront, provide the name of your CloudFront domain, which the plugin will use for streaming audio. You must first create the domain in Amazon CloudFront
+###### Additional Configuration
+- Bulk update: Specifies whether you want to bulk update all posts to use new plugin settings.The bulk update functionality doesn't use translate functionality of the plugin.
+- Add post title to audio: If enabled, each audio file will start from post title.
+- Add post excerpt to audio: If enabled, each audio file will have an excerpt from the post at the beginning of the audio.
+- Enable Media Library support: Specifies if audio files should be added to WP media library.
 
-##### Amazon Pollycast:
+##### Tab “Translate”
+
+###### Amazon Translate configuration:
+- Enable translation support: Specifies whether the content translation functionality will be enabled.
+- Enable audio for translations: Specifies if text-to-speech functionality should be used for translated content.
+- Target languages: Defines a list of the available languages into which the WordPress content can be translated (and for which the audio will also be generated).
+
+##### Tab “Podcast”
+
+###### Amazon Pollycast configuration:
 - Podcast enabled: If enabled, the Amazon Polly WordPress plugin will create an XML feed that can then be consumed by ITunes or other applications to generate a podcast.
 - iTunes category: The category for your podcast. Choosing a category makes it easier for podcast users to find your podcast in the ITunes podcast catalog.
 - iTunes explicit: Specifies whether to the Amazon Pollycast contains explicit content.
@@ -55,21 +80,7 @@ The list below presents configurations options which can be modified by the user
 - iTunes email: Specifies the contact email for the podcast with ITunes.
 - Feed size: Number of items (posts/pages) which will be shown in RSS feed. Max value is 1000.
 - Post category: category of posts which will be added to RSS feed. If field is empty, all posts will be added. You can specify multiple category, separated by comma. Example of values: "personal", "personal,business"
-- Use HTTPS for audio files: Specify if HTTPS protocol should be used in links to audio files in RSS Feed.
 
-##### Additional Configuration
-- Bulk update: Specifies whether you want to bulk update all posts to use new plugin settings.The bulk update functionality doesn't use translate functionality of the plugin.
-- Add post title to audio: If enabled, each audio file will start from post title.
-- Add post excerpt to audio: If enabled, each audio file will have an excerpt from the post at the beginning of the audio.
-- Post Types: Specifies which type of WordPress page will be converted to audio files.
-
-##### Amazon Translate configuration
-- Enable translation support: Specifies whether the content translation functionality will be enabled.
-- Show transcript: If enabled, reader will be able to see the translated transcript of the post in other languages.
-- Source language: Specifies the original source language in which the content was written.
-- Source language label: Defines a label for the original source language.
-- Translations label: Specifies the label which will be shown next to available languages.
-- Target languages: Defines a list of the available languages into which the WordPress content can be translated (and for which the audio will also be generated).
 
 ## How to obtain AWS Access Key and Secret Key?
 1. If you don't already have an AWS Account, go to https://aws.amazon.com/ to create one.
@@ -246,6 +257,19 @@ Important: Text will be read in translated audio files if translate functionalit
 
 
 #### Changelog
+
+= 2.5.5 =
+* Added possibility of converting Chinese text to audio.
+* Added possibility to specify label instead of flag when translating text.
+* Added possibility to specify podcast author.
+* Bug fixing.
+
+= 2.5.1-4 =
+* Bug fixing.
+
+= 2.5.0 =
+* Bug fixing.
+* Redesign GUI.
 
 = 2.0.5 =
 * Added possibility to use HTTPS in RSS Feed.

@@ -14,7 +14,7 @@ class AmazonAI_Translator {
 
   /**
 	 * Method validates if plugin has got access to Amazon Translate service by performing simple
-	 * translation of single word.
+	 * translation of single word. If it doesn't custom Error will be thrown.
 	 *
    * @param           string $translate_client     Amazon Translate client reference.
 	 * @since  2.0.0
@@ -46,6 +46,7 @@ class AmazonAI_Translator {
 				// If Amazon Translate service is not reachable Error will be thrown.
 				update_option( 'amazon_polly_trans_validated', '' );
 				$accessible = false;
+
 			}
 		} else {
 			$accessible = true;
@@ -54,11 +55,45 @@ class AmazonAI_Translator {
 		if ( !$accessible ) {
 			update_option( 'amazon_polly_trans_enabled', '' );
 			update_option( 'amazon_polly_trans_validated', '' );
+
+			throw new TranslateAccessException('Cant perform Translate operation');
 		}
 
 		return $accessible;
 
 	}
+
+	public function translate_post( $common, $translate_client, $source_text, $source_language, $target_language) {
+
+		$translated_text = '';
+		$paragraphs = explode("\n", $source_text);
+		foreach($paragraphs as $paragraph) {
+			$is_image_paragraph = '';
+			preg_match("/^\s*<img.*?src=.*?\>\s*$/", $paragraph, $is_image_paragraph);
+
+			if (empty($is_image_paragraph)) {
+
+				$is_strong_paragraph = '';
+				preg_match("/^\s*<strong>.*?strong>\s*$/", $paragraph, $is_strong_paragraph);
+
+				$paragraph = $common->clean_paragraph($paragraph);
+				$translated_paragraph = $this->translate( $translate_client, $paragraph, $source_language, $target_language);
+
+				if (!empty($is_strong_paragraph)) {
+					$translated_paragraph = "<strong>" . $translated_paragraph . "</strong>";
+				}
+
+			} else {
+				$translated_paragraph = $paragraph;
+			}
+
+			$translated_text = $translated_text . "\n" . "<p>" . $translated_paragraph . "</p>";
+		}
+
+		return $translated_text;
+
+	}
+
 
   /**
    * Method translates sentences using Amazon Translate service.
@@ -158,5 +193,134 @@ class AmazonAI_Translator {
 
   }
 
+	/**
+   * Method will be called by user when clicking Translate button on GUI.
+   *
+   * @since           2.0.0
+   */
+	public function ajax_translate() {
+
+		check_ajax_referer( 'pollyajaxnonce', 'nonce' );
+
+		$polly = new AmazonAI_PollyService();
+		$common = new AmazonAI_Common();
+		$common->init();
+
+		$post_id = $_POST['post_id'];
+		$phase   = $_POST['phase'];
+		$langs   = $_POST['langs'];
+
+		$step       = '';
+		$percentage = 0;
+		$message    = '';
+
+		$all_langs = [];
+		$index     = 0;
+
+		$source_language  = $common->get_source_language();
+		$translate_client = $common->get_translate_client();
+
+		if ( empty( $source_language ) ) {
+			$message    = 'Amazon Translate functionality needs to be enabled before publishing the post';
+			$step       = 'done';
+			$percentage = 100;
+
+		} else {
+
+			foreach ( $common->get_all_translable_languages() as $supported_lan ) {
+				if ( $common->is_language_translable( $supported_lan ) and ( $supported_lan != $source_language ) ) {
+					if ($common->if_translable_enabled_for_language($supported_lan)) {
+						$all_langs[ $index ] = $supported_lan;
+						$index++;
+					}
+				}
+			}
+
+			if ( 'start' == $phase ) {
+
+				$langs = $all_langs;
+
+				if ( 'en' == $source_language ) {
+					$english_content = get_post_field('post_content', $post_id);
+					update_post_meta( $post_id, 'amazon_polly_transcript_en', $english_content );
+				}
+
+				update_post_meta( $post_id, 'amazon_ai_source_language', $source_language );
+
+			} else {
+
+
+				if ( ( $key = array_search( 'en', $langs ) ) !== false ) {
+					$language_code = 'en';
+					unset( $langs[ $key ] );
+				} else {
+					$language_code = array_shift( $langs );
+				}
+
+				if ( 'en' == $language_code ) {
+					$clean_text = $common->clean_text( $post_id, false, false );
+				} else {
+					$english_content = get_post_meta( $post_id, 'amazon_polly_transcript_en', true );
+					$source_language   = 'en';
+				}
+
+				$wp_filesystem = $common->prepare_wp_filesystem();
+
+				if ( $common->is_language_translable( $language_code ) and ( $language_code != $source_language ) ) {
+
+					try {
+						$clean_title = $common->clean_text( $post_id, false, true );
+						$translated_title = $this->translate( $translate_client, $clean_title, $source_language,  $language_code);
+						$translated_text = $this->translate_post( $common, $translate_client, $english_content, $source_language,  $language_code);
+						update_post_meta( $post_id, 'amazon_polly_transcript_' . $language_code, $translated_text );
+						update_post_meta( $post_id, 'amazon_polly_transcript_title_' . $language_code, $translated_title );
+						$sentences = $common->break_text( $translated_text );
+
+						// Create audio files for files only if this functionality is enabled.
+						if ( $common->is_audio_for_translations_enabled() ) {
+							$polly->convert_to_audio( $post_id, '', '', $sentences, $wp_filesystem, $language_code );
+						}
+					} catch(Exception $e) {
+						error_log($e);
+					}
+				}
+
+				$percentage = 100 - ( count( $langs ) / $index ) * 100;
+			}//end if
+
+			if ( empty( $langs ) ) {
+				$step    = 'done';
+				$message = 'Translation completed!';
+			}
+		}//end if
+
+		$next_langs = $langs;
+		if ( ( 'en' != $source_language ) && ( $key = array_search( 'en', $next_langs ) ) !== false ) {
+			$next_lang = 'en';
+		} else {
+			$next_lang = array_shift( $next_langs );
+		}
+
+		if ( ! empty( $next_lang ) ) {
+			$message = 'Translating from ' . $common->get_language_name( $source_language ) . ' to ' . $common->get_language_name( $next_lang );
+		} else {
+			$message = 'Translation completed!';
+		}
+
+		if ( empty( $source_language ) ) {
+			$message = 'Amazon Translate functionality needs to be enabled before publishing the post';
+		}
+
+		echo wp_json_encode(
+			array(
+				'step'       => $step,
+				'langs'      => $langs,
+				'percentage' => $percentage,
+				'message'    => $message,
+			)
+		);
+
+		wp_die();
+	}
 
 }

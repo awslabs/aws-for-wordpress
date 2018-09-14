@@ -22,15 +22,6 @@
 class Amazonpolly_Public {
 
 	/**
-	 * The list of countries which are supported for translate functionality.
-	 *
-	 * @since    2.0.0
-	 * @access   private
-	 * @var      array    $translate_langs    List of languages.
-	 */
-	private $translate_langs = array( 'en', 'de', 'es', 'fr', 'pt' );
-
-	/**
 	 * The ID of this plugin.
 	 *
 	 * @since    1.0.0
@@ -71,147 +62,189 @@ class Amazonpolly_Public {
 
 	}
 
+	public function title_filter( $title, $id = null ) {
+
+		$common = new AmazonAI_Common();
+
+			if ( is_singular() ) {
+
+				// Check if Amazon Translate is enabled, if yes then...
+				if ($common->is_translation_enabled() ) {
+					if(isset($_GET['amazonai-language'])) {
+						$selected_language = $_GET['amazonai-language'];
+						$translated_title = get_post_meta( $id, 'amazon_polly_transcript_title_' . $selected_language , true );
+						if ( ! empty( $translated_title ) ) {
+							$title = $translated_title;
+						}
+					}
+				}
+			}
+
+
+		return $title;
+	}
+
 	/**
-	 * WordPress filter, responsible for adding audio play functionality for posts.
+	 * WordPress filter, responsible for adding public part of
+	 * the plugin (audio player & tranlate part)
 	 *
 	 * @since    1.0.0
 	 * @param      string $content       The content of the new post.
 	 */
-	public function amazon_polly_filter( $content ) {
+	public function content_filter( $content ) {
 
-		if ( get_post_meta( $GLOBALS['post']->ID, 'amazon_polly_enable', true ) === '1' ) {
+		$post_id = $GLOBALS['post']->ID;
+		$common = new AmazonAI_Common();
 
-			$post_id = $GLOBALS['post']->ID;
+		$source_language = $common->get_post_source_language($post_id);
+		$polly_content = '';
+		$translate_options = '';
 
-			$audio_location    = get_post_meta( $post_id, 'amazon_polly_audio_link_location', true );
-			$selected_autoplay = get_option( 'amazon_polly_autoplay' );
-			$player_label      = get_option( 'amazon_polly_player_label' );
+		// Check if Amazon Polly is enabled in WP, if yes then...
+		if ($common->is_polly_enabled() ) {
 
-			// Checks if this is single post view and if there is autoplay options selected.
-			if ( is_singular() && ! empty( $selected_autoplay ) ) {
-				$autoplay = 'autoplay';
-			} else {
-				$autoplay = '';
+			// Check if Amazon Polly is enabled for specific post.
+			if ( get_post_meta( $post_id, 'amazon_polly_enable', true ) === '1' ) {
+
+				$audio_location    = get_post_meta( $post_id, 'amazon_polly_audio_link_location', true );
+				$selected_autoplay = get_option( 'amazon_polly_autoplay' );
+				$player_label      = get_option( 'amazon_polly_player_label' );
+
+				// Checks if this is single post view and if there is autoplay options selected.
+				if ( is_singular() && ! empty( $selected_autoplay ) ) {
+					$autoplay = 'autoplay';
+				} else {
+					$autoplay = '';
+				}
+
+				// Prepare "Power By" label.
+				if ( is_singular() ) {
+					$image  = __('<img src="https://d12ee1u74lotna.cloudfront.net/images/Voiced_by_Amazon_Polly_EN.png" width="100" alt="Voiced by Amazon Polly" >', $this->plugin_name);
+					$voice_by_part = '<a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer">' . $image . '</a>';
+				} else {
+					$voice_by_part = '';
+				}
+
+				// Removing Amazon Polly special tags.
+				$content = $content;
+				$content = preg_replace( '/-AMAZONPOLLY-ONLYAUDIO-START-[\S\s]*?-AMAZONPOLLY-ONLYAUDIO-END-/', '', $content );
+				$content = str_replace( '-AMAZONPOLLY-ONLYWORDS-START-', '', $content );
+				$content = str_replace( '-AMAZONPOLLY-ONLYWORDS-END-', '', $content );
+
+				// Create player area.
+				if ( is_singular() ) {
+
+					// By default we will show default player.
+					$audio_part = $this->include_audio_player( 'src', $audio_location, $autoplay );
+
+					// Checks if Translate functionaliy is turned on.
+					if ($common->is_translation_enabled() ) {
+						// Checks if other than default langue is choosen.
+						if(isset($_GET['amazonai-language'])) {
+
+							// Retrievie selected language.
+							$selected_language = $_GET['amazonai-language'];
+
+							if ( $source_language != $selected_language ) {
+
+								$audio_part = '';
+								foreach ($common->get_all_polly_languages() as $language_code) {
+									if ($language_code === $selected_language) {
+										$audio_part = $this->include_audio_player( $selected_language, $audio_location, $autoplay );
+									}
+								}
+							}
+						}
+					}
+
+					$polly_content = '
+					<table id="amazon-polly-audio-table">
+						<tr>
+						<td id="amazon-polly-audio-tab">
+							<div id="amazon-ai-player-label">' . $player_label . '</div>
+							' . $audio_part . '
+							<div id="amazon-polly-by-tab">' . $voice_by_part . '</div>
+						</td>
+						</tr>
+					</table>';
+				}
+
+
 			}
+		}
 
-			if ( is_singular() ) {
-				$image  = __('<img src="https://d12ee1u74lotna.cloudfront.net/images/Voiced_by_Amazon_Polly_EN.png" width="100" >', $this->plugin_name);
-				$voice_by_part = '<a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer">' . $image . '</a>';
-			} else {
-				$voice_by_part = '';
+		if ( is_singular() ) {
+			// Check if Amazon Translate is enabled, if yes then...
+			if ($common->is_translation_enabled() ) {
+
+				$translate_options = $this->show_translations_options($post_id, $common);
+
+				if(isset($_GET['amazonai-language'])) {
+					$selected_language = $_GET['amazonai-language'];
+					if ( $source_language != $selected_language ) {
+						$content = get_post_meta( $post_id, 'amazon_polly_transcript_' . $selected_language , true );
+					}
+				}
 			}
+		}
 
-			$original_content = $content;
-
-			// Removing Amazon Polly special tags.
-			$original_content = preg_replace( '/-AMAZONPOLLY-ONLYAUDIO-START-[\S\s]*?-AMAZONPOLLY-ONLYAUDIO-END-/', '', $original_content );
-			$original_content = str_replace( '-AMAZONPOLLY-ONLYWORDS-START-', '', $original_content );
-			$original_content = str_replace( '-AMAZONPOLLY-ONLYWORDS-END-', '', $original_content );
-
-			$new_content = '';
-
-			if ( is_singular() ) {
-
-				$new_content = '
-				<table id="amazon-polly-audio-table">
-					<tr>
-
-					<td id="amazon-polly-audio-tab">
-						<div id="amazon-polly-label-tab">' . $player_label . '</div>
-						' . $this->include_translations_options( $post_id ) . '
-						' . $this->include_players( $post_id, $audio_location, $autoplay ) . '
-						<div id="amazon-polly-by-tab">' . $voice_by_part . '</div>
-					</td>
-					</tr>
-				</table>';
-			}
-
+		if ($common->is_polly_enabled() ) {
+			// Put Audio player in the correct position.
 			$selected_position = get_option( 'amazon_polly_position' );
 			if ( strcmp( $selected_position, 'Do not show' ) === 0 ) {
-				$content = $original_content;
+				$content = $content;
 			} elseif ( strcmp( $selected_position, 'After post' ) === 0 ) {
-				$content = $original_content . $new_content;
+				$content = $content . $translate_options . $polly_content;
 			} else {
-				$content = $new_content . $original_content;
+				$content = $translate_options . $polly_content . $content;
 			}
-		}//end if
+		}
 
 		return $content;
 	}
 
-	private function include_players( $post_id, $audio_location, $autoplay ) {
+	function show_translations_options($post_id, $common) {
 
-		$response = '';
+		$source_language = $common->get_post_source_language($post_id);
+		$options = '<div class="amazon-ai-flags-container">';
+		$options = $options . $this->show_flag_button($common, $source_language);
 
-		if ( ! $this->amazon_polly_is_translation_enabled() ) {
-			$response = $this->add_player( $post_id, '', $audio_location, $autoplay, 'src' );
-		} else {
-			$src_lang = $this->get_src_lang();
-			$response = $response . $this->add_player( $post_id, $src_lang, $audio_location, '', 'src' );
-			$response = $response . $this->add_player( $post_id, $src_lang, $audio_location, '', 'en' );
-			$response = $response . $this->add_player( $post_id, $src_lang, $audio_location, '', 'es' );
-			$response = $response . $this->add_player( $post_id, $src_lang, $audio_location, '', 'de' );
-			$response = $response . $this->add_player( $post_id, $src_lang, $audio_location, '', 'fr' );
-			$response = $response . $this->add_player( $post_id, $src_lang, $audio_location, '', 'pt' );
+		$number_of_flags = 1;
 
-		}
+		foreach ($common->get_all_translable_languages() as $language_code) {
+			$content = get_post_meta( $post_id, 'amazon_polly_transcript_' . $language_code , true );
 
-		return $response;
-	}
 
-	private function translations_available( $post_id ) {
-
-		$options = 0;
-
-		foreach ( $this->translate_langs as $supported_lan ) {
-
-			$value = get_option( 'amazon_polly_trans_langs_' . $supported_lan );
-			if ( ! empty( $value ) or ( 'en' == $supported_lan ) ) {
-				$value = get_post_meta( $post_id, 'amazon_polly_translation_' . $supported_lan, true );
-				if ( ! empty( $value ) ) {
-					$options = $options + 1;
+			if ( ! empty( $content ) ) {
+				if ( $source_language != $language_code ) {
+					$number_of_flags = $number_of_flags + 1;
+					$options .= $this->show_flag_button($common, $language_code);
 				}
 			}
 		}
 
-		if ( $options > 0 ) {
-			return true;
+		if ( $number_of_flags > 1) {
+			$options = $options . '</div>';
 		} else {
-			return false;
+			$options = '';
 		}
 
+		return $options;
 	}
 
-	/**
-	 * Method return player and transcript HTML part.
-	 *
-	 * @param       string $audio_location Location where audio is being stored..
-	 * @param       string $post_id Id of the post.
-	 * @param       string $autoplay Autplay for player.
-	 * @param       string $src_lang Source language of content.
-	 * @since  2.0.0
-	 */
-	private function add_player( $post_id, $src_lang, $audio_location, $autoplay, $lan_code ) {
+	function show_flag_button( $common, $language ) {
 
-		$response = '';
+		$link = esc_url( add_query_arg( 'amazonai-language', $language ));
 
-		if ( $lan_code != $src_lang ) {
-			$option = get_option( 'amazon_polly_trans_langs_' . $lan_code );
-			if ( !empty( $option ) or ( 'src' == $lan_code ) or ( 'en' == $lan_code ) ) {
-				$meta = get_post_meta( $post_id, 'amazon_polly_translation_' . $lan_code, true );
-				if ( !empty( $meta ) or ( 'src' == $lan_code ) ) {
-					// Display player .
-					$response = $response . $this->include_play( $lan_code, $audio_location, $autoplay );
+		$display = $common->get_language_display( $language );
 
-					// Display transcript area.
-					$response = $response . $this->include_transcript( $post_id, $lan_code );
-
-				}
-			}
+		if (strcmp("Flag", $display) === 0) {
+			return '<div class="amazon-ai-flag"><a href="' . $link . '"><img src="https://d12ee1u74lotna.cloudfront.net/images/flags/' . $language . '.png" class="amazon-ai-flag-image" alt="' . $language . ' flag"></a></div>';
+		} else {
+			return '<div class="amazon-polly-trans-label"><a href="' . $link . '">' . $common->get_language_label($language) . '&emsp;</a></div>';
 		}
-
-		return $response;
 	}
+
 
 	/**
 	 * Method renders area for player.
@@ -221,16 +254,16 @@ class Amazonpolly_Public {
 	 * @param       string $autoplay Autplay for player.
 	 * @since  2.0.0
 	 */
-	private function include_play( $lan_code, $audio_location, $autoplay ) {
+	private function include_audio_player( $language_code, $audio_location, $autoplay ) {
 
-		if ( 'src' == $lan_code ) {
+		if ( 'src' == $language_code ) {
 			$new_audio_location = $audio_location;
 		} else {
-			$new_audio_location = str_replace( '.mp3', $lan_code . '.mp3', $audio_location );
+			$new_audio_location = str_replace( '.mp3', $language_code . '.mp3', $audio_location );
 		}
 
-		$response = '<div id="amazon-polly-play-tab-' . $lan_code . '">
-			<audio class="amazon-polly-audio-player" id="amazon-polly-audio-play-' . $lan_code . '" preload="none" controls ' . $autoplay . '>
+		$response = '<div id="amazon-ai-player-container">
+			<audio class="amazon-ai-player" id="amazon-ai-player" preload="none" controls ' . $autoplay . '>
 				<source type="audio/mpeg" src="' . $new_audio_location . '">
 			</audio>
 		</div>';
@@ -238,131 +271,7 @@ class Amazonpolly_Public {
 		return $response;
 	}
 
-	/**
-	 * Method renders area for showing transcript of post.
-	 *
-	 * @param       string $lan_code Language code.
-	 * @param       string $post_id Id of the post.
-	 * @since  2.0.0
-	 */
-	private function include_transcript( $post_id, $lan_code ) {
 
-		$transcript_enabled = get_option( 'amazon_polly_transcript_enabled', '' );
-		if ( 'on' == $transcript_enabled ) {
-			if ( 'src' != $lan_code ) {
-				$transcript = get_post_meta( $post_id, 'amazon_polly_transcript_' . $lan_code, true );
-				return '<textarea class="amazon-polly-transcript-area" id="amazon-polly-transcript-' . $lan_code . '" readonly="readonly" >' . $transcript . '</textarea>';
-
-			}
-		}
-
-		return '';
-
-	}
-
-	/**
-	 * Method renders list of available translate languages..
-	 *
-	 * @param       string $post_id Id of the post.
-	 * @since  2.0.0
-	 */
-	private function include_translations_options( $post_id ) {
-
-		$response = '';
-
-		if ( $this->amazon_polly_is_translation_enabled() ) {
-			if ( $this->translations_available( $post_id ) ) {
-
-				$src_lang = $this->get_src_lang();
-
-				$src_label = get_option( 'amazon_polly_trans_langs_src_label', 'Source' );
-
-				$trans_label = get_option( 'amazon_polly_trans_langs_label', 'Listen in other languages: ' );
-				$response    = '<div class="amazon-polly-trans-label" id="amazon-polly-trans">' . $trans_label . ' </div>';
-				$response    = $response . '<div class="amazon-polly-trans-label" id="amazon-polly-trans-src">' . $src_label . '</div>';
-
-				$response = $response . $this->show_translate_label( $post_id, $src_lang, 'en', 'English' );
-				$response = $response . $this->show_translate_label( $post_id, $src_lang, 'es', 'Español' );
-				$response = $response . $this->show_translate_label( $post_id, $src_lang, 'de', 'Deutsch' );
-				$response = $response . $this->show_translate_label( $post_id, $src_lang, 'fr', 'Francis' );
-				$response = $response . $this->show_translate_label( $post_id, $src_lang, 'pt', 'Portugues' );
-
-				$response = $response . '</div>';
-			}
-		}
-
-		return $response;
-	}
-
-	private function show_translate_label( $post_id, $src_lang, $lan_code, $default_label ) {
-
-		$response = '';
-
-		if ( $lan_code != $src_lang ) {
-			$option = get_option( 'amazon_polly_trans_langs_' . $lan_code );
-			if ( !empty( $option ) or ( 'en' == $lan_code ) ) {
-				$meta = get_post_meta( $post_id, 'amazon_polly_translation_' . $lan_code, true );
-				if ( !empty( $meta ) ) {
-					$es_label = get_option( 'amazon_polly_trans_langs_' . $lan_code . '_label', $default_label );
-					$response = '<div class="amazon-polly-trans-label" id="amazon-polly-trans-' . $lan_code . '"> ' . $es_label . ' </div>';
-				}
-			}
-		}
-
-		return $response;
-
-	}
-
-	/**
-	 * Check if Translation is enabled.
-	 *
-	 * @since  2.0.0
-	 */
-	private function amazon_polly_is_translation_enabled() {
-		$translation_enabled = get_option( 'amazon_polly_trans_enabled', '' );
-
-		if ( empty( $translation_enabled ) ) {
-			$result = false;
-		} else {
-			$result = true;
-		}
-
-		$is_s3_enabled = $this->amazon_polly_is_s3_enabled();
-		if ( $is_s3_enabled ) {
-			return $result;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Checks if auto breaths are enabled.
-	 *
-	 * @since  1.0.7
-	 */
-	private function amazon_polly_is_s3_enabled() {
-		$value = get_option( 'amazon_polly_s3', 'on' );
-
-		if ( empty( $value ) ) {
-			$result = false;
-		} else {
-			$result = true;
-		}
-
-		return $result;
-	}
-
-
-		/**
-		 * Returns source language.
-		 *
-		 * @since  2.0.0
-		 */
-	private function get_src_lang() {
-
-		$value = get_option( 'amazon_polly_trans_src_lang', 'de' );
-		return $value;
-	}
 
 	/**
 	 * Register the stylesheets for the public-facing side of the site.
@@ -500,7 +409,7 @@ class Amazonpolly_Public {
 					'Kids'                       => 'Kids',
 					'Music'                      => 'Music',
 					'News & Politics'            => 'News & Politics',
-					'Religion'                   => 'Religion',
+					'Religion & Spirituality'		 => 'Religion & Spirituality',
 					'Science & Medicine'         => 'Science & Medicine',
 					'Society & Culture'          => 'Society & Culture',
 					'Sports & Recreation'        => 'Sports & Recreation',
