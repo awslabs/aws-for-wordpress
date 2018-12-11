@@ -110,12 +110,12 @@ function display_polly_gui($post) {
 		}
 
 
-		$voice_id   = get_option( 'amazon_polly_voice_id' );
+		$voice_id   = $common->get_voice_id();
 		$voices = $common->get_polly_voices();
 		$language_name = $common->get_source_language_name();
 
 		$voice_id = get_post_meta( $post->ID, 'amazon_polly_voice_id', true );
-		$global_voice_id = get_option( 'amazon_polly_voice_id' );
+		$global_voice_id = $common->get_voice_id();
 
 		if ( 0 === strcmp( $voice_id, '' ) && '' !== $global_voice_id ) {
 			$voice_id = $global_voice_id;

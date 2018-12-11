@@ -33,11 +33,6 @@ class Amazonpolly_Activator {
 		$amazon_pollycast->create_podcast();
 		flush_rewrite_rules();
 
-		// Default options configurations
-		update_option( 'amazon_polly_defconf', 'Amazon Polly enabled' );
-		update_option( 'amazon_polly_voice_id', 'Matthew' );
-		update_option( 'amazon_polly_sample_rate', '22050' );
-		update_option( 'amazon_polly_region', 'us-east-1' );
 
 	}
 

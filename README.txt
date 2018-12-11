@@ -4,7 +4,7 @@ Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly, 
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 2.5.5
+Stable tag: 2.6.1
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -250,6 +250,17 @@ If you have a piece of content that you want on your page but not read by the pl
 Important: Text will be read in translated audio files if translate functionality is enabled, even if it was marked as "Words Only".
 
 == Changelog ==
+
+= 2.6.1 =
+* Added support for 8 new languages for translate functionality.
+* Changed the way how audio is being generate (background process).
+* Added a way of enabling plugin logging.
+
+= 2.6.0 =
+* Fix problem with media library.
+
+= 2.5.7 =
+* Bug fixing.
 
 = 2.5.5 =
 * Added possibility of converting Chinese text to audio.

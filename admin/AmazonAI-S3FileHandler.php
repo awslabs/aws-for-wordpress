@@ -96,16 +96,12 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
 
       $s3BucketName = $this->get_bucket_name();
       $cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
-
-      if ( get_option('uploads_use_yearmonth_folders') ) {
-        $key = get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . '/' . $file_name;
-      } else {
-        $key = $file_name;
-      }
+      $key = $this->get_prefix($post_id) . $file_name;
 
       if ( empty( $cloudfront_domain_name ) ) {
 
-        $selected_region = get_option( 'amazon_polly_region' );
+        $common = new AmazonAI_Common();
+        $selected_region = $common->get_aws_region();
 
         $audio_location_link = 'https://s3.' . $selected_region . '.amazonaws.com/' . $s3BucketName . '/' . $key;
       } else {
@@ -139,6 +135,9 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
 
     public function create_s3_bucket() {
 
+      $logger = new AmazonAI_Logger();
+      $logger->log(sprintf('%s Creating new S3 Bucket', __METHOD__));
+
       $createNewBucket = true;
 
       // If bucket was not provided (or was not accessible), we need to create new bucket.
@@ -156,7 +155,10 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
   					update_option( 'amazon_polly_s3_bucket', $name );
   					$createNewBucket = false;
 
+            $logger->log(sprintf('%s New S3 Bucket created ( name=%s )', __METHOD__, $name));
+
   				} catch ( Aws\S3\Exception\S3Exception $e ) {
+            $logger->log(sprintf('%s Failed to Create new S3 Bucket! ( error=%s )', __METHOD__, $e));
             error_log($e);
   					update_option( 'amazon_polly_s3_bucket', '' );
   					update_option( 'amazon_polly_s3', '' );

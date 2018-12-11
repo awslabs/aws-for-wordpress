@@ -71,7 +71,7 @@ $itunes_author = $common->get_podcast_author();
 	<itunes:category text="<?php echo esc_attr( $itunes_category ); ?>"></itunes:category>
 	<itunes:explicit><?php echo esc_html( $itunes_explicit ); ?></itunes:explicit>
 	<itunes:image href="<?php echo esc_url( $podcast_icon ); ?>"/>
-	<itunes:author><?php wp_title_rss(); ?></itunes:author>
+	<itunes:author><?php echo $itunes_author; ?></itunes:author>
 	<itunes:summary><?php	echo esc_attr($itunes_description); ?></itunes:summary>
 	<itunes:subtitle><?php	echo esc_attr($itunes_description); ?></itunes:subtitle>
 	<copyright><?php echo esc_html( $amazon_pollycast->get_copyright() ); ?></copyright>

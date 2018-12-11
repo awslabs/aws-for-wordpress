@@ -55,6 +55,7 @@ class AmazonAI_PodcastConfiguration {
 				add_settings_field( 'amazon_polly_podcast_feedsize', __( 'Feed size:', 'amazonpolly' ), array( $this, 'podcast_feedsize_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_feedsize' ) );
 				add_settings_field( 'amazon_polly_podcast_post_cat', __( 'Post categories:', 'amazonpolly' ), array( $this, 'podcast_post_cat_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_post_cat' ) );
 				add_settings_field( 'amazon_polly_podcast_author', __( 'Author:', 'amazonpolly' ), array( $this, 'podcast_author_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_author' ) );
+				add_settings_field( 'amazon_polly_podcast_https', __( 'Use HTTPS for audio files:', 'amazonpolly' ), array( $this, 'podcast_https_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_https' ) );
 
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_email');
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_category');
@@ -63,7 +64,20 @@ class AmazonAI_PodcastConfiguration {
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_feedsize');
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_post_cat');
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_author');
+				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_https');
 			}
+		}
+
+
+		/**
+		 * Render the HTTPS podcast input.
+		 *
+		 * @since  4.0.5
+		 */
+		public function podcast_https_gui() {
+
+			echo '<input type="checkbox" name="amazon_polly_podcast_https" id="amazon_polly_podcast_https" ' . $this->common->checked_validator( 'amazon_polly_podcast_https' ) . '> ';
+
 		}
 
 		/**

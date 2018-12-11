@@ -106,6 +106,9 @@ class AmazonAI_Translator {
    */
   public function translate( $translate_client, $source_text, $source_language, $target_language) {
 
+		$logger = new AmazonAI_Logger();
+		$logger->log(sprintf('%s Traslating', __METHOD__));
+
 		// Translate functionality doesn't support SSML, ONLYAUDIO, ONLYWORDS tags
     $source_text = preg_replace( '/(\*\*AMAZONPOLLY\*SSML\*BREAK\*)(.*?)(\*\*\*)(.*?)(\*\*\*SSML\*\*)/', '', $source_text );
     $source_text = str_replace( '-AMAZONPOLLY-ONLYAUDIO-START-', '', $source_text );
@@ -139,6 +142,9 @@ class AmazonAI_Translator {
       $translated_text = $translated_text . ' ' . $translated_text_part;
 
     }
+
+		$logger->log(sprintf('%s Translated text:', __METHOD__));
+		$logger->log(sprintf('%s', $translated_text));
 
     return $translated_text;
 
@@ -206,9 +212,14 @@ class AmazonAI_Translator {
 		$common = new AmazonAI_Common();
 		$common->init();
 
+		$logger = new AmazonAI_Logger();
+		$logger->log(sprintf('%s Ajax Translate', __METHOD__));
+
 		$post_id = $_POST['post_id'];
 		$phase   = $_POST['phase'];
 		$langs   = $_POST['langs'];
+
+		$logger->log(sprintf('%s Phase ( %s )', __METHOD__, $phase));
 
 		$step       = '';
 		$percentage = 0;
@@ -225,6 +236,8 @@ class AmazonAI_Translator {
 			$step       = 'done';
 			$percentage = 100;
 
+			$logger->log(sprintf('%s Transalte functionality is not enabled )', __METHOD__));
+
 		} else {
 
 			foreach ( $common->get_all_translable_languages() as $supported_lan ) {
@@ -239,30 +252,20 @@ class AmazonAI_Translator {
 			if ( 'start' == $phase ) {
 
 				$langs = $all_langs;
-
-				if ( 'en' == $source_language ) {
-					$english_content = get_post_field('post_content', $post_id);
-					update_post_meta( $post_id, 'amazon_polly_transcript_en', $english_content );
-				}
-
 				update_post_meta( $post_id, 'amazon_ai_source_language', $source_language );
-
+				
 			} else {
 
+				$logger->log(sprintf('%s Languages ( %s )', __METHOD__, implode(" ", $langs)));
 
-				if ( ( $key = array_search( 'en', $langs ) ) !== false ) {
-					$language_code = 'en';
-					unset( $langs[ $key ] );
-				} else {
-					$language_code = array_shift( $langs );
-				}
+				# Check what language
+				$language_code = array_shift( $langs );
 
-				if ( 'en' == $language_code ) {
-					$clean_text = $common->clean_text( $post_id, false, false );
-				} else {
-					$english_content = get_post_meta( $post_id, 'amazon_polly_transcript_en', true );
-					$source_language   = 'en';
-				}
+				#Retrieve original text
+				$content = get_post_field('post_content', $post_id);
+				$clean_text = $common->clean_text( $post_id, false, false );
+
+				$logger->log(sprintf('%s Translating from ( %s ) to ( %s )', __METHOD__, $source_language, $language_code));
 
 				$wp_filesystem = $common->prepare_wp_filesystem();
 
@@ -271,7 +274,7 @@ class AmazonAI_Translator {
 					try {
 						$clean_title = $common->clean_text( $post_id, false, true );
 						$translated_title = $this->translate( $translate_client, $clean_title, $source_language,  $language_code);
-						$translated_text = $this->translate_post( $common, $translate_client, $english_content, $source_language,  $language_code);
+						$translated_text = $this->translate_post( $common, $translate_client, $content, $source_language,  $language_code);
 						update_post_meta( $post_id, 'amazon_polly_transcript_' . $language_code, $translated_text );
 						update_post_meta( $post_id, 'amazon_polly_transcript_title_' . $language_code, $translated_title );
 						$sentences = $common->break_text( $translated_text );
@@ -294,14 +297,11 @@ class AmazonAI_Translator {
 			}
 		}//end if
 
-		$next_langs = $langs;
-		if ( ( 'en' != $source_language ) && ( $key = array_search( 'en', $next_langs ) ) !== false ) {
-			$next_lang = 'en';
-		} else {
-			$next_lang = array_shift( $next_langs );
-		}
+		$temp_langs = $langs;
+		$next_lang = array_shift( $temp_langs );
 
 		if ( ! empty( $next_lang ) ) {
+			$logger->log(sprintf('%s Next language ( %s ))', __METHOD__, $next_lang));
 			$message = 'Translating from ' . $common->get_language_name( $source_language ) . ' to ' . $common->get_language_name( $next_lang );
 		} else {
 			$message = 'Translation completed!';

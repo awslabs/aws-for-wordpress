@@ -8,11 +8,7 @@
  * @package    Awspolly
  */
 
-
-error_log("DDD");
  // If uninstall not called from WordPress, then exit.
  if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-
-	 error_log("Usuwam");
 	 exit;
  }

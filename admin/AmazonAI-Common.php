@@ -12,23 +12,26 @@ class AmazonAI_Common
 
 	// Information about languages supported by the Amazon AI plugin
 	private $languages = [
-		['code' => 'da', 'name' => 'Danish', 'transable' => '', 'polly' => '1'],
-		['code' => 'nl', 'name' => 'Dutch', 'transable' => '', 'polly' => '1'],
+		['code' => 'da', 'name' => 'Danish', 'transable' => '1', 'polly' => '1'],
+		['code' => 'nl', 'name' => 'Dutch', 'transable' => '1', 'polly' => '1'],
 		['code' => 'zh', 'name' => 'Chinese', 'transable' => '1', 'polly' => '1'],
 		['code' => 'cs', 'name' => 'Czech', 'transable' => '1', 'polly' => ''],
 		['code' => 'en', 'name' => 'English', 'transable' => '1', 'polly' => '1'],
+		['code' => 'fi', 'name' => 'Finish', 'transable' => '1', 'polly' => ''],
 		['code' => 'fr', 'name' => 'French', 'transable' => '1', 'polly' => '1'],
 		['code' => 'de', 'name' => 'German', 'transable' => '1', 'polly' => '1'],
+		['code' => 'he', 'name' => 'Hebraw', 'transable' => '1', 'polly' => ''],
 		['code' => 'it', 'name' => 'Italian', 'transable' => '1', 'polly' => '1'],
+		['code' => 'id', 'name' => 'Indonesian', 'transable' => '1', 'polly' => ''],
 		['code' => 'ja', 'name' => 'Japanese', 'transable' => '1', 'polly' => '1'],
-		['code' => 'ko', 'name' => 'Korean', 'transable' => '', 'polly' => '1'],
+		['code' => 'ko', 'name' => 'Korean', 'transable' => '1', 'polly' => '1'],
 		['code' => 'nb', 'name' => 'Norwegian', 'transable' => '', 'polly' => '1'],
-		['code' => 'pl', 'name' => 'Polish', 'transable' => '', 'polly' => '1'],
+		['code' => 'pl', 'name' => 'Polish', 'transable' => '1', 'polly' => '1'],
 		['code' => 'pt', 'name' => 'Portuguese', 'transable' => '1', 'polly' => '1'],
 		['code' => 'ro', 'name' => 'Romanian', 'transable' => '', 'polly' => '1'],
 		['code' => 'ru', 'name' => 'Russian', 'transable' => '1', 'polly' => '1'],
 		['code' => 'es', 'name' => 'Spanish', 'transable' => '1', 'polly' => '1'],
-		['code' => 'sv', 'name' => 'Swedish', 'transable' => '', 'polly' => '1'],
+		['code' => 'sv', 'name' => 'Swedish', 'transable' => '1', 'polly' => '1'],
 		['code' => 'tr', 'name' => 'Turkish', 'transable' => '1', 'polly' => '1'],
 		['code' => 'cy', 'name' => 'Welsh', 'transable' => '', 'polly' => '1']
 	];
@@ -213,13 +216,15 @@ class AmazonAI_Common
 	private $s3_handler;
 	private $local_file_handler;
 	private $translate;
+	private $logger;
+
 	/**
 	 * Creates SDK objects for the plugin.
 	 *
 	 * @since    2.5.0
 	 */
 	public function __construct() {
-		//Empty
+		$this->logger = new AmazonAI_Logger();
 	}
 
 	public function init() {
@@ -373,6 +378,7 @@ class AmazonAI_Common
 		}
 	}
 
+
 	public function is_polly_enabled_for_new_posts() {
 		if ( $this->is_polly_enabled() ) {
 			$default_configuration = get_option( 'amazon_polly_defconf' );
@@ -384,6 +390,19 @@ class AmazonAI_Common
 		}
 	}
 
+	/**
+	 * Validates if logging is enabled.
+	 *
+	 * @since  2.6.1
+	 */
+	public function is_logging_enabled() {
+			$value = $this->checked_validator('amazon_ai_logging');
+			if ('checked' == trim($value)) {
+				return true;
+			} else {
+				return false;
+			}
+	}
 
 	/**
 	 * Validates if Amazon Polly support is enabled.
@@ -438,7 +457,7 @@ class AmazonAI_Common
 						'us-west-2',
 						'eu-west-1'
 					);
-					$selected_region = get_option('amazon_polly_region', '');
+					$selected_region = $this->get_aws_region();
 					if (in_array($selected_region, $supported_regions)) {
 						if ('checked' == trim($start_value)) {
 							if ($translate_accessible) {
@@ -467,7 +486,7 @@ class AmazonAI_Common
 
 		if ( empty( $cloudfront_domain_name ) ) {
 
-			$selected_region = get_option( 'amazon_polly_region' );
+			$selected_region = $this->get_aws_region();
 
 			$audio_location_link = 'https://s3.' . $selected_region . '.amazonaws.com/' . $s3BucketName . '/' . $key;
 		} else {
@@ -572,6 +591,29 @@ class AmazonAI_Common
 		});
 	}
 
+
+	public function get_sample_rate() {
+		$sample_rate = get_option('amazon_polly_sample_rate');
+		if (empty($sample_rate)) {
+			$sample_rate = '22050';
+			update_option('amazon_polly_sample_rate', $sample_rate);
+		}
+
+		$this->logger->log(sprintf('%s Sample rate: %s ', __METHOD__, $sample_rate));
+
+		return $sample_rate;
+	}
+
+	public function get_voice_id() {
+		$voice_id = get_option('amazon_polly_voice_id');
+		if (empty($voice_id)) {
+			$voice_id = 'Matthew';
+			update_option('amazon_polly_voice_id', $voice_id);
+		}
+
+		return $voice_id;
+	}
+
 	/**
 	 * Returns the name of the AWS region, which should be used by the plugin.
 	 *
@@ -589,8 +631,8 @@ class AmazonAI_Common
 	}
 
 	public function if_translable_enabled_for_language($language_code) {
-		$option = 'amazon_polly_trans_langs_' . $language_code;
-		$value = $this->check_if_language_is_checked($option);
+		$source_language_code = $this->get_source_language();
+		$value = $this->check_if_language_is_checked($language_code, $source_language_code);
 		if (empty($value)) {
 			return false;
 		} else {
@@ -603,12 +645,17 @@ class AmazonAI_Common
 	 *
 	 * @since  2.0.0
 	 */
-	public function check_if_language_is_checked($lang_code)
+	public function check_if_language_is_checked($language_code, $source_language_code)
 	{
-		$value = get_option($lang_code, '');
-		if ('amazon_polly_trans_langs_en' == $lang_code) {
-			return ' checked ';
+		#Some translations between languages are not supported by the service.
+		#Details: https://docs.aws.amazon.com/translate/latest/dg/pairs.html
+		if (!$this->is_translation_supported($source_language_code, $language_code)) {
+			return '';
 		}
+
+		$option = 'amazon_polly_trans_langs_' . $language_code;
+
+		$value = get_option($option, '');
 
 		if (empty($value)) {
 			return '';
@@ -644,6 +691,10 @@ class AmazonAI_Common
 	public function get_posttypes()
 	{
 		$posttypes = get_option('amazon_polly_posttypes', 'post');
+		$posttypes = str_replace(",", " ", $posttypes);
+		$posttypes = preg_replace('!\s+!', ' ', $posttypes);
+		update_option('amazon_polly_posttypes', $posttypes);
+
 		return $posttypes;
 	}
 
@@ -699,6 +750,25 @@ class AmazonAI_Common
 		$lexicons = get_option('amazon_polly_lexicons', '');
 		$lexicons = trim($lexicons);
 		return $lexicons;
+	}
+
+	/**
+	 * Check if Powered by AWS option is enabled
+	 *
+	 * @since  1.0.7
+	 */
+	public function is_poweredby_enabled()
+	{
+		$poweredby = get_option('amazon_polly_poweredby', 'on');
+
+		if (empty($poweredby)) {
+			$result = false;
+		}
+		else {
+			$result = true;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -903,6 +973,9 @@ class AmazonAI_Common
 	 * @since    1.0.0
 	 */
 	public function prepare_wp_filesystem() {
+		/** Ensure WordPress Administration File API is loaded as REST requests do not load the file API */
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
+
 		$url   = wp_nonce_url( admin_url( 'post-new.php' ) );
 		$creds = request_filesystem_credentials( $url );
 
@@ -1033,6 +1106,9 @@ class AmazonAI_Common
 	 */
 	public function clean_text($post_id, $with_title, $only_title)
 	{
+
+		#$this->logger->log(sprintf('%s Cleaning text (%s, %s) ', __METHOD__, $with_title, $only_title));
+
 		$clean_text = '';
 
 		// Depending on the plugin configurations, post's title will be added to the audio.
@@ -1305,6 +1381,15 @@ class AmazonAI_Common
 		);
 		wp_localize_script( 'jquery', 'pollyajax', $nonce_array );
 
+	}
+
+	public function is_translation_supported($source_language, $target_language) {
+
+		if (( 'ko'== $source_language ) && ( 'he' == $target_language )) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

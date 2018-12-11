@@ -94,7 +94,8 @@ class Amazonpolly_PollyCast {
 	 * @return   list list of types.
 	 */
 	public function get_posttypes_array() {
-		$posttypes_array = get_option( 'amazon_polly_posttypes', 'post' );
+		$this->common = new AmazonAI_Common();
+		$posttypes_array = $this->common->get_posttypes();
 		$posttypes_array = explode( ' ', $posttypes_array );
 		$posttypes_array = apply_filters( 'amazon_polly_post_types', $posttypes_array );
 
@@ -112,7 +113,11 @@ class Amazonpolly_PollyCast {
 	 */
 	public function get_audio_file_location( $post_id ) {
 		$audio_file_location = get_post_meta( $post_id, 'amazon_polly_audio_link_location', true );
-		$audio_file_location = str_replace( 'https://', 'http://', $audio_file_location );
+
+		$https_enabled = get_option( 'amazon_polly_podcast_https' );
+		if ( empty( $https_enabled ) ) {
+		  $audio_file_location = str_replace( 'https://', 'http://', $audio_file_location );
+		}
 
 		return $audio_file_location;
 	}

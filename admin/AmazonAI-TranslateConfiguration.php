@@ -118,12 +118,18 @@ class AmazonAI_TranslateConfiguration
         $lan_label_option = 'amazon_polly_trans_langs_' . $lanuage . '_label';
         $lan_display = 'amazon_polly_trans_langs_' . $lanuage . '_display';
         $disabled         = '';
-        if (($src_lang == $lanuage) or ('en' == $lanuage)) {
+        if ( $src_lang == $lanuage ) {
             $disabled = 'disabled';
         }
 
+        #Some translations between languages are not supported by the service.
+        #Details: https://docs.aws.amazon.com/translate/latest/dg/pairs.html
+        if (!$this->common->is_translation_supported($src_lang, $lanuage)) {
+          $disabled = 'disabled';
+        }
+
         echo '<tr>';
-        echo '<td><input type="checkbox" name="' . $lan_option . '" id="' . $lan_option . '" ' . $this->common->check_if_language_is_checked($lan_option, $src_lang) . ' ' . $disabled . '>' . $language_name . ' </td><td>';
+        echo '<td><input type="checkbox" name="' . $lan_option . '" id="' . $lan_option . '" ' . $this->common->check_if_language_is_checked($lanuage, $src_lang) . ' ' . $disabled . '>' . $language_name . ' </td><td>';
         $voice_id = get_option($lan_voice_option);
 
         if ($this->common->is_audio_for_translations_enabled()) {
@@ -262,7 +268,7 @@ class AmazonAI_TranslateConfiguration
                     'us-west-2',
                     'eu-west-1'
                 );
-                $selected_region      = get_option('amazon_polly_region', '');
+                $selected_region      = $this->common->get_aws_region();
                 if (in_array($selected_region, $supported_regions)) {
                     echo '<input type="checkbox" name="amazon_polly_trans_enabled" id="amazon_polly_trans_enabled" ' . $this->common->checked_validator('amazon_polly_trans_enabled') . '> ';
                     if ('checked' == trim($start_value)) {

@@ -265,7 +265,7 @@ public function playerlabel_gui() {
 	 */
 	public function sample_rate_gui() {
 
-  			$sample_rate  = get_option( 'amazon_polly_sample_rate' );
+  			$sample_rate  = $this->common->get_sample_rate();
   			$sample_array = array( '22050', '16000', '8000' );
 
   			echo '<select name="amazon_polly_sample_rate" id="amazon_polly_sample_rate" >';
@@ -387,7 +387,7 @@ public function playerlabel_gui() {
 		}
 
 
-			$voice_id   = get_option( 'amazon_polly_voice_id' );
+			$voice_id   = $this->common->get_voice_id();
 			$voice_list = $this->common->get_polly_voices();
       $language_name = $this->common->get_source_language_name();
 

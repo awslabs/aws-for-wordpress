@@ -117,12 +117,21 @@ class Amazonpolly_Public {
 					$autoplay = '';
 				}
 
+
 				// Prepare "Power By" label.
-				if ( is_singular() ) {
-					$image  = __('<img src="https://d12ee1u74lotna.cloudfront.net/images/Voiced_by_Amazon_Polly_EN.png" width="100" alt="Voiced by Amazon Polly" >', $this->plugin_name);
-					$voice_by_part = '<a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer">' . $image . '</a>';
-				} else {
-					$voice_by_part = '';
+				$voice_by_part = '';
+				if ( $common->is_poweredby_enabled() ) {
+					if ( is_singular() ) {
+						$image  = __('<img src="https://d12ee1u74lotna.cloudfront.net/images/Voiced_by_Amazon_Polly_EN.png" width="100" alt="Voiced by Amazon Polly" >', $this->plugin_name);
+					/**
+					 * Filters the voiced by Polly image HTML
+					 *
+					 * @param string $image Voiced by Polly image HTML
+					 * @param string $locale The current page locale
+					 */
+					$image  = apply_filters('amazon_polly_voiced_by_html', $image, get_locale());
+            $voice_by_part = '<a href="https://aws.amazon.com/polly/" target="_blank" rel="noopener noreferrer">' . $image . '</a>';
+					}
 				}
 
 				// Removing Amazon Polly special tags.

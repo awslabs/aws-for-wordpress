@@ -22,6 +22,11 @@ abstract class AmazonAI_FileHandler {
         $prefix = '';
       }
 
-      return $prefix;
+      /**
+       * Filters the file prefix used to generate the file path
+       *
+       * @param string $prefix The file prefix
+       */
+      return apply_filters('amazon_polly_file_prefix', $prefix);
     }
 }

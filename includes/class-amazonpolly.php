@@ -112,18 +112,21 @@ class Amazonpolly {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/amazonpolly-metabox.php';
 
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-BackgroundTask.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-Exceptions.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-Translator.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-FileHandler.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-LocalFileHandler.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-S3FileHandler.php';
 
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-Logger.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-Common.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-PollyService.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-GeneralConfiguration.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-PollyConfiguration.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-TranslateConfiguration.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-PodcastConfiguration.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-AlexaConfiguration.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -174,19 +177,24 @@ class Amazonpolly {
 	 */
 	private function define_admin_hooks() {
 
+		$background_task = new AmazonAI_BackgroundTask();
 		$general_configuration = new AmazonAI_GeneralConfiguration();
 		$polly_configuration = new AmazonAI_PollyConfiguration();
 		$translate_configuration = new AmazonAI_TranslateConfiguration();
 		$podcast_configuration = new AmazonAI_PodcastConfiguration();
+		$alexa_configuration = new AmazonAI_AlexaConfiguration();
 		$polly_service = new AmazonAI_PollyService();
 		$common = new AmazonAI_Common();
 		$translate_service = new AmazonAI_Translator();
+
+		$this->loader->add_action( sprintf('admin_post_%s', AmazonAI_BackgroundTask::ADMIN_POST_ACTION), $background_task, 'run' );
 
 		$this->loader->add_action( 'admin_print_footer_scripts', $common, 'add_quicktags' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $common, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $common, 'enqueue_scripts' );
 		$this->loader->add_action( 'add_meta_boxes', $common, 'field_checkbox' );
 		$this->loader->add_action( 'save_post', $polly_service, 'save_post', 10, 3 );
+		$this->loader->add_action( 'amazon_polly_background_task_generate_post_audio', $polly_service, 'generate_audio', 10, 3 );
 
 
 		$this->loader->add_action( 'before_delete_post', $common, 'delete_post' );
@@ -205,6 +213,7 @@ class Amazonpolly {
 		$this->loader->add_action( 'admin_menu', $podcast_configuration, 'amazon_ai_add_menu' );
 		$this->loader->add_action( 'admin_menu', $podcast_configuration, 'display_options' );
 
+		#$this->loader->add_action( 'admin_menu', $alexa_configuration, 'amazon_ai_add_menu' );
 
 		$plugin = plugin_basename( plugin_dir_path( dirname( __FILE__ ) ) . 'amazonpolly.php' );
 

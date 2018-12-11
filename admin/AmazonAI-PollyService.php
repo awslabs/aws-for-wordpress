@@ -11,9 +11,11 @@
  */
 
 class AmazonAI_PollyService {
+	const GENERATE_POST_AUDIO_TASK = 'generate_post_audio';
+	const NONCE_NAME = 'amazon-polly-post-nonce';
 
 	/**
-	 * Important. Run whenever new post is being created (or updated). The method executes Amazon Polly API to create audio file.
+	 * Important. Run whenever new post is being created (or updated). The method generates a background task to generate the audio file.
 	 *
 	 * @since    1.0.0
 	 */
@@ -22,6 +24,9 @@ class AmazonAI_PollyService {
 		// Creating new standard common object for interacting with other methods of the plugin.
 		$common = new AmazonAI_Common();
 		$common->init();
+
+		$logger = new AmazonAI_Logger();
+		$logger->log(sprintf('%s Saving post ( id=%s )', __METHOD__, $post_id));
 
 		// Check if this isn't an auto save.
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -36,71 +41,93 @@ class AmazonAI_PollyService {
 		// Validate if this post which is being saved is one of supported types. If not, return.
 		$post_types_supported = $common->get_posttypes_array();
 		$post_type = get_post_type($post_id);
-		if (!in_array($post_type, $post_types_supported )) {
+		if ( !in_array($post_type, $post_types_supported) ) {
 			return;
 		}
 
-		$is_quick_edit = isset($_POST['_inline_edit']) && wp_verify_nonce($_POST['_inline_edit'], 'inlineeditnonce');
-		$is_polly_nonce_ok = isset( $_POST['amazon-polly-post-nonce'] ) && wp_verify_nonce( sanitize_key( $_POST['amazon-polly-post-nonce'] ), 'amazon-polly' );
+		// If nonce is valid then update post meta
+		// If it's not valid then this is probably a quick or bulk edit request in which case we won't update the polly post meta
+		if ( isset($_POST[self::NONCE_NAME]) && wp_verify_nonce($_POST[self::NONCE_NAME], 'amazon-polly') ) {
+			update_post_meta( $post_id, 'amazon_polly_enable', (int) isset($_POST['amazon_polly_enable']));
 
-		// Check if this post is saved in 'regular' way.
-		if (  $is_polly_nonce_ok || $is_quick_edit ) {
-
-			$is_polly_enabled = isset( $_POST['amazon_polly_enable'] );
-
-			// Check if translation deactivation flag is enabled. If yes, disable
-			// and delete all files.
-			$is_translate_deactivation_enabled = isset( $_POST['amazon_ai_deactive_translation'] );
-			if ( !empty($is_translate_deactivation_enabled) ) {
+			// If disabling post translation
+			if ( isset($_POST['amazon_ai_deactive_translation']) ) {
 				$common->deactive_translation_for_post($post_id);
 			}
 
-			$is_post_id_available = isset( $post_id );
-			$is_key_valid = ( get_option( 'amazon_polly_valid_keys' ) === '1' );
-
-			// If this is quick edit, we need to check other place to see if polly was already enabled for this post.
-			if ( $is_post_id_available && $is_quick_edit ) {
-				if ( 1 == get_post_meta( $post_id, 'amazon_polly_enable', true)) {
-					$is_polly_enabled = true;
-				}
-			}
-
-			// Input var okay.
-			$is_amazon_polly_voice_id_available = isset( $_POST['amazon_polly_voice_id'] );
-
-			if ( $is_post_id_available && $is_polly_enabled && $is_key_valid && $is_amazon_polly_voice_id_available ) {
-
-				// Getting voice and sample rate which should be used for converting post to audio.
-				$voice_id = sanitize_text_field( wp_unslash( $_POST['amazon_polly_voice_id'] ) );
-				$sample_rate   = get_option( 'amazon_polly_sample_rate' );
-
-				// Cleaning text. Includes for example removing not supported characters etc.
-				$clean_text    = $common->clean_text( $post_id, true, false);
-
-				// Breaking text into smaller parts, which will be then send to Amazon Polly for conversion.
-				$sentences     = $common->break_text( $clean_text );
-
-				// We will be operating on local file system for stiching files together.
-				$wp_filesystem = $common->prepare_wp_filesystem();
-
-				// Actual invocation of method which will call Amazon Polly API and create audio file.
-				$this->convert_to_audio( $post_id, $sample_rate, $voice_id, $sentences, $wp_filesystem, '' );
-
-				// Checking what was the source language of text and updating options for translate operations.
-				$source_language = $common->get_source_language();
-				update_post_meta( $post_id, 'amazon_polly_transcript_' . $source_language, $clean_text );
-				update_post_meta( $post_id, 'amazon_polly_transcript_source_lan', $source_language );
-
-			}
-
-			// It's possible that Amazon Polly was not enabled, then we make sure that the audio file
-			// for the post is deleted (if existing) and options are removed.
-			if ( $is_post_id_available && ! $is_polly_enabled ) {
-				$common->delete_post_audio( $post_id );
-				update_post_meta( $post_id, 'amazon_polly_enable', 0 );
-				update_post_meta( $post_id, 'amazon_polly_audio_location', '' );
+			// Update post voice ID
+			if ( isset( $_POST['amazon_polly_voice_id']) ) {
+				$voice_id = sanitize_text_field(wp_unslash($_POST['amazon_polly_voice_id']));
+				update_post_meta( $post_id, 'amazon_polly_voice_id', $voice_id);
 			}
 		}
+
+    $background_task = new AmazonAI_BackgroundTask();
+    $background_task->trigger(self::GENERATE_POST_AUDIO_TASK, [ $post_id ]);
+	}
+
+	/**
+	 * Important. Executes the Amazon Polly API to create audio file and save to the configured storage location
+	 *
+	 * @since    1.0.0
+	 */
+	public function generate_audio( $post_id ) {
+
+		$logger = new AmazonAI_Logger();
+		$logger->log(sprintf('%s Generating audio for post ( id=%s )', __METHOD__, $post_id));
+
+		/**
+		 * Fires before attempting to generate and save the Amazon Polly audio files
+		 *
+		 * @param int $post_id The post id to generate audio files for
+		 */
+		do_action('amazon_polly_pre_generate_audio', $post_id);
+
+		// Creating new standard common object for interacting with other methods of the plugin.
+		$common = new AmazonAI_Common();
+		$common->init();
+
+		$is_polly_enabled = (bool) get_post_meta($post_id, 'amazon_polly_enable', true);
+		$is_key_valid = (bool) get_option('amazon_polly_valid_keys');
+		$voice_id = get_post_meta($post_id, 'amazon_polly_voice_id', true);
+
+		if ( $is_polly_enabled && $is_key_valid ) {
+
+			$logger->log(sprintf('%s Basic validation OK', __METHOD__));
+
+			// Sammple Rate
+			$sample_rate   = $common->get_sample_rate();
+
+			// Cleaning text. Includes for example removing not supported characters etc.
+			$clean_text    = $common->clean_text( $post_id, true, false);
+
+			// Breaking text into smaller parts, which will be then send to Amazon Polly for conversion.
+			$sentences     = $common->break_text( $clean_text );
+
+			// We will be operating on local file system for stiching files together.
+			$wp_filesystem = $common->prepare_wp_filesystem();
+
+			// Actual invocation of method which will call Amazon Polly API and create audio file.
+			$this->convert_to_audio( $post_id, $sample_rate, $voice_id, $sentences, $wp_filesystem, '' );
+
+			// Checking what was the source language of text and updating options for translate operations.
+			$source_language = $common->get_source_language();
+			update_post_meta( $post_id, 'amazon_polly_transcript_' . $source_language, $clean_text );
+			update_post_meta( $post_id, 'amazon_polly_transcript_source_lan', $source_language );
+		}
+
+		// Remove audio files and post meta (if existing) if Polly is not enabled
+		else if ( ! $is_polly_enabled ) {
+			$common->delete_post_audio( $post_id );
+			update_post_meta( $post_id, 'amazon_polly_audio_location', '' );
+		}
+
+		/**
+		 * Fires after attempting to generate and save the Amazon Polly audio files
+		 *
+		 * @param int $post_id The post id to generate audio files for
+		 */
+		do_action('amazon_polly_post_generate_audio', $post_id, $is_polly_enabled);
 	}
 
 	private function start_speech_synthesis_task($common, $post_id, $sample_rate, $voice_id, $sentences, $lang) {
@@ -300,7 +327,6 @@ class AmazonAI_PollyService {
 
 			//Call Amazon Polly service.
 			if ( ! empty( $lexicons ) and ( count( $lexicons_array ) > 0 ) ) {
-
 				$result = $polly_client->synthesizeSpeech(
 					array(
 						'OutputFormat' => 'mp3',
@@ -451,8 +477,8 @@ class AmazonAI_PollyService {
 			$common = new AmazonAI_Common();
 			$common->init();
 			$post_types_supported        = $common->get_posttypes_array();
-			$amazon_polly_voice_id       = get_option( 'amazon_polly_voice_id' );
-			$amazon_polly_sample_rate    = get_option( 'amazon_polly_sample_rate' );
+			$amazon_polly_voice_id       = $common->get_voice_id();
+			$amazon_polly_sample_rate    = $common->get_sample_rate();
 			$amazon_polly_audio_location = ( 'on' === get_option( 'amazon_polly_s3' ) ) ? 's3' : 'local';
 
 			// We are using a hash of these values to improve the speed of queries.
