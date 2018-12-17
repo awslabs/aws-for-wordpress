@@ -1135,6 +1135,9 @@ class AmazonAI_Common
 
 		$clean_text = str_replace('&nbsp;', ' ', $clean_text);
 		$clean_text = do_shortcode($clean_text);
+
+		$clean_text = $this->skip_tags($clean_text);
+
 		$is_ssml_enabled = $this->is_ssml_enabled();
 		if ($is_ssml_enabled) {
 			$clean_text = $this->encode_ssml_tags($clean_text);
@@ -1219,6 +1222,16 @@ class AmazonAI_Common
 
 	}
 
+	private function skip_tags($text) {
+
+		$skip_tags_array = $this->get_skiptags_array();
+
+		foreach ($skip_tags_array as $value) {
+			$text = preg_replace('/<' . $value . '>(\s*?)(.*?)(\s*?)<\/' . $value . '>/', '', $text);
+		}
+
+		return $text;
+	}
 
 	/**
 	 * Encode SSML tags.
@@ -1317,6 +1330,19 @@ class AmazonAI_Common
 			'time' => true,
 		);
 		return $tags;
+	}
+
+	/**
+	 * Return skip tags array.
+	 *
+	 * @since  1.0.7
+	 */
+	public function get_skiptags_array() {
+		$array = get_option( 'amazon_ai_skip_tags' );
+		$array = explode( ' ', $array );
+
+		return $array;
+
 	}
 
 	/**

@@ -74,7 +74,7 @@ class AmazonAI_PollyConfiguration {
         			add_settings_field( 'amazon_polly_add_post_title', __( 'Add post title to audio:', 'amazonpolly' ), array( $this, 'add_post_title_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_polly_add_post_title' ) );
         			add_settings_field( 'amazon_polly_add_post_excerpt', __( 'Add post excerpt to audio:', 'amazonpolly' ), array( $this, 'add_post_excerpt_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_polly_add_post_excerpt' ) );
               add_settings_field( 'amazon_ai_medialibrary_enabled', __( 'Enable Media Library support:', 'amazonpolly' ), array( $this, 'medialibrary_enabled_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_ai_medialibrary_enabled' ) );
-
+              add_settings_field( 'amazon_ai_skip_tags', __( 'Skip tags:', 'amazonpolly' ), array( $this, 'skiptags_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_ai_skip_tags' ) );
 
         			//Registration
         			register_setting('amazon_ai_polly', 'amazon_polly_sample_rate');
@@ -93,6 +93,8 @@ class AmazonAI_PollyConfiguration {
         			register_setting('amazon_ai_polly', 'amazon_polly_add_post_title');
         			register_setting('amazon_ai_polly', 'amazon_polly_add_post_excerpt');
               register_setting('amazon_ai_polly', 'amazon_ai_medialibrary_enabled');
+              register_setting('amazon_ai_polly', 'amazon_ai_skip_tags');
+
             }
           }
         }
@@ -221,6 +223,18 @@ class AmazonAI_PollyConfiguration {
 
 
 	}
+
+    /**
+  	 * Render the Player Label input.
+  	 *
+  	 * @since  1.0.3
+  	 */
+  public function skiptags_gui() {
+
+  		$tags = get_option( 'amazon_ai_skip_tags' );
+  		echo '<input type="text" class="regular-text" name="amazon_ai_skip_tags" id="amazon_ai_skip_tags" value="' . esc_attr( $tags ) . '"> ';
+
+  }
 
 	/**
 	 * Render the Player Label input.

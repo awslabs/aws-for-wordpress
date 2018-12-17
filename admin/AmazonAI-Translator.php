@@ -253,7 +253,7 @@ class AmazonAI_Translator {
 
 				$langs = $all_langs;
 				update_post_meta( $post_id, 'amazon_ai_source_language', $source_language );
-				
+
 			} else {
 
 				$logger->log(sprintf('%s Languages ( %s )', __METHOD__, implode(" ", $langs)));
@@ -266,7 +266,6 @@ class AmazonAI_Translator {
 				$clean_text = $common->clean_text( $post_id, false, false );
 
 				$logger->log(sprintf('%s Translating from ( %s ) to ( %s )', __METHOD__, $source_language, $language_code));
-
 				$wp_filesystem = $common->prepare_wp_filesystem();
 
 				if ( $common->is_language_translable( $language_code ) and ( $language_code != $source_language ) ) {
@@ -281,6 +280,7 @@ class AmazonAI_Translator {
 
 						// Create audio files for files only if this functionality is enabled.
 						if ( $common->is_audio_for_translations_enabled() ) {
+							$logger->log(sprintf('%s Starting preparing audio version', __METHOD__));
 							$polly->convert_to_audio( $post_id, '', '', $sentences, $wp_filesystem, $language_code );
 						}
 					} catch(Exception $e) {
