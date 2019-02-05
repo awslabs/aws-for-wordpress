@@ -136,7 +136,6 @@ class Amazonpolly_PollyCast {
 		} else {
 			$site_image = plugins_url() . '/' . plugin_basename( dirname( dirname( __FILE__ ) ) ) . '/img/amazon-polly-logo.jpg';
 		}
-		$site_image = str_replace( 'https://', 'http://', $site_image );
 
 		return $site_image;
 	}

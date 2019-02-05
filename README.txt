@@ -3,15 +3,15 @@ Contributors: awslabs, wpengine, tstachlewski, stevenkword
 Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly, Amazon Translate, Translate, Translation, Podcast, AI
 Requires at least: 3.0.1
 Requires PHP: 5.6
-Tested up to: 4.9
-Stable tag: 2.6.2
+Tested up to: 5.0
+Stable tag: 2.6.3
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 
 == Description ==
 
-Create audio version of your posts, translate them into other languages and create podcasts! Amazon Polly is a service that turns text into lifelike speech. With dozens of voices across a variety of languages, you can select the ideal voice and build engaging speech-enabled applications that work in many different countries. The Amazon Polly plugin for WordPress is a sample application that shows how WordPress creators can easily add Text-to-Speech capabilities to written content with Amazon Polly. You can generate an audio feed for text-based content and insert it into an embedded player to increase the accessibility of your WordPress site. The sample code also enables you to publish podcasts directly from your site and make them available for listeners in the form of podcasts. In addition, the plugin allows to translate your text from one language to another using Amazon Translate– which is a neural machine translation service that delivers fast, high-quality, and affordable language translation. Amazon Translate allows you to localize content - such as websites and applications - for international users, and to easily translate large volumes of text efficiently.
+Create audio version of your posts, translate them into other languages and create podcasts! Amazon Polly is a service that turns text into lifelike speech. With dozens of voices across a variety of languages, you can select the ideal voice and build engaging speech-enabled applications that work in many different countries. The Amazon AI plugin for WordPress is a sample application that shows how WordPress creators can easily add Text-to-Speech capabilities to written content with Amazon Polly. You can generate an audio feed for text-based content and insert it into an embedded player to increase the accessibility of your WordPress site. The sample code also enables you to publish podcasts directly from your site and make them available for listeners in the form of podcasts. In addition, the plugin allows to translate your text from one language to another using Amazon Translate– which is a neural machine translation service that delivers fast, high-quality, and affordable language translation. Amazon Translate allows you to localize content - such as websites and applications - for international users, and to easily translate large volumes of text efficiently.
 
 == Installation ==
 
@@ -185,7 +185,7 @@ No. All audio files are being preserved. Depending on your configuration, they w
 
 Amazon Polly itself support multiple SSML tags (You can find more about them here: https://docs.aws.amazon.com/polly/latest/dg/ssml.html).
 
-The Amazon Polly Plugin currently supports only the <break> SSML tag (you can find more about it at this page: https://docs.aws.amazon.com/polly/latest/dg/supported-ssml.html).
+The Amazon AI Plugin currently supports only the <break> SSML tag (you can find more about it at this page: https://docs.aws.amazon.com/polly/latest/dg/supported-ssml.html).
 
 To use SSML tags, you will need to enable Amazon S3 as the storage location for your files and enable SSML support in the plugin configuration page. In the wizard for creating a new WordPress post, you will be able to add ssml tags. An example of content with the SSML break tag is:
 
@@ -229,19 +229,12 @@ Pronunciation lexicons enable you to customize the pronunciation of words. In th
 2. When generating text-based content, the user can also produce a voiced version of the same content by activating Amazon Polly.
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
-== What is "Audio Only" functionality? ==
-
-If you want to add something to the audio but you don't want to display it in the browser, you use the -AMAZONPOLLY-ONLYAUDIO- tag. For example:
-
--AMAZONPOLLY-ONLYAUDIO-START-
-
-[Text that will be read by the plugin but not shown in the browser.]
-
--AMAZONPOLLY-ONLYAUDIO-END-
-
-Important: Text will be shown in transcript if translate functionality is enabled, even if it was marked as "Audio Only".
-
 == Changelog ==
+
+= 2.6.3 =
+* Added possibility to specify combination of label and flag to be displayed with translations.
+* Added possibility to add 'Subscribe' Button on the page
+* Added possibility to disable 'download' button for audio files.
 
 = 2.6.2 =
 * Added possibility to specify tags, which won't be read (for example 'audio'). This option is available under 'Text-To-Speech' tab as 'Skip tags' option.

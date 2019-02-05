@@ -75,6 +75,7 @@ class AmazonAI_PollyConfiguration {
         			add_settings_field( 'amazon_polly_add_post_excerpt', __( 'Add post excerpt to audio:', 'amazonpolly' ), array( $this, 'add_post_excerpt_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_polly_add_post_excerpt' ) );
               add_settings_field( 'amazon_ai_medialibrary_enabled', __( 'Enable Media Library support:', 'amazonpolly' ), array( $this, 'medialibrary_enabled_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_ai_medialibrary_enabled' ) );
               add_settings_field( 'amazon_ai_skip_tags', __( 'Skip tags:', 'amazonpolly' ), array( $this, 'skiptags_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_ai_skip_tags' ) );
+              add_settings_field( 'amazon_ai_download_enabled', __( 'Enable download audio:', 'amazonpolly' ), array( $this, 'download_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_ai_download_enabled' ) );
 
         			//Registration
         			register_setting('amazon_ai_polly', 'amazon_polly_sample_rate');
@@ -94,6 +95,7 @@ class AmazonAI_PollyConfiguration {
         			register_setting('amazon_ai_polly', 'amazon_polly_add_post_excerpt');
               register_setting('amazon_ai_polly', 'amazon_ai_medialibrary_enabled');
               register_setting('amazon_ai_polly', 'amazon_ai_skip_tags');
+              register_setting('amazon_ai_polly', 'amazon_ai_download_enabled');
 
             }
           }
@@ -168,6 +170,15 @@ class AmazonAI_PollyConfiguration {
 			echo '<p class="description" for="amazon_polly_add_post_excerpt">If enabled, each audio file will have post excerpt at the beginning.</p>';
 
 	}
+
+
+  public function download_gui() {
+
+      echo '<input type="checkbox" name="amazon_ai_download_enabled" id="amazon_ai_download_enabled" ' . $this->common->checked_validator( 'amazon_ai_download_enabled' ) . '> ';
+      echo '<p class="description" for="amazon_polly_add_post_excerpt">If enabled, browser will show download button next to audio</p>';
+
+  }
+
 
 	/**
 	 * Render the Add post title to audio input.

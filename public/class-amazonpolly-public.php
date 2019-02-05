@@ -166,12 +166,16 @@ class Amazonpolly_Public {
 						}
 					}
 
+					$subscribe_part = $this->get_subscribe_part();
+
+
 					$polly_content = '
 					<table id="amazon-polly-audio-table">
 						<tr>
 						<td id="amazon-polly-audio-tab">
 							<div id="amazon-ai-player-label">' . $player_label . '</div>
 							' . $audio_part . '
+							<div id="amazon-polly-subscribe-tab">' . $subscribe_part . '</div>
 							<div id="amazon-polly-by-tab">' . $voice_by_part . '</div>
 						</td>
 						</tr>
@@ -246,12 +250,17 @@ class Amazonpolly_Public {
 		$link = esc_url( add_query_arg( 'amazonai-language', $language ));
 
 		$display = $common->get_language_display( $language );
+		$translate_option_flag_button = '<div class="amazon-ai-flag"><a href="' . $link . '"><img src="https://d12ee1u74lotna.cloudfront.net/images/flags/' . $language . '.png" class="amazon-ai-flag-image" alt="' . $language . ' flag"></a></div>';
+		$translate_option_label_button = '<div class="amazon-polly-trans-label"><a href="' . $link . '">' . $common->get_language_label($language) . '&emsp;</a></div>';
 
 		if (strcmp("Flag", $display) === 0) {
-			return '<div class="amazon-ai-flag"><a href="' . $link . '"><img src="https://d12ee1u74lotna.cloudfront.net/images/flags/' . $language . '.png" class="amazon-ai-flag-image" alt="' . $language . ' flag"></a></div>';
+			return $translate_option_flag_button;
+		} elseif (strcmp("Label", $display) === 0) {
+			return $translate_option_label_button;
 		} else {
-			return '<div class="amazon-polly-trans-label"><a href="' . $link . '">' . $common->get_language_label($language) . '&emsp;</a></div>';
+			return $translate_option_flag_button . $translate_option_label_button;
 		}
+
 	}
 
 
@@ -271,13 +280,37 @@ class Amazonpolly_Public {
 			$new_audio_location = str_replace( '.mp3', $language_code . '.mp3', $audio_location );
 		}
 
+		$common = new AmazonAI_Common();
+		$controlsList = '';
+		if ( !$common->is_audio_download_enabled() ) {
+			$controlsList = ' controlsList="nodownload" ';
+		}
+
 		$response = '<div id="amazon-ai-player-container">
-			<audio class="amazon-ai-player" id="amazon-ai-player" preload="none" controls ' . $autoplay . '>
+			<audio class="amazon-ai-player" id="amazon-ai-player" preload="none" controls ' . $autoplay . ' ' . $controlsList . '>
 				<source type="audio/mpeg" src="' . $new_audio_location . '">
 			</audio>
 		</div>';
 
 		return $response;
+	}
+
+	public function get_subscribe_part() {
+
+		$part = '';
+
+		$common = new AmazonAI_Common();
+		$is_subscribe_button_enabled = $common->is_subscribe_button_enabled();
+		if ($is_subscribe_button_enabled) {
+
+			$button_image = apply_filters('amazon_ai_subscribe_button_image', 'https://d12ee1u74lotna.cloudfront.net/images/subscribe_general.png');
+			$image = '<img src="' . $button_image . '" width="100" alt="Subscribe" >';
+			$link = esc_url($common->get_subscribe_link());
+
+			$part = '<a href="' . $link . '" target="_blank" rel="noopener noreferrer">' . $image . '</a>';
+		}
+
+		return $part;
 	}
 
 

@@ -52,6 +52,18 @@ class AmazonAI_Common
 		return $clean_content;
 	}
 
+	public function get_subscribe_link() {
+
+		$value = get_option( 'amazon_polly_podcast_button_link' );
+
+		if (empty($value)) {
+			$value = esc_attr( get_feed_link( 'amazon-pollycast' ) );
+		}
+
+		return esc_attr($value);
+
+	}
+
 
 	public function get_podcast_author() {
 
@@ -388,6 +400,15 @@ class AmazonAI_Common
 				return false;
 			}
 		}
+	}
+
+	public function is_audio_download_enabled() {
+			$value = $this->checked_validator('amazon_ai_download_enabled');
+			if ('checked' == trim($value)) {
+				return true;
+			} else {
+				return false;
+			}
 	}
 
 	/**
@@ -830,6 +851,24 @@ class AmazonAI_Common
 	}
 
 	/**
+	 * Checks if 'Show Subscribe button' is enabled.
+	 *
+	 * @since  2.6.3
+	 */
+	public function is_subscribe_button_enabled()
+	{
+		$value = get_option('amazon_polly_podcast_button');
+		if (empty($value)) {
+			$result = false;
+		}
+		else {
+			$result = true;
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Checks if S3 storage is enabled.
 	 *
 	 * @since  1.0.7
@@ -1170,7 +1209,8 @@ class AmazonAI_Common
 
 	private function replace_images($clean_text) {
 
-		$new_clean_text = preg_replace('/<img.*?alt="(.*?)"[^\>]+>/', 'Image: $1.', $clean_text);
+		//$new_clean_text = preg_replace('/<img.*?alt="(.*?)"[^\>]+>/', 'Image: $1.', $clean_text);
+		$new_clean_text = preg_replace('/<img.*?alt="(.*?)"[^\>]+>/', '$1.', $clean_text);
 
 		return $new_clean_text;
 

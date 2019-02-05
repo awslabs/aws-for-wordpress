@@ -17,7 +17,7 @@ class AmazonAI_GeneralConfiguration
 
     public function amazon_ai_add_menu()
     {
-        $this->plugin_screen_hook_suffix = add_menu_page(__('Amazon Polly', 'amazon-ai'), __('Amazon Polly', 'amazon-ai'), 'manage_options', 'amazon_ai', array(
+        $this->plugin_screen_hook_suffix = add_menu_page(__('Amazon AI', 'amazon-ai'), __('Amazon AI', 'amazon-ai'), 'manage_options', 'amazon_ai', array(
             $this,
             'amazonai_gui'
         ), '
@@ -38,7 +38,7 @@ class AmazonAI_GeneralConfiguration
 ?>
 				 <div class="wrap">
 				 <div id="icon-options-general" class="icon32"></div>
-				 <h1>Amazon Polly</h1>
+				 <h1>Amazon AI</h1>
 				 <form method="post" action="options.php">
 						 <?php
 

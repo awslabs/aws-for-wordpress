@@ -110,7 +110,7 @@ class AmazonAI_TranslateConfiguration
         }
 
         if ($src_lang == $lanuage) {
-            return;
+            //return;
         }
 
         $lan_option       = 'amazon_polly_trans_langs_' . $lanuage;
@@ -132,20 +132,22 @@ class AmazonAI_TranslateConfiguration
         echo '<td><input type="checkbox" name="' . $lan_option . '" id="' . $lan_option . '" ' . $this->common->check_if_language_is_checked($lanuage, $src_lang) . ' ' . $disabled . '>' . $language_name . ' </td><td>';
         $voice_id = get_option($lan_voice_option);
 
-        if ($this->common->is_audio_for_translations_enabled()) {
-          echo '&emsp;&emsp;Voice: <select name="' . $lan_voice_option . '" id="' . $lan_voice_option . '">';
-          foreach ($voice_list['Voices'] as $voice) {
-              if (strpos($voice['LanguageName'], $language_name) !== false) {
-                  echo '<option value="' . esc_attr($voice['Id']) . '" ';
-                  if (strcmp($voice_id, $voice['Id']) === 0) {
-                      echo 'selected="selected"';
-                  }
+        if ( $src_lang != $lanuage ) {
+          if ($this->common->is_audio_for_translations_enabled()) {
+            echo '&emsp;&emsp;Voice: <select name="' . $lan_voice_option . '" id="' . $lan_voice_option . '" ' . $disabled . '>';
+            foreach ($voice_list['Voices'] as $voice) {
+                if (strpos($voice['LanguageName'], $language_name) !== false) {
+                    echo '<option value="' . esc_attr($voice['Id']) . '" ';
+                    if (strcmp($voice_id, $voice['Id']) === 0) {
+                        echo 'selected="selected"';
+                    }
 
-                  echo '>' . esc_attr($voice['LanguageName']) . ' - ' . esc_attr($voice['Id']) . '</option>';
-              }
+                    echo '>' . esc_attr($voice['LanguageName']) . ' - ' . esc_attr($voice['Id']) . '</option>';
+                }
+            }
+
+            echo '</select>';
           }
-
-          echo '</select>';
         }
         echo '</td>';
 
@@ -153,7 +155,7 @@ class AmazonAI_TranslateConfiguration
 
 
         echo '<td>';
-        $display_values   = [ 'Flag', 'Label' ];
+        $display_values   = [ 'Flag', 'Label', 'Flag + Label' ];
 
         echo 'Display: <select name="' . $lan_display . '" id="' . $lan_display . '" >';
         foreach ( $display_values as $display_value ) {

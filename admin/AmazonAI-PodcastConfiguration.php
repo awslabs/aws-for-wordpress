@@ -56,6 +56,9 @@ class AmazonAI_PodcastConfiguration {
 				add_settings_field( 'amazon_polly_podcast_post_cat', __( 'Post categories:', 'amazonpolly' ), array( $this, 'podcast_post_cat_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_post_cat' ) );
 				add_settings_field( 'amazon_polly_podcast_author', __( 'Author:', 'amazonpolly' ), array( $this, 'podcast_author_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_author' ) );
 				add_settings_field( 'amazon_polly_podcast_https', __( 'Use HTTPS for audio files:', 'amazonpolly' ), array( $this, 'podcast_https_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_https' ) );
+				add_settings_field( 'amazon_polly_podcast_button', __( 'Show subscribe button:', 'amazonpolly' ), array( $this, 'podcast_subscribe_button_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_button' ) );
+				add_settings_field( 'amazon_polly_podcast_button_link', __( 'Subscribe link:', 'amazonpolly' ), array( $this, 'podcast_subscribe_button_link_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_button_link' ) );
+
 
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_email');
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_category');
@@ -65,9 +68,23 @@ class AmazonAI_PodcastConfiguration {
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_post_cat');
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_author');
 				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_https');
+				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_button');
+				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_button_link');
+
+
 			}
 		}
 
+		/**
+		 * Render input for deciding if subscribe button should be displayed
+		 *
+		 * @since  2.6.3
+		 */
+		public function podcast_subscribe_button_gui() {
+
+			echo '<input type="checkbox" name="amazon_polly_podcast_button" id="amazon_polly_podcast_button" ' . $this->common->checked_validator( 'amazon_polly_podcast_button' ) . '> ';
+
+		}
 
 		/**
 		 * Render the HTTPS podcast input.
@@ -78,6 +95,17 @@ class AmazonAI_PodcastConfiguration {
 
 			echo '<input type="checkbox" name="amazon_polly_podcast_https" id="amazon_polly_podcast_https" ' . $this->common->checked_validator( 'amazon_polly_podcast_https' ) . '> ';
 
+		}
+
+		/**
+		 * Render the possibility for specify author of the feed.
+		 *
+		 * @since  2.0.6
+		 */
+		public function podcast_subscribe_button_link_gui() {
+
+			$value = $this->common->get_subscribe_link();
+			echo '<input class="regular-text" name="amazon_polly_podcast_button_link" id="amazon_polly_podcast_button_link" value="' . esc_attr( $value ) . '"/>';
 		}
 
 		/**
