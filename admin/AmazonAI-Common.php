@@ -20,7 +20,7 @@ class AmazonAI_Common
 		['code' => 'fi', 'name' => 'Finish', 'transable' => '1', 'polly' => ''],
 		['code' => 'fr', 'name' => 'French', 'transable' => '1', 'polly' => '1'],
 		['code' => 'de', 'name' => 'German', 'transable' => '1', 'polly' => '1'],
-		['code' => 'he', 'name' => 'Hebraw', 'transable' => '1', 'polly' => ''],
+		['code' => 'he', 'name' => 'Hebrew', 'transable' => '1', 'polly' => ''],
 		['code' => 'it', 'name' => 'Italian', 'transable' => '1', 'polly' => '1'],
 		['code' => 'id', 'name' => 'Indonesian', 'transable' => '1', 'polly' => ''],
 		['code' => 'ja', 'name' => 'Japanese', 'transable' => '1', 'polly' => '1'],
