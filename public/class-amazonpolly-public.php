@@ -100,8 +100,9 @@ class Amazonpolly_Public {
 		$polly_content = '';
 		$translate_options = '';
 
+
 		// Check if Amazon Polly is enabled in WP, if yes then...
-		if ($common->is_polly_enabled() ) {
+		if ( $common->is_polly_enabled() ) {
 
 			// Check if Amazon Polly is enabled for specific post.
 			if ( get_post_meta( $post_id, 'amazon_polly_enable', true ) === '1' ) {
@@ -181,17 +182,14 @@ class Amazonpolly_Public {
 						</tr>
 					</table>';
 				}
-
-
 			}
 		}
 
+
+		// Will create 'translate' options and content part. If enabled.
 		if ( is_singular() ) {
-			// Check if Amazon Translate is enabled, if yes then...
 			if ($common->is_translation_enabled() ) {
-
 				$translate_options = $this->show_translations_options($post_id, $common);
-
 				if(isset($_GET['amazonai-language'])) {
 					$selected_language = $_GET['amazonai-language'];
 					if ( $source_language != $selected_language ) {
@@ -201,20 +199,20 @@ class Amazonpolly_Public {
 			}
 		}
 
-		if ($common->is_polly_enabled() ) {
-			// Put Audio player in the correct position.
-			$selected_position = get_option( 'amazon_polly_position' );
-			if ( strcmp( $selected_position, 'Do not show' ) === 0 ) {
-				$content = $content;
-			} elseif ( strcmp( $selected_position, 'After post' ) === 0 ) {
-				$content = $content . $translate_options . $polly_content;
-			} else {
-				$content = $translate_options . $polly_content . $content;
-			}
+		// Put plugin content in the correct position.
+		$selected_position = get_option( 'amazon_polly_position' );
+		if ( strcmp( $selected_position, 'Do not show' ) === 0 ) {
+			$content = $content;
+		} elseif ( strcmp( $selected_position, 'After post' ) === 0 ) {
+			$content = $content . $translate_options . $polly_content;
+		} else {
+			$content = $translate_options . $polly_content . $content;
 		}
 
 		return $content;
 	}
+
+
 
 	function show_translations_options($post_id, $common) {
 

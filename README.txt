@@ -1,10 +1,10 @@
-=== Amazon Polly for WordPress ===
+=== Amazon AI Plugin for WordPress ===
 Contributors: awslabs, wpengine, tstachlewski, stevenkword
 Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly, Amazon Translate, Translate, Translation, Podcast, AI
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 5.0
-Stable tag: 2.6.3
+Stable tag: 3.0.0
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -230,6 +230,13 @@ Pronunciation lexicons enable you to customize the pronunciation of words. In th
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
 == Changelog ==
+
+= 3.0.0 =
+* Alexa Integration added.
+
+= 2.6.4 =
+* Bug fixing.
+* Plugin Renaming.
 
 = 2.6.3 =
 * Added possibility to specify combination of label and flag to be displayed with translations.

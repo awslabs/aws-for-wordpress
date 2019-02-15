@@ -213,7 +213,7 @@ class Amazonpolly {
 		$this->loader->add_action( 'admin_menu', $podcast_configuration, 'amazon_ai_add_menu' );
 		$this->loader->add_action( 'admin_menu', $podcast_configuration, 'display_options' );
 
-		#$this->loader->add_action( 'admin_menu', $alexa_configuration, 'amazon_ai_add_menu' );
+		$this->loader->add_action( 'admin_menu', $alexa_configuration, 'amazon_ai_add_menu' );
 
 		$plugin = plugin_basename( plugin_dir_path( dirname( __FILE__ ) ) . 'amazonpolly.php' );
 
