@@ -48,31 +48,59 @@ class AmazonAI_PodcastConfiguration {
 			register_setting('amazon_ai_podcast', 'amazon_polly_podcast_enabled');
 
 			if ( $this->common->is_podcast_enabled() ) {
-				add_settings_field( 'amazon_polly_podcast_email', __( 'iTunes contact email:', 'amazonpolly' ), array( $this, 'podcast_email_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_email' ) );
-				add_settings_field( 'amazon_polly_podcast_category', __( 'iTunes category:', 'amazonpolly' ), array( $this, 'podcast_category_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_category' ) );
-				add_settings_field( 'amazon_polly_podcast_explicit', __( 'iTunes explicit content:', 'amazonpolly' ), array( $this, 'podcast_explicit_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_explicit' ) );
-				add_settings_field( 'amazon_polly_podcast_icon', __( 'iTunes image:', 'amazonpolly' ), array( $this, 'podcast_icon_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_icon' ) );
-				add_settings_field( 'amazon_polly_podcast_feedsize', __( 'Feed size:', 'amazonpolly' ), array( $this, 'podcast_feedsize_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_feedsize' ) );
-				add_settings_field( 'amazon_polly_podcast_post_cat', __( 'Post categories:', 'amazonpolly' ), array( $this, 'podcast_post_cat_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_post_cat' ) );
-				add_settings_field( 'amazon_polly_podcast_author', __( 'Author:', 'amazonpolly' ), array( $this, 'podcast_author_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_author' ) );
-				add_settings_field( 'amazon_polly_podcast_https', __( 'Use HTTPS for audio files:', 'amazonpolly' ), array( $this, 'podcast_https_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_https' ) );
-				add_settings_field( 'amazon_polly_podcast_button', __( 'Show subscribe button:', 'amazonpolly' ), array( $this, 'podcast_subscribe_button_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_button' ) );
-				add_settings_field( 'amazon_polly_podcast_button_link', __( 'Subscribe link:', 'amazonpolly' ), array( $this, 'podcast_subscribe_button_link_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_button_link' ) );
+                add_settings_field( 'amazon_polly_podcast_title', __( 'Podcast title:', 'amazonpolly' ), array( $this, 'podcast_title_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_title' ) );
+                add_settings_field( 'amazon_polly_podcast_description', __( 'Podcast description:', 'amazonpolly' ), array( $this, 'podcast_description_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_description' ) );
+                add_settings_field( 'amazon_polly_podcast_author', __( 'iTunes author name:', 'amazonpolly' ), array( $this, 'podcast_author_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_author' ) );
+                add_settings_field( 'amazon_polly_podcast_email', __( 'iTunes contact email:', 'amazonpolly' ), array( $this, 'podcast_email_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_email' ) );
+                add_settings_field( 'amazon_polly_podcast_category', __( 'iTunes category:', 'amazonpolly' ), array( $this, 'podcast_category_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_category' ) );
+                add_settings_field( 'amazon_polly_podcast_explicit', __( 'iTunes explicit content:', 'amazonpolly' ), array( $this, 'podcast_explicit_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_explicit' ) );
+                add_settings_field( 'amazon_polly_podcast_icon', __( 'iTunes image:', 'amazonpolly' ), array( $this, 'podcast_icon_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_icon' ) );
+                add_settings_field( 'amazon_polly_podcast_feedsize', __( 'Feed size:', 'amazonpolly' ), array( $this, 'podcast_feedsize_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_feedsize' ) );
+                add_settings_field( 'amazon_polly_podcast_post_cat', __( 'Post categories:', 'amazonpolly' ), array( $this, 'podcast_post_cat_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_post_cat' ) );
+                add_settings_field( 'amazon_polly_podcast_https', __( 'Use HTTPS for audio files:', 'amazonpolly' ), array( $this, 'podcast_https_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_https' ) );
+                add_settings_field( 'amazon_polly_podcast_button', __( 'Show subscribe button:', 'amazonpolly' ), array( $this, 'podcast_subscribe_button_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_button' ) );
+                add_settings_field( 'amazon_polly_podcast_button_link', __( 'Subscribe link:', 'amazonpolly' ), array( $this, 'podcast_subscribe_button_link_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_button_link' ) );
 
 
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_email');
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_category');
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_explicit');
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_icon');
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_feedsize');
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_post_cat');
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_author');
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_https');
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_button');
-				register_setting('amazon_ai_podcast', 'amazon_polly_podcast_button_link');
-
-
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_title');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_description');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_author');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_email');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_category');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_explicit');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_icon');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_feedsize');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_post_cat');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_https');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_button');
+                register_setting('amazon_ai_podcast', 'amazon_polly_podcast_button_link');
 			}
+		}
+
+		/**
+		 * Render the Title input
+		 *
+		 * @since  2.6.3
+		 */
+		public function podcast_title_gui() {
+            $value = get_option( 'amazon_polly_podcast_title' );
+            echo sprintf('<input class="regular-text" name="amazon_polly_podcast_title" id="amazon_polly_podcast_title" value="%s"/>', esc_attr( $value ));
+            echo sprintf('<p class="description">If not specified, will be used default title: %s</p>', get_wp_title_rss());
+		}
+
+		/**
+		 * Render the Description input
+		 *
+		 * @since  2.6.3
+		 */
+		public function podcast_description_gui() {
+            $value = get_option( 'amazon_polly_podcast_description' );
+
+            echo sprintf('<textarea rows="6" class="regular-text" name="amazon_polly_podcast_description" id="amazon_polly_podcast_description">%s</textarea>', esc_attr( $value ));
+            echo sprintf(
+                '<p class="description">If not specified, will be used default description: %s</p>',
+                get_bloginfo('description') ?: get_bloginfo('title')
+            );
 		}
 
 		/**
