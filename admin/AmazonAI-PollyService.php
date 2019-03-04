@@ -101,6 +101,12 @@ class AmazonAI_PollyService {
 			// Cleaning text. Includes for example removing not supported characters etc.
 			$clean_text    = $common->clean_text( $post_id, true, false);
 
+			$logger->log(sprintf('%s <<< Clean Text >>> ', __METHOD__));
+			$logger->log(sprintf('%s', $clean_text));
+			$logger->log(sprintf('%s __________', __METHOD__));
+
+
+
 			// Breaking text into smaller parts, which will be then send to Amazon Polly for conversion.
 			$sentences     = $common->break_text( $clean_text );
 
@@ -305,6 +311,9 @@ class AmazonAI_PollyService {
 
 			// Remove all tags
 			$text_content = strip_tags($text_content);
+
+			// Modify Speed
+			$text_content = $common->modify_sentence_speed($text_content);
 
 			// Adding breaths sounds (if enabled).
 			$text_content = $this->add_breaths($common, $text_content);

@@ -1080,6 +1080,14 @@ class AmazonAI_Common
 		// Modify speed
 
 		$parts = $this->modify_speed($parts);
+
+		$logger = new AmazonAI_Logger();
+
+		foreach($parts as $part) {
+			$logger->log(sprintf('%s <<< PART >>> ', __METHOD__));
+			$logger->log(sprintf('%s', $part));
+		}
+
 		return $parts;
 	}
 
@@ -1104,6 +1112,18 @@ class AmazonAI_Common
 		}
 
 		return $new_sentences;
+	}
+
+	public function modify_sentence_speed($sentence)
+	{
+
+		$speed = $this->get_audio_speed();
+		if (100 !== $speed) {
+				$sentence = '<prosody rate="' . $speed . '%">' . $sentence . '</prosody>';
+		}
+
+
+		return $sentence;
 	}
 
 	/**
@@ -1186,9 +1206,12 @@ class AmazonAI_Common
 		$clean_text = $this->replace_images($clean_text);
 		$clean_text = strip_tags($clean_text, '<break>');
 		$clean_text = esc_html($clean_text);
+
+
 		$clean_text = str_replace('&nbsp;', ' ', $clean_text);
 		$clean_text = preg_replace("/https:\/\/([^\s]+)/", "", $clean_text);
 		$clean_text_temp = '';
+
 		$paragraphs = explode("\n", $clean_text);
 		foreach($paragraphs as $paragraph) {
 			$paragraph_size = strlen(trim($paragraph));
@@ -1210,7 +1233,7 @@ class AmazonAI_Common
 	private function replace_images($clean_text) {
 
 		//$new_clean_text = preg_replace('/<img.*?alt="(.*?)"[^\>]+>/', 'Image: $1.', $clean_text);
-		$new_clean_text = preg_replace('/<img.*?alt="(.*?)"[^\>]+>/', '$1.', $clean_text);
+		$new_clean_text = preg_replace('/<img.*?alt="(.*?)"[^\>]+>/', '$1', $clean_text);
 
 		return $new_clean_text;
 

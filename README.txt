@@ -4,7 +4,7 @@ Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly, 
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 5.0
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -230,6 +230,9 @@ Pronunciation lexicons enable you to customize the pronunciation of words. In th
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
 == Changelog ==
+
+= 3.0.1 =
+* Bug Fixing.
 
 = 3.0.0 =
 * Alexa Integration added.
