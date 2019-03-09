@@ -93,6 +93,16 @@ class Amazonpolly_Public {
 	 */
 	public function content_filter( $content ) {
 
+		// Really strange case
+		if (!isset($GLOBALS)) {
+			return $content;
+		} else {
+			if (!array_key_exists('post', $GLOBALS)) {
+				return $content;
+			}
+		}
+
+
 		$post_id = $GLOBALS['post']->ID;
 		$common = new AmazonAI_Common();
 

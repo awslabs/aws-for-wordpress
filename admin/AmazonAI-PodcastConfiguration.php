@@ -80,7 +80,7 @@ class AmazonAI_PodcastConfiguration {
 		/**
 		 * Render the Title input
 		 *
-		 * @since  2.6.3
+		 * @since  3.0.2
 		 */
 		public function podcast_title_gui() {
             $value = get_option( 'amazon_polly_podcast_title' );
@@ -91,7 +91,7 @@ class AmazonAI_PodcastConfiguration {
 		/**
 		 * Render the Description input
 		 *
-		 * @since  2.6.3
+		 * @since  3.0.2
 		 */
 		public function podcast_description_gui() {
             $value = get_option( 'amazon_polly_podcast_description' );
@@ -106,7 +106,7 @@ class AmazonAI_PodcastConfiguration {
 		/**
 		 * Render input for deciding if subscribe button should be displayed
 		 *
-		 * @since  2.6.3
+		 * @since  3.0.2
 		 */
 		public function podcast_subscribe_button_gui() {
 

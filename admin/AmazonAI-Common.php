@@ -857,12 +857,16 @@ class AmazonAI_Common
 	 */
 	public function is_subscribe_button_enabled()
 	{
-		$value = get_option('amazon_polly_podcast_button');
-		if (empty($value)) {
+		if ($this->is_podcast_enabled()) {
+			$value = get_option('amazon_polly_podcast_button');
+			if (empty($value)) {
+				$result = false;
+			}
+			else {
+				$result = true;
+			}
+		} else {
 			$result = false;
-		}
-		else {
-			$result = true;
 		}
 
 		return $result;
