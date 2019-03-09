@@ -147,19 +147,17 @@ class Amazonpolly_PollyCast {
 	 * @return   string The description
 	 */
 	public function get_itunes_description() {
+        return get_option('amazon_polly_podcast_description') ?: get_bloginfo( 'description' ) ?: get_bloginfo( 'title' ) ?: "pollycast";
+	}
 
-		$itunes_title =  get_bloginfo( 'title' );
-		$itunes_description = get_bloginfo( 'description' );
-
-		if ( empty($itunes_description) ) {
-			$itunes_description = $itunes_title;
-		}
-
-		if ( empty($itunes_description) ) {
-			$itunes_description = "pollycast";
-		}
-
-		return $itunes_description;
+	/**
+	 * Returns description
+	 *
+	 * @since    2.0.4
+	 * @return   string The description
+	 */
+	public function get_itunes_title() {
+        return get_option('amazon_polly_podcast_title') ?: get_wp_title_rss();
 	}
 
 	/**

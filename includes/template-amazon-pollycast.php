@@ -26,9 +26,10 @@ do_action( 'rss_tag_pre', 'rss2' );
 $podcast_icon = $amazon_pollycast->get_podcast_icon();
 
 // iTunes
-$itunes_email    = $amazon_pollycast->get_itunes_email();
-$itunes_category = $amazon_pollycast->get_itunes_category();
-$itunes_explicit = $amazon_pollycast->get_itunes_explicit();
+$itunes_email       = $amazon_pollycast->get_itunes_email();
+$itunes_category    = $amazon_pollycast->get_itunes_category();
+$itunes_explicit    = $amazon_pollycast->get_itunes_explicit();
+$itunes_title       = $amazon_pollycast->get_itunes_title();
 $itunes_description = $amazon_pollycast->get_itunes_description();
 
 $common = new AmazonAI_Common();
@@ -55,13 +56,13 @@ $itunes_author = $common->get_podcast_author();
 >
 
 <channel>
-	<title><?php wp_title_rss(); ?></title>
+	<title><?php echo esc_attr($itunes_title); ?></title>
 	<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
 	<link><?php bloginfo_rss( 'url' ); ?></link>
-	<description><?php	echo esc_attr($itunes_description); ?></description>
+	<description><?php echo esc_attr($itunes_description); ?></description>
 	<image>
 		<url><?php echo esc_url( $podcast_icon ); ?></url>
-		<title><?php wp_title_rss(); ?></title>
+		<title><?php echo esc_attr($itunes_title); ?></title>
 		<link><?php bloginfo_rss( 'url' ); ?></link>
 	</image>
 	<itunes:owner>
