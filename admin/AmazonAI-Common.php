@@ -12,6 +12,7 @@ class AmazonAI_Common
 
 	// Information about languages supported by the Amazon AI plugin
 	private $languages = [
+		['code' => 'ar', 'name' => 'Arabic', 'transable' => '1', 'polly' => '1'],
 		['code' => 'da', 'name' => 'Danish', 'transable' => '1', 'polly' => '1'],
 		['code' => 'nl', 'name' => 'Dutch', 'transable' => '1', 'polly' => '1'],
 		['code' => 'zh', 'name' => 'Chinese', 'transable' => '1', 'polly' => '1'],
@@ -1005,7 +1006,7 @@ class AmazonAI_Common
 
 		// Estimating the total price of convertion of all posts.
 
-		$total_price = $amazon_polly_price * $count_posts * $post_chars_count_avg;
+		$total_price = 2 * $amazon_polly_price * $count_posts * $post_chars_count_avg;
 		$message = 'You are about to convert ' . number_format($count_posts, 0, '.', ',') . ' pieces of text-based content, which totals approximately ' . number_format($number_of_characters, 0, '.', ',') . ' characters. Based on the Amazon Polly pricing ($4 dollars per 1 million characters) it will cost you about $' . $total_price . ' to convert all of your content into to speech-based audio. Some or all of your costs might be covered by the Free Tier (conversion of 5 million characters per month for free, for the first 12 months, starting from the first request for speech). Learn more https://aws.amazon.com/polly/';
 		return $message;
 	}

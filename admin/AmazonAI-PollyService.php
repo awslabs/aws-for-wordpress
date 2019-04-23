@@ -14,6 +14,7 @@ class AmazonAI_PollyService {
 	const GENERATE_POST_AUDIO_TASK = 'generate_post_audio';
 	const NONCE_NAME = 'amazon-polly-post-nonce';
 
+
 	/**
 	 * Important. Run whenever new post is being created (or updated). The method generates a background task to generate the audio file.
 	 *
@@ -62,8 +63,11 @@ class AmazonAI_PollyService {
 			}
 		}
 
-    $background_task = new AmazonAI_BackgroundTask();
-    $background_task->trigger(self::GENERATE_POST_AUDIO_TASK, [ $post_id ]);
+		if( ! ( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) ) {
+			$logger->log(sprintf('%s Starting background task process ( id=%s )', __METHOD__, $post_id));
+	    $background_task = new AmazonAI_BackgroundTask();
+	    $background_task->trigger(self::GENERATE_POST_AUDIO_TASK, [ $post_id ]);
+		}
 	}
 
 	/**
@@ -249,6 +253,8 @@ class AmazonAI_PollyService {
 	 */
 	public function convert_to_audio( $post_id, $sample_rate, $voice_id, $sentences, $wp_filesystem, $lang ) {
 
+		$logger = new AmazonAI_Logger();
+		$logger->log(sprintf('%s Converting to Audio', __METHOD__));
 
 		// Creating new standard common object for interacting with other methods of the plugin.
 		$common = new AmazonAI_Common();
@@ -274,18 +280,19 @@ class AmazonAI_PollyService {
 		}
 
 		// In case of asynchronous synthesis flow.
-		$amazon_ai_asynchronous = apply_filters( '$amazon_ai_asynchronous', '' );
-		if ( $amazon_ai_asynchronous ) {
-			$this->start_speech_synthesis_task($common, $post_id, $sample_rate, $voice_id, $sentences, $lang);
-			return;
-		}
+		//$amazon_ai_asynchronous = apply_filters( '$amazon_ai_asynchronous', '' );
+		//if ( $amazon_ai_asynchronous ) {
+		//	$this->start_speech_synthesis_task($common, $post_id, $sample_rate, $voice_id, $sentences, $lang);
+		//	return;
+		//}
 
 
 		// Preparing locations and names of temporary files which will be used.
+		$random								= rand(5, 10);
 		$upload_dir           = wp_upload_dir()['basedir'];
 		$file_prefix          = 'amazon_polly_';
 		$file_name            = $file_prefix . $post_id . $lang . '.mp3';
-		$file_temp_full_name  = trailingslashit($upload_dir) . 'temp_' . $file_name;
+		$file_temp_full_name  = trailingslashit($upload_dir) . 'temp_' . $file_name . $random;
 		$dir_final_full_name  = trailingslashit($upload_dir);
 		if ( get_option('uploads_use_yearmonth_folders') ) {
 		   $dir_final_full_name .= get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . "/";
@@ -308,6 +315,9 @@ class AmazonAI_PollyService {
 
 		// Iterating through each of text parts.
 		foreach ( $sentences as $key => $text_content ) {
+
+			$logger->log(sprintf('%s Part:', __METHOD__));
+			$logger->log(sprintf('%s', $text_content));
 
 			// Remove all tags
 			$text_content = strip_tags($text_content);
@@ -359,11 +369,15 @@ class AmazonAI_PollyService {
 				);
 			}
 
+			$logger->log(sprintf('%s Audio returned from Polly', __METHOD__));
+
 			// Grab the stream and output to a file.
 			$contents = $result['AudioStream']->getContents();
 
 			// Save first part of the audio stream in the parial temporary file.
 			$wp_filesystem->put_contents( $file_temp_full_name . '_part_' . $key, $contents );
+
+			$logger->log(sprintf('%s Part created ( %s )', __METHOD__, $file_temp_full_name . '_part_' . $key));
 
 			// Merge new temporary file with previous ones.
 			if ( $first_part ) {
@@ -402,6 +416,9 @@ class AmazonAI_PollyService {
 		update_post_meta( $post_id, 'amazon_polly_voice_id', $voice_id );
 		update_post_meta( $post_id, 'amazon_polly_sample_rate', $sample_rate );
 		update_post_meta( $post_id, 'amazon_polly_settings_hash', $amazon_polly_settings_hash );
+
+
+		$logger->log(sprintf('%s Final audio created!', __METHOD__));
 
 	}
 

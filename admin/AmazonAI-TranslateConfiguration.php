@@ -157,6 +157,11 @@ class AmazonAI_TranslateConfiguration
         echo '<td>';
         $display_values   = [ 'Flag', 'Label', 'Flag + Label' ];
 
+        //For some languages flags are not supported.
+        if ($lanuage == 'ar') {
+          $display_values   = [ 'Label' ];
+        }
+
         echo 'Display: <select name="' . $lan_display . '" id="' . $lan_display . '" >';
         foreach ( $display_values as $display_value ) {
           echo '<option value="' . esc_attr( $display_value ) . '" ';
