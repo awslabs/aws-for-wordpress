@@ -73,15 +73,30 @@ class AmazonAI_Translator {
 
 			if (empty($is_image_paragraph)) {
 
-				$is_strong_paragraph = '';
-				preg_match("/^\s*<strong>.*?strong>\s*$/", $paragraph, $is_strong_paragraph);
+				//$is_strong_paragraph = '';
+				//preg_match("/^\s*<strong>.*?strong>\s*$/", $paragraph, $is_strong_paragraph);
 
-				$paragraph = $common->clean_paragraph($paragraph);
-				$translated_paragraph = $this->translate( $translate_client, $paragraph, $source_language, $target_language);
+				$clean_paragraph = $common->clean_paragraph($paragraph);
+				$translated_paragraph = $this->translate( $translate_client, $clean_paragraph, $source_language, $target_language);
 
-				if (!empty($is_strong_paragraph)) {
-					$translated_paragraph = "<strong>" . $translated_paragraph . "</strong>";
-				}
+				//if (!empty($is_strong_paragraph)) {
+				//	$translated_paragraph = "<strong>" . $translated_paragraph . "</strong>";
+				///}
+
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<strong>', '</strong>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<p><strong>', '</strong></p>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<h1>', '</h1>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<h2>', '</h2>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<h3>', '</h3>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<h4>', '</h4>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<h5>', '</h5>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<h6>', '</h6>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<p><em>', '</p></em>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<em>', '</em>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<p class="has-small-font-size">', '</p>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<p class="has-large-font-size">', '</p>');
+				$translated_paragraph = $this->special_html_paragraph($common, $paragraph, $translated_paragraph, '<p class="has-huge-font-size">', '</p>');
+
 
 			} else {
 				$translated_paragraph = $paragraph;
@@ -91,6 +106,17 @@ class AmazonAI_Translator {
 		}
 
 		return $translated_text;
+
+	}
+
+
+	private function special_html_paragraph($common, $paragraph, $translated_paragraph, $tag_beggining, $tag_ending) {
+
+		if ( $common->startsWith($paragraph, $tag_beggining) and $common->endsWith($paragraph, $tag_ending) ) {
+			$translated_paragraph = $tag_beggining . $translated_paragraph . $tag_ending;
+		}
+
+		return $translated_paragraph;
 
 	}
 

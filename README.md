@@ -6,7 +6,7 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 5.0 |
-| Stable tag | 3.0.4 |
+| Stable tag | 3.0.6 |
 | License | GPLv3 ONLY |
 | License URI | https://www.gnu.org/licenses/gpl-3.0.html |
 
@@ -236,7 +236,10 @@ Pronunciation lexicons enable you to customize the pronunciation of words. In th
 
 #### Changelog
 
-= 3.0.4 =
+= 3.0.6 =
+* Added translate support for Hindi, Farsi, Malay, and Norwegian languages.
+
+= 3.0.5 =
 * Added support for Arabic Language
 * Bug Fixing
 

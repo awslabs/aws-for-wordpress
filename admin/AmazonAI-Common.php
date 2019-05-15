@@ -22,11 +22,14 @@ class AmazonAI_Common
 		['code' => 'fr', 'name' => 'French', 'transable' => '1', 'polly' => '1'],
 		['code' => 'de', 'name' => 'German', 'transable' => '1', 'polly' => '1'],
 		['code' => 'he', 'name' => 'Hebrew', 'transable' => '1', 'polly' => ''],
+		['code' => 'hi', 'name' => 'Hindi', 'transable' => '1', 'polly' => ''],
 		['code' => 'it', 'name' => 'Italian', 'transable' => '1', 'polly' => '1'],
 		['code' => 'id', 'name' => 'Indonesian', 'transable' => '1', 'polly' => ''],
 		['code' => 'ja', 'name' => 'Japanese', 'transable' => '1', 'polly' => '1'],
 		['code' => 'ko', 'name' => 'Korean', 'transable' => '1', 'polly' => '1'],
-		['code' => 'nb', 'name' => 'Norwegian', 'transable' => '', 'polly' => '1'],
+		['code' => 'ms', 'name' => 'Malay', 'transable' => '1', 'polly' => ''],
+		['code' => 'no', 'name' => 'Norwegian', 'transable' => '1', 'polly' => '1'],
+		['code' => 'fa', 'name' => 'Persian', 'transable' => '1', 'polly' => ''],
 		['code' => 'pl', 'name' => 'Polish', 'transable' => '1', 'polly' => '1'],
 		['code' => 'pt', 'name' => 'Portuguese', 'transable' => '1', 'polly' => '1'],
 		['code' => 'ro', 'name' => 'Romanian', 'transable' => '', 'polly' => '1'],
@@ -319,6 +322,18 @@ class AmazonAI_Common
 
 	}
 
+	public function startsWith ($string, $beginning) {
+	    $len = strlen($beginning);
+	    return (substr($string, 0, $len) === $beginning);
+	}
+
+	public function endsWith($string, $ending) {
+	    $len = strlen($ending);
+	    if ($len == 0) {
+	        return true;
+	    }
+	    return (substr($string, -$len) === $ending);
+	}
 
 
 	/**
