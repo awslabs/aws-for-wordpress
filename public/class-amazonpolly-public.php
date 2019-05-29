@@ -93,17 +93,12 @@ class Amazonpolly_Public {
 	 */
 	public function content_filter( $content ) {
 
-		// Really strange case
-		if (!isset($GLOBALS)) {
+		$post_id = get_the_ID();
+
+		if ( empty( $post_id ) ) {
 			return $content;
-		} else {
-			if (!array_key_exists('post', $GLOBALS)) {
-				return $content;
-			}
 		}
 
-
-		$post_id = $GLOBALS['post']->ID;
 		$common = new AmazonAI_Common();
 
 		$source_language = $common->get_post_source_language($post_id);
