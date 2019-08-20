@@ -34,6 +34,7 @@ $itunes_description = $amazon_pollycast->get_itunes_description();
 
 $common = new AmazonAI_Common();
 $itunes_author = $common->get_podcast_author();
+$amazon_pollycast->start_podcast_rss();
 
 ?>
 <rss version="2.0"
@@ -45,12 +46,18 @@ $itunes_author = $common->get_podcast_author();
 	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
 	xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
 	<?php
+
+
+
 	/**
 	 * Fires at the end of the RSS root to add namespaces.
 	 *
 	 * @since 2.0.0
 	 */
-	do_action( 'rss2_ns' );
+	 $rss2namespace = $common->is_rss2namespace_enabled();
+	 if ($rss2namespace) {
+		 do_action( 'rss2_ns' );
+	 }
 
 	?>
 >
@@ -135,3 +142,7 @@ $itunes_author = $common->get_podcast_author();
 	<?php endwhile; ?>
 </channel>
 </rss>
+
+<?php
+	$amazon_pollycast->end_podcast_rss();
+?>

@@ -23,6 +23,7 @@ class AmazonAI_Common
 		['code' => 'de', 'name' => 'German', 'transable' => '1', 'polly' => '1'],
 		['code' => 'he', 'name' => 'Hebrew', 'transable' => '1', 'polly' => ''],
 		['code' => 'hi', 'name' => 'Hindi', 'transable' => '1', 'polly' => ''],
+		['code' => 'is', 'name' => 'Icelandic', 'transable' => '0', 'polly' => '1'],
 		['code' => 'it', 'name' => 'Italian', 'transable' => '1', 'polly' => '1'],
 		['code' => 'id', 'name' => 'Indonesian', 'transable' => '1', 'polly' => ''],
 		['code' => 'ja', 'name' => 'Japanese', 'transable' => '1', 'polly' => '1'],
@@ -55,6 +56,8 @@ class AmazonAI_Common
 
 		return $clean_content;
 	}
+
+
 
 	public function get_subscribe_link() {
 
@@ -342,6 +345,12 @@ class AmazonAI_Common
 	 * @since  1.0.7
 	 */
 	public function is_auto_breaths_enabled() {
+
+		$news_style_enabled = $this->is_polly_news_enabled();
+		if ($news_style_enabled) {
+			return false;
+		}
+
 		$value = get_option( 'amazon_polly_auto_breaths', 'on' );
 
 		if ( empty( $value ) ) {
@@ -447,6 +456,12 @@ class AmazonAI_Common
 	 * @since  2.5.0
 	 */
 	public function is_polly_enabled() {
+
+		if (!$this->is_language_supported_for_polly()) {
+			return false;
+		}
+
+
 			$value = $this->checked_validator('amazon_ai_polly_enable');
 			if ('checked' == trim($value)) {
 				return true;
@@ -454,6 +469,19 @@ class AmazonAI_Common
 				return false;
 			}
 	}
+
+	public function is_language_supported_for_polly() {
+
+    $selected_source_language = $this->get_source_language();
+
+    foreach ($this->get_all_polly_languages() as $language_code) {
+      if (strcmp($selected_source_language, $language_code) === 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
 	public function is_audio_for_translations_enabled() {
 		if ( $this->is_polly_enabled() ) {
@@ -485,24 +513,36 @@ class AmazonAI_Common
 	 */
 	public function is_translation_enabled()
 	{
-				if ($this->is_s3_enabled()) {
+
 					$start_value = $this->checked_validator('amazon_polly_trans_enabled');
 					$translate_accessible = true;
 					$supported_regions = array(
 						'us-east-1',
 						'us-east-2',
 						'us-west-2',
-						'eu-west-1'
+						'eu-west-1',
+						'ap-south-1',
+						'ap-northeast-2',
+						'ap-southeast-1',
+						'ap-northeast-1',
+						'ca-central-1',
+						'eu-central-1'
 					);
 					$selected_region = $this->get_aws_region();
 					if (in_array($selected_region, $supported_regions)) {
 						if ('checked' == trim($start_value)) {
 							if ($translate_accessible) {
+
+								// If we are returning true - translate is enabled, S3 should also be enabled.
+								if (!$this->is_s3_enabled()) {
+									update_option( 'amazon_polly_s3', 'on' );
+								}
+
 								return true;
 							}
 						}
 					}
-			}
+
 
 
 		return false;
@@ -831,6 +871,19 @@ class AmazonAI_Common
 		return false;
 	}
 
+	public function is_rss2namespace_enabled()
+	{
+		$value = get_option('podcast_rss2namespace', 'on');
+		if (empty($value)) {
+			$result = false;
+		}
+		else {
+			$result = true;
+		}
+		return false;
+	}
+
+
 	/**
 	 * Utility function which checks if checkbox for option input should be checked.
 	 *
@@ -847,6 +900,88 @@ class AmazonAI_Common
 			return ' checked ';
 		}
 	}
+
+	public function is_polly_neural_enabled() {
+
+		$option_value = get_option('amazon_polly_neural', '');
+		if (empty($option_value)) {
+			return '';
+		}
+		else {
+			return ' checked ';
+		}
+	}
+
+	public function is_polly_news_enabled() {
+
+		if (!$this->is_polly_neural_enabled()) {
+			return false;
+		}
+
+		$option_value = get_option('amazon_polly_news', '');
+		if (empty($option_value)) {
+			return '';
+		}
+		else {
+			return ' checked ';
+		}
+	}
+
+	public function should_news_style_be_used($voice) {
+
+		if ($this->is_polly_news_enabled()) {
+			$engine = $this->get_polly_engine($voice);
+			if ('neural' == $engine) {
+				return true;
+			}
+			return false;
+		}
+
+		return false;
+	}
+
+
+	public function is_neural_supported_in_region() {
+
+		$selected_region = $this->get_aws_region();
+		$neural_supported_regions = array("us-east-1","us-west-2","eu-west-1");
+
+		if (in_array($selected_region, $neural_supported_regions)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+
+	public function is_neural_supported_for_voice($voice) {
+		$neural_supported_voices = array("Amy","Emma","Brian","Ivy","Joanna","Kendra","Kimberly","Salli","Joey","Justin","Matthew");
+
+		if (in_array($voice, $neural_supported_voices)) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	public function get_polly_engine($voice) {
+
+		if (!$this->is_neural_supported_in_region()) {
+			return 'standard';
+		}
+
+		if (!$this->is_neural_supported_for_voice($voice)) {
+			return 'standard';
+		}
+
+
+		if ($this->is_polly_neural_enabled()) {
+			return 'neural';
+		}
+
+	}
+
 
 	/**
 	 * Checks if Media Libary support is enabled.
@@ -1216,6 +1351,10 @@ class AmazonAI_Common
 		$clean_text = do_shortcode($clean_text);
 
 		$clean_text = $this->skip_tags($clean_text);
+		$clean_text = $this->add_pauses($clean_text);
+
+		error_log("Text:");
+		error_log($clean_text);
 
 		$is_ssml_enabled = $this->is_ssml_enabled();
 		if ($is_ssml_enabled) {
@@ -1312,6 +1451,17 @@ class AmazonAI_Common
 		foreach ($skip_tags_array as $value) {
 			$text = preg_replace('/<' . $value . '>(\s*?)(.*?)(\s*?)<\/' . $value . '>/', '', $text);
 		}
+
+		return $text;
+	}
+
+	private function add_pauses($text) {
+
+		#Creates a little pause after closes the tag <li>
+		$text = str_replace ('</li>',' **AMAZONPOLLY*SSML*BREAK*time=***300ms***SSML** </li>',$text);
+
+		#Create a support to the tag <sub> (helpful to 'read' abreviations, for example)
+		$text = preg_replace('/<sub\b((?:(?:\s+alias="(.*?)")|[^\s>]+|\s+))*>([\s\S]*?)<\/sub>/', '$2', $text);
 
 		return $text;
 	}

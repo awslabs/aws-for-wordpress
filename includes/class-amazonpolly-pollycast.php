@@ -26,6 +26,7 @@ class Amazonpolly_PollyCast {
 	 * @var      string    $podcast_name    The slug of this podcast feed.
 	 */
 	private $podcast_name = 'amazon-pollycast';
+	private static $podcast_rss = false;
 
 	/**
 	 * Adds the custom feed endpoint.
@@ -151,6 +152,24 @@ class Amazonpolly_PollyCast {
 	}
 
 	/**
+	* Place at the begging of a Amazon polly feed
+	*
+	* @since    3.1.0
+	*/
+	public function start_podcast_rss( ) {
+		self::$podcast_rss = true;
+	}
+
+	/**
+	* Place at the begging of a Amazon polly feed
+	*
+	* @since    3.1.0
+	*/
+	public function end_podcast_rss( ) {
+		self::$podcast_rss = false;
+	}
+
+	/**
 	 * Returns description
 	 *
 	 * @since    2.0.4
@@ -241,7 +260,12 @@ class Amazonpolly_PollyCast {
 	 * @return   string The HTML decoded version of the provided input for use inside CDATA.
 	 */
 	public function filter_force_html_decode( $input ) {
-		$input = wp_strip_all_tags( $input );
+
+		//Ensuring that striping will execute only for Polly feed.
+		if (self::$podcast_rss) {
+			$input = wp_strip_all_tags( $input );
+		}
+
 		return html_entity_decode( $input, ENT_QUOTES, 'UTF-8' );
 	}
 
@@ -253,6 +277,12 @@ class Amazonpolly_PollyCast {
 	 */
 	public function get_copyright() {
 		$all_posts  = get_posts( 'post_status=publish&order=ASC' );
+
+		if (empty($all_posts)) {
+			return "N/A";
+		}
+
+
 		$first_post = $all_posts[0];
 		$first_date = $first_post->post_date_gmt;
 

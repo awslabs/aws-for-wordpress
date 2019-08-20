@@ -140,6 +140,7 @@ class AmazonAI_PollyService {
 		do_action('amazon_polly_post_generate_audio', $post_id, $is_polly_enabled);
 	}
 
+	/*
 	private function start_speech_synthesis_task($common, $post_id, $sample_rate, $voice_id, $sentences, $lang) {
 
 		$full_text = '';
@@ -238,7 +239,7 @@ class AmazonAI_PollyService {
 
 
 	}
-
+*/
 
 	/**
 	 * Method execute Amazon Polly API and convert content which was provided to audio file.
@@ -334,6 +335,9 @@ class AmazonAI_PollyService {
 			// Adding special polly mark.
 			$text_content = $this->add_mark_tag($common, $text_content);
 
+			// Adding newscaster style tag
+			$text_content = $this->add_newscaster_tag($common, $text_content, $voice_id);
+
 			// Adding speak polly mark.
 			$text_content = $this->add_speak_tags($common, $text_content);
 
@@ -344,10 +348,16 @@ class AmazonAI_PollyService {
 			//Preparing Amazon Polly client object.
 			$polly_client = $common->get_polly_client();
 
+			//Detect Polly Engine (Standard / Neural).
+			$engine = $common->get_polly_engine($voice_id);
+
+			$news = $common->should_news_style_be_used($voice_id);
+
 			//Call Amazon Polly service.
 			if ( ! empty( $lexicons ) and ( count( $lexicons_array ) > 0 ) ) {
 				$result = $polly_client->synthesizeSpeech(
 					array(
+						'Engine' 			 => $engine,
 						'OutputFormat' => 'mp3',
 						'SampleRate'   => $sample_rate,
 						'Text'         => $text_content,
@@ -360,6 +370,7 @@ class AmazonAI_PollyService {
 
 				$result = $polly_client->synthesizeSpeech(
 					array(
+						'Engine' 			 => $engine,
 						'OutputFormat' => 'mp3',
 						'SampleRate'   => $sample_rate,
 						'Text'         => $text_content,
@@ -453,6 +464,7 @@ class AmazonAI_PollyService {
 			$text_content = $common->decode_ssml_tags( $text_content );
 		}
 
+		$text_content = str_replace( '**AMAZONPOLLY*SSML*BREAK*time=***300ms***SSML**', '<break time="300ms"/>', $text_content );
 		$text_content = str_replace( '**AMAZONPOLLY*SSML*BREAK*time=***500ms***SSML**', '<break time="500ms"/>', $text_content );
 		$text_content = str_replace( '**AMAZONPOLLY*SSML*BREAK*time=***1s***SSML**', '<break time="500ms"/>', $text_content );
 
@@ -475,6 +487,17 @@ class AmazonAI_PollyService {
 
 		return $text_content;
 	}
+
+	private function add_newscaster_tag($common, $text_content, $voice) {
+
+
+		if ($common->should_news_style_be_used($voice)) {
+			$text_content = '<amazon:domain name="news">' . $text_content . '</amazon:domain>';
+		}
+
+		return $text_content;
+	}
+
 
 	/**
 	 * Method add speak tags for output text.

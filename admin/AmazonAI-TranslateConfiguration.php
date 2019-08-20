@@ -51,18 +51,18 @@ class AmazonAI_TranslateConfiguration
             $this,
             'translate_gui'
         ), 'amazon_ai_translate');
-        add_settings_field('amazon_polly_trans_enabled', __('Enable translation support:', 'amazonpolly'), array(
-            $this,
-            'translation_enabled_gui'
-        ), 'amazon_ai_translate', 'amazon_ai_translate', array(
-            'label_for' => 'amazon_polly_trans_enabled'
-        ));
 
+        add_settings_field( 'amazon_ai_source_language', __('Source language:', 'amazonpolly'), array($this,'source_language_gui'), 'amazon_ai_translate', 'amazon_ai_translate', array('label_for' => 'amazon_ai_source_language'));
+        register_setting('amazon_ai_translate', 'amazon_ai_source_language');
+
+        add_settings_field('amazon_polly_trans_enabled', __('Enable translation support:', 'amazonpolly'), array($this,'translation_enabled_gui'), 'amazon_ai_translate', 'amazon_ai_translate', array('label_for' => 'amazon_polly_trans_enabled'));
         register_setting('amazon_ai_translate', 'amazon_polly_trans_enabled');
 
         if ($this->is_language_supported()) {
           if ( $this->common->is_translation_enabled() ) {
             if ( $this->common->validate_amazon_translate_access() ) {
+
+
               add_settings_field('amazon_ai_audio_for_translation_enabled', __('Enable audio for translations:', 'amazonpolly'), array(
                   $this,
                   'audio_for_translation_enabled_gui'
@@ -76,8 +76,18 @@ class AmazonAI_TranslateConfiguration
                   'label_for' => 'amazon_polly_trans_langs'
               ));
 
+              add_settings_section( 'amazon_ai_translateadditional', __( 'Additional configuration', 'amazonpolly' ), array( $this, 'translateadditional_gui' ), 'amazon_ai_translate');
+
+              add_settings_field('amazon_polly_posttypes', __('Post types:', 'amazonpolly'), array($this,'posttypes_gui'), 'amazon_ai_translate', 'amazon_ai_translateadditional', array('label_for' => 'amazon_polly_posttypes'));
+              register_setting('amazon_ai_translate', 'amazon_polly_posttypes');
+
+              add_settings_field('amazon_ai_logging', __('Enable logging:', 'amazonpolly'), array($this,'logging_gui'), 'amazon_ai_translate', 'amazon_ai_translateadditional', array('label_for' => 'amazon_ai_logging'));
+              register_setting('amazon_ai_translate', 'amazon_ai_logging');
+
+
               register_setting('amazon_ai_translate', 'amazon_polly_trans_src_lang');
               register_setting('amazon_ai_translate', 'amazon_ai_audio_for_translation_enabled');
+
 
 
               foreach ($this->common->get_all_translable_languages() as $language_code) {
@@ -86,11 +96,18 @@ class AmazonAI_TranslateConfiguration
                 register_setting('amazon_ai_translate', 'amazon_polly_trans_langs_' . $language_code . '_label', 'strval');
                 register_setting('amazon_ai_translate', 'amazon_polly_trans_langs_' . $language_code . '_display', 'strval');
               }
+
+
             }
           }
         }
 
     }
+
+    function translateadditional_gui() {
+  		//Empty
+  	}
+
 
     /**
      * Render the translation target languages input.
@@ -180,6 +197,53 @@ class AmazonAI_TranslateConfiguration
     }
 
     /**
+     * Render the Post Type input box.
+     *
+     * @since  1.0.7
+     */
+    public function posttypes_gui() {
+        $posttypes = $this->common->get_posttypes();
+        echo '<input type="text" class="regular-text" name="amazon_polly_posttypes" id="amazon_polly_posttypes" value="' . esc_attr( $posttypes ) . '"> ';
+        echo '<p class="description" for="amazon_polly_posttypes">Post types in your WordPress environment</p>';
+    }
+
+    /**
+     * Render the 'Enable Logging' input.
+     *
+     * @since  2.6.2
+     */
+    function logging_gui()
+    {
+      $checked = $this->common->checked_validator("amazon_ai_logging");
+      echo '<input type="checkbox" name="amazon_ai_logging" id="amazon_ai_logging" ' . esc_attr($checked) . ' > <p class="description"></p>';
+    }
+
+    /**
+     * Render the translation source language input.
+     *
+     * @since  2.0.0
+     */
+    public function source_language_gui() {
+
+      $selected_source_language = $this->common->get_source_language();
+
+      echo '<select name="amazon_ai_source_language" id="amazon_ai_source_language" >';
+
+      foreach ($this->common->get_all_languages() as $language_code) {
+        $language_name = $this->common->get_language_name($language_code);
+        echo '<option label="' . esc_attr($language_name) . '" value="' . esc_attr($language_code) . '" ';
+        if (strcmp($selected_source_language, $language_code) === 0) {
+          echo 'selected="selected"';
+        }
+        echo '>' . esc_attr__($language_name, 'amazon-polly') . '</option>';
+      }
+
+      echo '</select>';
+
+    }
+
+
+    /**
      * Render the translation target languages input.
      *
      * @since  2.0.0
@@ -267,7 +331,6 @@ class AmazonAI_TranslateConfiguration
     {
         if ($this->is_language_supported()) {
         if ($this->common->validate_amazon_polly_access()) {
-            if ($this->common->is_s3_enabled()) {
                 $start_value = $this->common->checked_validator('amazon_polly_trans_enabled');
                 $translate_accessible = $this->common->is_translation_enabled();
                 $supported_regions    = array(
@@ -288,9 +351,6 @@ class AmazonAI_TranslateConfiguration
                     echo '<p class="description">You need to use one of following regions: N.Virginia, Ohio, Oregon, Ireland</p>';
                     update_option('amazon_polly_trans_enabled', '');
                 }
-            } else {
-                echo '<p class="description">Amazon S3 Storage needs to be enabled</p>';
-            }
         } else {
             echo '<p>Please verify your AWS Credentials are accurate</p>';
         }

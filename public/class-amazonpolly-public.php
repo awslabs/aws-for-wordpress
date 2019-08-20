@@ -94,10 +94,10 @@ class Amazonpolly_Public {
 	public function content_filter( $content ) {
 
 		$post_id = get_the_ID();
-
 		if ( empty( $post_id ) ) {
 			return $content;
 		}
+
 
 		$common = new AmazonAI_Common();
 
@@ -293,6 +293,7 @@ class Amazonpolly_Public {
 			<audio class="amazon-ai-player" id="amazon-ai-player" preload="none" controls ' . $autoplay . ' ' . $controlsList . '>
 				<source type="audio/mpeg" src="' . $new_audio_location . '">
 			</audio>
+			<img src="https://d12ee1u74lotna.cloudfront.net/images/player_line.png">
 		</div>';
 
 		return $response;

@@ -50,12 +50,22 @@ class AmazonAI_PollyConfiguration {
 
 			add_settings_section('amazon_ai_polly', "Amazon Polly configuration", array($this,'polly_gui'), 'amazon_ai_polly');
 
+        add_settings_field( 'amazon_ai_source_language', __('Source language:', 'amazonpolly'), array($this,'source_language_gui'), 'amazon_ai_polly', 'amazon_ai_polly', array('label_for' => 'amazon_ai_source_language'));
+        register_setting('amazon_ai_polly', 'amazon_ai_source_language');
+
         add_settings_field('amazon_ai_polly_enable', __('Enable text-to-speech support:', 'amazonpolly'), array($this,'polly_enabled_gui'), 'amazon_ai_polly', 'amazon_ai_polly', array('label_for' => 'amazon_ai_polly_enable'));
         register_setting('amazon_ai_polly', 'amazon_ai_polly_enable');
 
-        if ($this->is_language_supported()) {
-          if ($this->common->validate_amazon_polly_access() ) {
-            if ($this->common->is_polly_enabled()) {
+        if ($this->common->validate_amazon_polly_access() ) {
+          if ($this->common->is_polly_enabled()) {
+            if ($this->common->is_language_supported_for_polly()) {
+              add_settings_field( 'amazon_polly_neural', __( 'Neural Text-To-Speech:', 'amazonpolly' ), array( $this, 'neural_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_neural' ) );
+              register_setting('amazon_ai_polly', 'amazon_polly_neural');
+
+              add_settings_field( 'amazon_polly_news', __( 'Newscaster Style:', 'amazonpolly' ), array( $this, 'news_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_news' ) );
+              register_setting('amazon_ai_polly', 'amazon_polly_news');
+
+
               add_settings_field( 'amazon_polly_sample_rate', __('Sample rate:', 'amazonpolly'), array($this,'sample_rate_gui'), 'amazon_ai_polly', 'amazon_ai_polly', array('label_for' => 'amazon_polly_sample_rate'));
         			add_settings_field( 'amazon_polly_voice_id', __( 'Voice name:', 'amazonpolly' ), array( $this, 'voices_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_voice_id' ) );
         			add_settings_field( 'amazon_polly_auto_breaths', __( 'Automated breaths:', 'amazonpolly' ), array( $this, 'auto_breaths_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_auto_breaths_id' ) );
@@ -77,7 +87,22 @@ class AmazonAI_PollyConfiguration {
               add_settings_field( 'amazon_ai_skip_tags', __( 'Skip tags:', 'amazonpolly' ), array( $this, 'skiptags_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_ai_skip_tags' ) );
               add_settings_field( 'amazon_ai_download_enabled', __( 'Enable download audio:', 'amazonpolly' ), array( $this, 'download_gui' ), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array( 'label_for' => 'amazon_ai_download_enabled' ) );
 
-        			//Registration
+
+              add_settings_field('amazon_polly_s3', __('Store audio in Amazon S3:', 'amazonpolly'), array($this,'s3_gui'), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array('label_for' => 'amazon_polly_s3'));
+              register_setting('amazon_ai_polly', 'amazon_polly_s3');
+
+              add_settings_field('amazon_polly_posttypes', __('Post types:', 'amazonpolly'), array($this,'posttypes_gui'), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array('label_for' => 'amazon_polly_posttypes'));
+              register_setting('amazon_ai_polly', 'amazon_polly_posttypes');
+
+              add_settings_field('amazon_polly_cloudfront', __('Amazon CloudFront (CDN) domain name:', 'amazonpolly'), array($this,'cloudfront_gui'), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array('label_for' => 'amazon_polly_cloudfront'));
+              register_setting('amazon_ai_polly', 'amazon_polly_cloudfront');
+
+              add_settings_field('amazon_polly_poweredby', __('Display "Powered by AWS":', 'amazonpolly'), array($this,'poweredby_gui'), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array('label_for' => 'amazon_polly_poweredby'));
+              register_setting('amazon_ai_polly', 'amazon_polly_poweredby');
+
+              add_settings_field('amazon_ai_logging', __('Enable logging:', 'amazonpolly'), array($this,'logging_gui'), 'amazon_ai_polly', 'amazon_ai_pollyadditional', array('label_for' => 'amazon_ai_logging'));
+              register_setting('amazon_ai_polly', 'amazon_ai_logging');
+
         			register_setting('amazon_ai_polly', 'amazon_polly_sample_rate');
         			register_setting('amazon_ai_polly', 'amazon_polly_voice_id');
         			register_setting('amazon_ai_polly', 'amazon_polly_auto_breaths');
@@ -109,33 +134,116 @@ class AmazonAI_PollyConfiguration {
 	 *
 	 * @since  2.5.0
 	 */
-  public function polly_enabled_gui() {
+   public function polly_enabled_gui() {
 
-    if ($this->is_language_supported()) {
-      $value = $this->common->checked_validator( 'amazon_ai_polly_enable' );
-      if ($this->common->validate_amazon_polly_access()) {
-        echo '<input type="checkbox" name="amazon_ai_polly_enable" id="amazon_ai_polly_enable" ' . $this->common->checked_validator( 'amazon_ai_polly_enable' ) . '> ';
-      } else {
-        echo '<p>Please verify your AWS Credentials are accurate</p>';
-      }
-    } else {
-      echo '<p>Text-To-Speech functionality not supported for this language</p>';
-    }
+     if ($this->common->is_language_supported_for_polly()) {
+       $value = $this->common->checked_validator( 'amazon_ai_polly_enable' );
+       if ($this->common->validate_amazon_polly_access()) {
+         echo '<input type="checkbox" name="amazon_ai_polly_enable" id="amazon_ai_polly_enable" ' . $this->common->checked_validator( 'amazon_ai_polly_enable' ) . '> ';
+       } else {
+         echo '<p>Please verify your AWS Credentials are accurate</p>';
+       }
+     } else {
+       echo '<p>Text-To-Speech functionality not supported for this language</p>';
+     }
 
-  }
+   }
+
+   /**
+    * Render the 'Display "Powered by AWS" image' input.
+    *
+    * @since  2.6.0
+    */
+   function poweredby_gui()
+   {
+     $checked = $this->common->checked_validator("amazon_polly_poweredby");
+
+     echo '<input type="checkbox" name="amazon_polly_poweredby" id="amazon_polly_poweredby" ' . esc_attr($checked) . ' > <p class="description"></p>';
+     echo '<p class="description">This option let you to choose if you want to display <i>Display by AWS</i> logo on your website or (otherwise) add it to the content (like audio) which will be generated by the plugin</p>';
+   }
 
 
-  private function is_language_supported() {
+  /**
+   * Render the translation source language input.
+   *
+   * @since  2.0.0
+   */
+  public function source_language_gui() {
 
     $selected_source_language = $this->common->get_source_language();
 
-    foreach ($this->common->get_all_polly_languages() as $language_code) {
-      if (strcmp($selected_source_language, $language_code) === 0) {
-        return true;
-      }
-    }
+    echo '<select name="amazon_ai_source_language" id="amazon_ai_source_language" >';
 
-    return false;
+    foreach ($this->common->get_all_languages() as $language_code) {
+      $language_name = $this->common->get_language_name($language_code);
+      echo '<option label="' . esc_attr($language_name) . '" value="' . esc_attr($language_code) . '" ';
+      if (strcmp($selected_source_language, $language_code) === 0) {
+        echo 'selected="selected"';
+      }
+      echo '>' . esc_attr__($language_name, 'amazon-polly') . '</option>';
+    }
+    echo '</select>';
+
+  }
+
+  /**
+   * Render the 'use CloudFront' input.
+   *
+   * @since  1.0.0
+   */
+  public function cloudfront_gui()
+  {
+
+          $is_s3_enabled = $this->common->is_s3_enabled();
+          if ( $is_s3_enabled ) {
+
+              $cloudfront_domain_name = get_option('amazon_polly_cloudfront');
+              echo '<input type="text" name="amazon_polly_cloudfront" class="regular-text" "id="amazon_polly_cloudfront" value="' . esc_attr($cloudfront_domain_name) . '" > ';
+              echo '<p class="description">If you have set up CloudFront distribution for your S3 bucket, the name of the domain. For additional information and pricing, see: <a target="_blank" href="https://aws.amazon.com/cloudfront">https://aws.amazon.com/cloudfront</a> </p>';
+
+          } else {
+              echo '<p class="description">Amazon S3 Storage needs to be enabled</p>';
+          }
+  }
+
+
+      /**
+       * Render the 'store in S3' input.
+       *
+       * @since  1.0.0
+       */
+      function s3_gui()
+      {
+
+              $s3_bucket_name = $this->common->get_s3_bucket_name();
+              $is_s3_enabled = $this->common->is_s3_enabled();
+
+              if ( $is_s3_enabled ) {
+                $checked                = ' checked ';
+                $bucket_name_visibility = ' ';
+              } else {
+                $checked                = ' ';
+                $bucket_name_visibility = 'display:none';
+              }
+
+              echo '<input type="checkbox" name="amazon_polly_s3" id="amazon_polly_s3" ' . esc_attr($checked) . ' > <p class="description"></p>';
+
+              if ( $is_s3_enabled ) {
+                  echo '<label for="amazon_polly_s3" id="amazon_polly_s3_bucket_name_box" style="' . esc_attr($bucket_name_visibility) . '"> Your S3 Bucket name is <b>' . esc_attr($s3_bucket_name) . '</b></label>';
+              }
+
+              echo '<p class="description">Audio files are saved on and streamed from Amazon S3. Learn more <a target="_blank" href="https://aws.amazon.com/s3">https://aws.amazon.com/s3</a></p>';
+      }
+
+  /**
+   * Render the 'Enable Logging' input.
+   *
+   * @since  2.6.2
+   */
+  function logging_gui()
+  {
+    $checked = $this->common->checked_validator("amazon_ai_logging");
+    echo '<input type="checkbox" name="amazon_ai_logging" id="amazon_ai_logging" ' . esc_attr($checked) . ' > <p class="description"></p>';
   }
 
 	/**
@@ -170,6 +278,17 @@ class AmazonAI_PollyConfiguration {
 			echo '<p class="description" for="amazon_polly_add_post_excerpt">If enabled, each audio file will have post excerpt at the beginning.</p>';
 
 	}
+
+  /**
+   * Render the Post Type input box.
+   *
+   * @since  1.0.7
+   */
+  public function posttypes_gui() {
+      $posttypes = $this->common->get_posttypes();
+      echo '<input type="text" class="regular-text" name="amazon_polly_posttypes" id="amazon_polly_posttypes" value="' . esc_attr( $posttypes ) . '"> ';
+      echo '<p class="description" for="amazon_polly_posttypes">Post types in your WordPress environment</p>';
+  }
 
 
   public function download_gui() {
@@ -380,6 +499,34 @@ public function playerlabel_gui() {
 
 	}
 
+  /**
+	 * Render the Neural GUI
+	 *
+	 */
+	public function neural_gui() {
+
+    if ($this->common->is_neural_supported_in_region()) {
+			echo '<input type="checkbox" name="amazon_polly_neural" id="amazon_polly_neural" ' . $this->common->is_polly_neural_enabled() . '> ';
+			echo '<p class="description" for="amazon_polly_neural">Delivers significant improvements in speech quality. Available only for US and UK English voices. Amazon Polly’s Neural voices are priced at $16.00 per 1 million characters for speech or Speech Marks requested (when outside the free tier).</p>';
+    } else {
+      echo '<p class="description" for="amazon_polly_news">Option not supported in that region</p>';
+    }
+  }
+
+  /**
+	 * Render the Neural GUI
+	 *
+	 */
+	public function news_gui() {
+
+    if ($this->common->is_neural_supported_in_region()) {
+      echo '<input type="checkbox" name="amazon_polly_news" id="amazon_polly_news" ' . $this->common->is_polly_news_enabled() . '> ';
+			echo '<p class="description" for="amazon_polly_news">Newscaster Style. Available only when Neural Text-To-Speech is enabled and only for the Matthew and Joanna voices.</p>';
+    } else {
+      echo '<p class="description" for="amazon_polly_news">Option not supported in that region</p>';
+    }
+  }
+
 	/**
 	 * Render the Automated Breath input.
 	 *
@@ -388,7 +535,7 @@ public function playerlabel_gui() {
 	public function auto_breaths_gui() {
 
 			echo '<input type="checkbox" name="amazon_polly_auto_breaths" id="amazon_polly_auto_breaths" ' . $this->common->checked_validator( 'amazon_polly_auto_breaths' ) . '> ';
-			echo '<p class="description" for="amazon_polly_auto_breaths">If enabled, Amazon Polly automatically creates breathing noises at appropriate intervals</p>';
+			echo '<p class="description" for="amazon_polly_auto_breaths">Creates breathing noises at appropriate intervals</p>';
 
 
 	}

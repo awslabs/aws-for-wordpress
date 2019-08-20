@@ -62,7 +62,7 @@ class AmazonAI_GeneralConfiguration
 
         // ************************************************* *
         // ************** GENERAL SECTION ************** *
-        add_settings_section('amazon_ai_general', "General configuration", array(
+        add_settings_section('amazon_ai_general', "", array(
             $this,
             'general_gui'
         ), 'amazon_ai');
@@ -91,78 +91,12 @@ class AmazonAI_GeneralConfiguration
           ), 'amazon_ai', 'amazon_ai_general', array(
               'label_for' => 'amazon_polly_region'
           ));
-          add_settings_field('amazon_ai_source_language', __('Source language:', 'amazonpolly'), array(
-              $this,
-              'source_language_gui'
-          ), 'amazon_ai', 'amazon_ai_general', array(
-              'label_for' => 'amazon_ai_source_language'
-          ));
 
-          // ************************************************* *
-          // ************** STORAGE SECTION ************** *
-          add_settings_section('amazon_ai_storage', __('Cloud storage', 'amazonpolly'), array(
-              $this,
-              'storage_gui'
-          ), 'amazon_ai');
-          add_settings_field('amazon_polly_s3', __('Store audio in Amazon S3:', 'amazonpolly'), array(
-              $this,
-              's3_gui'
-          ), 'amazon_ai', 'amazon_ai_storage', array(
-              'label_for' => 'amazon_polly_s3'
-          ));
-          add_settings_field('amazon_polly_cloudfront', __('Amazon CloudFront (CDN) domain name:', 'amazonpolly'), array(
-              $this,
-              'cloudfront_gui'
-          ), 'amazon_ai', 'amazon_ai_storage', array(
-              'label_for' => 'amazon_polly_cloudfront'
-          ));
-          // ************************************************* *
-          // ************** OTHER SECTION ************** *
-          add_settings_section('amazon_ai_other', __('Other settings', 'amazonpolly'), array(
-              $this,
-              'other_gui'
-          ), 'amazon_ai');
-          add_settings_field('amazon_polly_posttypes', __('Post types:', 'amazonpolly'), array(
-              $this,
-              'posttypes_gui'
-          ), 'amazon_ai', 'amazon_ai_other', array(
-              'label_for' => 'amazon_polly_posttypes'
-          ));
-          add_settings_field('amazon_polly_poweredby', __('Display "Powered by AWS":', 'amazonpolly'), array(
-              $this,
-              'poweredby_gui'
-          ), 'amazon_ai', 'amazon_ai_other', array(
-              'label_for' => 'amazon_polly_poweredby'
-          ));
-          add_settings_field('amazon_ai_logging', __('Enable logging:', 'amazonpolly'), array(
-              $this,
-              'logging_gui'
-          ), 'amazon_ai', 'amazon_ai_other', array(
-              'label_for' => 'amazon_ai_logging'
-          ));
-
-          register_setting('amazon_ai', 'amazon_ai_source_language');
           register_setting('amazon_ai', 'amazon_polly_region');
-  				register_setting('amazon_ai', 'amazon_polly_s3');
-  				register_setting('amazon_ai', 'amazon_polly_cloudfront');
-          register_setting('amazon_ai', 'amazon_polly_posttypes');
-          register_setting('amazon_ai', 'amazon_polly_poweredby');
-          register_setting('amazon_ai', 'amazon_ai_logging');
 
         }
 
 
-    }
-
-    /**
-     * Render the Post Type input box.
-     *
-     * @since  1.0.7
-     */
-    public function posttypes_gui() {
-        $posttypes = $this->common->get_posttypes();
-        echo '<input type="text" class="regular-text" name="amazon_polly_posttypes" id="amazon_polly_posttypes" value="' . esc_attr( $posttypes ) . '"> ';
-        echo '<p class="description" for="amazon_polly_posttypes">Post types in your WordPress environment</p>';
     }
 
 
@@ -230,110 +164,7 @@ class AmazonAI_GeneralConfiguration
 
     }
 
-    /**
-     * Render the 'store in S3' input.
-     *
-     * @since  1.0.0
-     */
-    function s3_gui()
-    {
 
-            $s3_bucket_name = $this->common->get_s3_bucket_name();
-            $is_s3_enabled = $this->common->is_s3_enabled();
-
-            if ( $is_s3_enabled ) {
-              $checked                = ' checked ';
-              $bucket_name_visibility = ' ';
-            } else {
-              $checked                = ' ';
-              $bucket_name_visibility = 'display:none';
-            }
-
-            echo '<input type="checkbox" name="amazon_polly_s3" id="amazon_polly_s3" ' . esc_attr($checked) . ' > <p class="description"></p>';
-
-            if ( $is_s3_enabled ) {
-                echo '<label for="amazon_polly_s3" id="amazon_polly_s3_bucket_name_box" style="' . esc_attr($bucket_name_visibility) . '"> Your S3 Bucket name is <b>' . esc_attr($s3_bucket_name) . '</b></label>';
-            }
-
-            echo '<p class="description">Audio files are saved on and streamed from Amazon S3. Learn more <a target="_blank" href="https://aws.amazon.com/s3">https://aws.amazon.com/s3</a></p>';
-    }
-
-
-
-    /**
-     * Render the translation source language input.
-     *
-     * @since  2.0.0
-     */
-    public function source_language_gui() {
-
-      $selected_source_language = $this->common->get_source_language();
-
-      echo '<select name="amazon_ai_source_language" id="amazon_ai_source_language" >';
-
-      foreach ($this->common->get_all_languages() as $language_code) {
-        $language_name = $this->common->get_language_name($language_code);
-        echo '<option label="' . esc_attr($language_name) . '" value="' . esc_attr($language_code) . '" ';
-        if (strcmp($selected_source_language, $language_code) === 0) {
-          echo 'selected="selected"';
-        }
-        echo '>' . esc_attr__($language_name, 'amazon-polly') . '</option>';
-      }
-
-      echo '</select>';
-
-    }
-
-
-
-    /**
-     * Render the 'use CloudFront' input.
-     *
-     * @since  1.0.0
-     */
-    public function cloudfront_gui()
-    {
-
-            $is_s3_enabled = $this->common->is_s3_enabled();
-            if ( $is_s3_enabled ) {
-
-                $cloudfront_domain_name = get_option('amazon_polly_cloudfront');
-                echo '<input type="text" name="amazon_polly_cloudfront" class="regular-text" "id="amazon_polly_cloudfront" value="' . esc_attr($cloudfront_domain_name) . '" > ';
-                echo '<p class="description">If you have set up CloudFront distribution for your S3 bucket, the name of the domain. For additional information and pricing, see: <a target="_blank" href="https://aws.amazon.com/cloudfront">https://aws.amazon.com/cloudfront</a> </p>';
-
-            } else {
-                echo '<p class="description">Amazon S3 Storage needs to be enabled</p>';
-            }
-    }
-
-    /**
-     * Render the 'Display "Powered by AWS" image' input.
-     *
-     * @since  2.6.0
-     */
-    function poweredby_gui()
-    {
-      $checked = $this->common->checked_validator("amazon_polly_poweredby");
-
-      echo '<input type="checkbox" name="amazon_polly_poweredby" id="amazon_polly_poweredby" ' . esc_attr($checked) . ' > <p class="description"></p>';
-      echo '<p class="description">This option let you to choose if you want to display <i>Display by AWS</i> logo on your website or (otherwise) add it to the content (like audio) which will be generated by the plugin</p>';
-    }
-
-    /**
-     * Render the 'Enable Logging' input.
-     *
-     * @since  2.6.2
-     */
-    function logging_gui()
-    {
-      $checked = $this->common->checked_validator("amazon_ai_logging");
-      echo '<input type="checkbox" name="amazon_ai_logging" id="amazon_ai_logging" ' . esc_attr($checked) . ' > <p class="description"></p>';
-    }
-
-    function other_gui()
-    {
-        //Empty
-    }
 
     function general_gui()
     {

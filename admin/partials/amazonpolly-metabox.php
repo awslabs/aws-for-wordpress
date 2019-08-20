@@ -55,10 +55,29 @@ function display_translate_gui($post) {
 			echo '</div>';
 		}
 
-		echo '<p><button type="button" class="button" id="amazon_polly_price_checker_button" >How much will this cost to convert?</button></p>';
 		echo '</div>';
 
 	}
+
+	echo '<p><button type="button" class="button" id="amazon_polly_price_checker_button" >How much will this cost to convert?</button></p>';
+
+	echo '<div id="amazon_ai_plugin_cost_info">';
+
+	if ( $common->is_polly_enabled() ) {
+		echo '<p><b>-> Text-To-Speech Functionality</b><p>';
+		echo '<p>For Amazon Polly’s Standard voices, <b>the free tier includes 5 million characters per month</b> for speech or Speech Marks requests, for the first 12 months, starting from your first request for speech. For Neural voices, the free tier includes 1 million characters per month for speech or Speech Marks requests, for the first 12 months, starting from your first request. <p>';
+		echo '<p>You are billed monthly for the number of characters of text that you processed. Amazon Polly’s Standard voices are priced at $4.00 per 1 million characters for speech or Speech Marks requests (when outside the free tier). Amazon Polly’s Neural voices are priced at $16.00 per 1 million characters for speech or Speech Marks requested (when outside the free tier). <p>';
+		echo '<p>When you update your post, plugin needs to conver the whole content to audio again.  <p>';
+		echo '<p>You can find full information about pricing of Amazon Polly here: https://aws.amazon.com/polly/pricing/ <p>';
+	}
+
+	if ( $common->is_translation_enabled() ) {
+		echo '<p><b>-> Translate Functionality</b><p>';
+		echo '<p>Your <b>Free Tier is 2 million characters per month for 12 months</b>, starting from the date on which you create your first translation request. When your free usage expires, or if your application use exceeds the free usage tier, you simply pay standard, pay-as-you-go service rates.  <p>';
+		echo '<p>After this, you are billed monthly for the total number of characters sent to the API for processing, including white space characters. Amazon Translate is priced at $15 per million characters ($0.000015 per character). <p>';
+		echo '<p>You can find full information about pricing of Amazon Translate here: https://aws.amazon.com/translate/pricing/  <p>';
+	}
+	echo '</div>';
 }
 
 /**

@@ -158,6 +158,7 @@
 			);
 
 			$( '#amazon_polly_bulk_update_div' ).hide();
+			$( '#amazon_ai_plugin_cost_info' ).hide();
 
 			$( '#amazon_polly_enable' ).change(
 				function() {
@@ -192,29 +193,11 @@
 
 			$( '#amazon_polly_price_checker_button' ).click(
 				function(){
-					var numer_of_characters = $( "#content_ifr" ).contents().find( "#tinymce" ).text().replace( / /g,'' ).length;
-					var number_of_trans = $( "#amazon_polly_number_of_trans" ).text();
 
-					if (numer_of_characters == 0) {
-						var numer_of_characters = $( "#content" ).val().replace( / /g,'' ).length;
-					}
-
-					var amazon_polly_price  = 0.000004;
-					var amazon_translate_price  = 0.000015;
-
-					var total_price         = numer_of_characters * amazon_polly_price;
-
-					if (number_of_trans) {
-						var partA = 'In total there are approximately ' + numer_of_characters + ' characters. Based on a rough estimation ($4 dollars per 1 million characters) it will cost you about $' + total_price + '  to convert this content into speech-based audio. \n\n';
-
-						var trans_price = numer_of_characters * amazon_translate_price * number_of_trans + numer_of_characters * amazon_polly_price * number_of_trans;
-
-						var partB = 'In addition, if you are going to translate it and then convert it to audio in ' + number_of_trans + ' other language(s). Based on a rough estimation ($4 dollars per 1 million characters for Amazon Polly usage and $15 dollars per 1 million characters for Amazon Translate usage) it will cost you about $' + trans_price + ' \n\n';
-
-						var partC = 'Some or all of your costs might be covered by the Free Tier (conversion of 5 million characters per month for free for Amazon Polly and 2 milion characters for free for Amazon Translate, for the first 12 months, starting from the first request for speech). Learn more: https://aws.amazon.com/polly and https://aws.amazon.com/translate';
-						alert (partA + partB + partC);
+					if ( $('#amazon_ai_plugin_cost_info').is(":hidden") ) {
+						$( '#amazon_ai_plugin_cost_info' ).show();
 					} else {
-						alert( 'In total there are approximately ' + numer_of_characters + ' characters. Based on a rough estimation ($4 dollars per 1 million characters) it will cost you about $' + total_price + '  to convert this content into speech-based audio. \nSome or all of your costs might be covered by the Free Tier (conversion of 5 million characters per month for free, for the first 12 months, starting from the first request for speech). Learn more: https://aws.amazon.com/polly' );
+						$( '#amazon_ai_plugin_cost_info' ).hide();
 					}
 				}
 			);
