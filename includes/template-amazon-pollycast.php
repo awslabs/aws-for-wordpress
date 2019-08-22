@@ -129,7 +129,7 @@ $amazon_pollycast->start_podcast_rss();
 		?>
 	<item>
 		<title><?php the_title_rss(); ?></title>
-		<link><?php echo esc_url( $audio_file ); ?></link>
+		<link><?php echo get_permalink(); ?></link>
 		<pubDate><?php echo esc_html( mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ) ); ?></pubDate>
 		<description><![CDATA[<?php the_excerpt_rss(); ?>]]></description>
 		<enclosure url="<?php echo esc_url( $audio_file ); ?>" length="0" type="audio/mpeg"/>
