@@ -131,8 +131,12 @@ $amazon_pollycast->start_podcast_rss();
 		<title><?php the_title_rss(); ?></title>
 		<link><?php echo get_permalink(); ?></link>
 		<pubDate><?php echo esc_html( mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ) ); ?></pubDate>
-		<description><![CDATA[<?php the_excerpt_rss(); ?>]]></description>
-		<enclosure url="<?php echo esc_url( $audio_file ); ?>" length="0" type="audio/mpeg"/>
+		<description><![CDATA[<?php the_excerpt_rss(); ?>]]></description><?php 
+		$fileSize = 0;
+		if ($common->is_medialibrary_enabled() && !$common->is_s3_enabled()) {
+			$fileSize = filesize(getcwd() . str_replace(get_home_url(), "", preg_replace('/\?.*/', '', $audio_file)));
+		}?>
+		<enclosure url="<?php echo esc_url( $audio_file ); ?>" length="<?php echo $fileSize; ?>" type="audio/mpeg"/>
 		<guid><?php the_guid(); ?></guid>
 		<itunes:author><![CDATA[<?php the_author(); ?>]]></itunes:author>
 		<itunes:summary><![CDATA[<?php the_excerpt_rss(); ?>]]></itunes:summary>
