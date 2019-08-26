@@ -126,16 +126,22 @@ $amazon_pollycast->start_podcast_rss();
 		the_post();
 		$audio_file      = $amazon_pollycast->get_audio_file_location( get_the_ID() );
 		$categories_list = $amazon_pollycast->get_itunes_categories( get_the_ID() );
+
+		$index = strpos( $audio_file, '.mp3' );
+		$audio_file = substr($audio_file, 0, $index+4);
+
+
 		?>
 	<item>
 		<title><?php the_title_rss(); ?></title>
 		<link><?php echo get_permalink(); ?></link>
 		<pubDate><?php echo esc_html( mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ) ); ?></pubDate>
-		<description><![CDATA[<?php the_excerpt_rss(); ?>]]></description><?php 
-		$fileSize = 0;
-		if ($common->is_medialibrary_enabled() && !$common->is_s3_enabled()) {
-			$fileSize = filesize(getcwd() . str_replace(get_home_url(), "", preg_replace('/\?.*/', '', $audio_file)));
-		}?>
+		<description><![CDATA[<?php the_excerpt_rss(); ?>]]></description><?php
+			$fileSize = 0;
+			if ($common->is_medialibrary_enabled() && !$common->is_s3_enabled()) {
+				$fileSize = filesize(getcwd() . str_replace(get_home_url(), "", preg_replace('/\?.*/', '', $audio_file)));
+			}
+		?>
 		<enclosure url="<?php echo esc_url( $audio_file ); ?>" length="<?php echo $fileSize; ?>" type="audio/mpeg"/>
 		<guid><?php the_guid(); ?></guid>
 		<itunes:author><![CDATA[<?php the_author(); ?>]]></itunes:author>

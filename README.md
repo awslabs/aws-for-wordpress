@@ -6,7 +6,7 @@
 | Requires at least | 3.0.1 |
 | Requires PHP | 5.6 |
 | Tested up to | 5.2 |
-| Stable tag | 3.1.2 |
+| Stable tag | 3.1.3 |
 | License | GPLv3 ONLY |
 | License URI | https://www.gnu.org/licenses/gpl-3.0.html |
 
@@ -237,6 +237,9 @@ Pronunciation lexicons enable you to customize the pronunciation of words. In th
 3. After activation of the plugin, each voiced section will have its own play button, which will allow the end user to listen to the content.
 
 #### Changelog
+
+= 3.1.3 =
+* Bug Fixing.
 
 = 3.1.2 =
 * Bug Fixing.
