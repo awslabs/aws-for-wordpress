@@ -45,9 +45,6 @@ class AmazonAI_PollyConfiguration {
 		$this->common = new AmazonAI_Common();
     $this->common->init();
 
-
-
-
 			add_settings_section('amazon_ai_polly', "Amazon Polly configuration", array($this,'polly_gui'), 'amazon_ai_polly');
 
         add_settings_field( 'amazon_ai_source_language', __('Source language:', 'amazonpolly'), array($this,'source_language_gui'), 'amazon_ai_polly', 'amazon_ai_polly', array('label_for' => 'amazon_ai_source_language'));
@@ -56,8 +53,8 @@ class AmazonAI_PollyConfiguration {
         add_settings_field('amazon_ai_polly_enable', __('Enable text-to-speech support:', 'amazonpolly'), array($this,'polly_enabled_gui'), 'amazon_ai_polly', 'amazon_ai_polly', array('label_for' => 'amazon_ai_polly_enable'));
         register_setting('amazon_ai_polly', 'amazon_ai_polly_enable');
 
-        if ($this->common->validate_amazon_polly_access() ) {
-          if ($this->common->is_polly_enabled()) {
+        if ($this->common->is_polly_enabled() ) {
+          if ($this->common->validate_amazon_polly_access()) {
             if ($this->common->is_language_supported_for_polly()) {
               add_settings_field( 'amazon_polly_neural', __( 'Neural Text-To-Speech:', 'amazonpolly' ), array( $this, 'neural_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_neural' ) );
               register_setting('amazon_ai_polly', 'amazon_polly_neural');

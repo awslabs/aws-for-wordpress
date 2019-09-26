@@ -4,7 +4,7 @@ Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly, 
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 5.2
-Stable tag: 3.1.3
+Stable tag: 3.1.5
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -229,6 +229,8 @@ Pronunciation lexicons enable you to customize the pronunciation of words. In th
 
 == Changelog ==
 
+= 3.1.1-5 =
+* Bug Fixing.
 
 = 3.1.3 =
 * Bug Fixing.

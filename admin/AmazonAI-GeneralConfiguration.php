@@ -83,8 +83,6 @@ class AmazonAI_GeneralConfiguration
         register_setting('amazon_ai', 'amazon_polly_access_key');
         register_setting('amazon_ai', 'amazon_polly_secret_key');
 
-        if ($this->common->validate_amazon_polly_access()) {
-
           add_settings_field('amazon_polly_region', __('AWS Region:', 'amazonpolly'), array(
               $this,
               'region_gui'
@@ -93,8 +91,6 @@ class AmazonAI_GeneralConfiguration
           ));
 
           register_setting('amazon_ai', 'amazon_polly_region');
-
-        }
 
 
     }

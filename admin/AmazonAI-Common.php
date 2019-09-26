@@ -346,8 +346,9 @@ class AmazonAI_Common
 	 */
 	public function is_auto_breaths_enabled() {
 
-		$news_style_enabled = $this->is_polly_news_enabled();
-		if ($news_style_enabled) {
+		//If Neural TTS is enabled breaths SSML tags are not supported.
+		$neural_enabled = $this->is_polly_neural_enabled();
+		if ($neural_enabled) {
 			return false;
 		}
 
@@ -573,8 +574,6 @@ class AmazonAI_Common
 		return $audio_location_link;
 
 	}
-
-
 
 	/**
 	 * Validates if AWS configuration is correct and AWS can be reached.
@@ -1352,9 +1351,6 @@ class AmazonAI_Common
 
 		$clean_text = $this->skip_tags($clean_text);
 		$clean_text = $this->add_pauses($clean_text);
-
-		error_log("Text:");
-		error_log($clean_text);
 
 		$is_ssml_enabled = $this->is_ssml_enabled();
 		if ($is_ssml_enabled) {

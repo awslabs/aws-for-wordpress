@@ -329,6 +329,7 @@ class AmazonAI_TranslateConfiguration
      */
     public function translation_enabled_gui()
     {
+
         if ($this->is_language_supported()) {
         if ($this->common->validate_amazon_polly_access()) {
                 $start_value = $this->common->checked_validator('amazon_polly_trans_enabled');

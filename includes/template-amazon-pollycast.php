@@ -68,7 +68,9 @@ $amazon_pollycast->start_podcast_rss();
 	<link><?php bloginfo_rss( 'url' ); ?></link>
 	<description><?php echo esc_attr($itunes_description); ?></description>
 	<image>
-		<url><?php echo esc_url( $podcast_icon ); ?></url>
+		<url><?php
+			$podcast_icon = str_replace('https://', 'http://', $podcast_icon );
+			echo esc_url( $podcast_icon ); ?></url>
 		<title><?php echo esc_attr($itunes_title); ?></title>
 		<link><?php bloginfo_rss( 'url' ); ?></link>
 	</image>
@@ -78,7 +80,11 @@ $amazon_pollycast->start_podcast_rss();
 	</itunes:owner>
 	<itunes:category text="<?php echo esc_attr( $itunes_category ); ?>"></itunes:category>
 	<itunes:explicit><?php echo esc_html( $itunes_explicit ); ?></itunes:explicit>
-	<itunes:image href="<?php echo esc_url( $podcast_icon ); ?>"/>
+	<itunes:image href="<?php
+		$podcast_icon = esc_url( $podcast_icon );
+		$podcast_icon = str_replace('https://', 'http://', $podcast_icon );
+		echo $podcast_icon;
+	?>"/>
 	<itunes:author><?php echo $itunes_author; ?></itunes:author>
 	<itunes:summary><?php	echo esc_attr($itunes_description); ?></itunes:summary>
 	<itunes:subtitle><?php	echo esc_attr($itunes_description); ?></itunes:subtitle>
