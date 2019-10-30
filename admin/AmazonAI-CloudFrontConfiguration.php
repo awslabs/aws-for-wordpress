@@ -314,7 +314,7 @@ class AmazonAI_CloudFrontConfiguration
         $cf_distribution = $this->cloudformation->get_cloudfront_distribution();
         echo '
         <div class="text-content long">
-            CloudFront created distribution <b>'.get_option('amazon_cf_origin').'</b> at <b>'.$cf_distribution['DomainName'].'</b> with an alternate domain name <b>'.get_option('amazon_cf_alias').'</b>
+            CloudFront created distribution <b>'.get_option('amazon_cf_origin').'</b> at <b>'.$cf_distribution['DomainName'].'</b> with an alternate domain name of <b>'.get_option('amazon_cf_alias').'</b>
         </div>';
         echo '
         <div class="text-content long">'.$desc_text_stack_ready.'
