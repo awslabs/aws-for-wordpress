@@ -44,7 +44,7 @@ class AmazonAI_Cloudformation
 
         $this->args = array(
                 'stack_name' => 'CFWPStack'.$alphanum_siteurl,
-                'comment' => 'Created using Wordpress plugin',
+                'comment' => 'Created using the AWS for WordPress plugin',
                 'stack_logical_token' => 'CFWPToken'.$alphanum_siteurl,
                 'acm_logical_resourceid' => 'CFWPACM'.$alphanum_siteurl,
                 'cf_logical_resourceid' => 'CFWPCloudFront'.$alphanum_siteurl,
@@ -71,7 +71,7 @@ class AmazonAI_Cloudformation
                 }
             }
             if (!$flag) {
-                $message = 'The CNAME/alias you entered ('.get_option('amazon_cf_alias').') is currently mapped to '.$result[0]["target"];
+                $message = 'The CNAME or alias you entered ('.get_option('amazon_cf_alias').') is currently mapped to '.$result[0]["target"];
                 throw new Exception($message);
             }
         }
@@ -94,15 +94,15 @@ class AmazonAI_Cloudformation
             $origin = rtrim($origin,'/');
             $alias = rtrim($alias,'/');
             if (!($this->helper->validate_url($origin)) and !($this->helper->validate_url($alias))) {
-                $message = 'CFWPInvalidData: The entered origin domain name and alternate domain name are not valid URLs.';
+                $message = 'CFWPInvalidData: The origin domain name and alternate domain name are not valid.';
                 throw new Exception($message);
             }
             else if (!$this->helper->validate_url($origin)) {
-                $message = 'CFWPInvalidData: The entered origin domain name is not a valid URL.';
+                $message = 'CFWPInvalidData: The origin domain name is not valid.';
                 throw new Exception($message);
             }
             else if (!$this->helper->validate_url($alias)) {
-                $message = 'CFWPInvalidData: The entered alternate domain name is not a valid URL.';
+                $message = 'CFWPInvalidData: The alternate domain name is not valid.';
                 throw new Exception($message);
             }
 
@@ -231,7 +231,7 @@ class AmazonAI_Cloudformation
             $latest_stack_event = $result['StackEvents'][0];
 
             if ($latest_stack_event['ResourceStatus'] != 'UPDATE_IN_PROGRESS' and $latest_stack_event['ResourceStatus'] != 'CREATE_IN_PROGRESS' and $latest_stack_event['ResourceStatus'] != 'CREATE_COMPLETE' and $latest_stack_event['ResourceStatus'] != 'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS' and $latest_stack_event['ResourceStatus'] != 'UPDATE_COMPLETE') {
-                $message = 'Stack is in an unexpected state. CloudFront Distribution  state is: '.$cf_status.' and Stack state is: '.$latest_stack_event['ResourceStatus'];
+                $message = 'CloudFormation stack is in an unexpected state. CloudFront distribution state is '.$cf_status.' and stack state is '.$latest_stack_event['ResourceStatus'];
 
                 throw new Exception($message);
             }

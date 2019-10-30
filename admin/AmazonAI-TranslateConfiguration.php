@@ -352,21 +352,21 @@ class AmazonAI_TranslateConfiguration
                     echo '<input type="checkbox" name="amazon_polly_trans_enabled" id="amazon_polly_trans_enabled" ' . $this->common->checked_validator('amazon_polly_trans_enabled') . '> ';
                     if ('checked' == trim($start_value)) {
                         if (!$translate_accessible) {
-                            echo '<p class="description"><b>Amazon Translate not accessible. You need to update your IAM policy.</b></p>';
+                            echo '<p class="description"><b>Cannot access Amazon Translate. Check your IAM policy for the correct permissions.</b></p>';
                         }
                     }
                 } else {
-                    echo '<p class="description">You need to use one of following regions: N.Virginia, Ohio, Oregon, Ireland</p>';
+                    echo '<p class="description">You need to use one of the following regions: US East (N. Virginia), US East (Ohio), US West (Oregon), or EU (Ireland)</p>';
                     update_option('amazon_polly_trans_enabled', '');
                 }
             } else {
-                echo '<p class="description">Amazon S3 Storage needs to be enabled</p>';
+                echo '<p class="description">Amazon S3 storage needs to be enabled</p>';
             }
         } else {
-            echo '<p>Please verify your AWS Credentials are accurate</p>';
+            echo '<p>Verify that your AWS credentials are accurate</p>';
         }
       } else {
-        echo '<p>Translate functionality not supported for this language</p>';
+        echo '<p>Translate functionality is not supported for this language</p>';
       }
     }
 

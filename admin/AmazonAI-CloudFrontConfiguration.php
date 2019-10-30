@@ -264,7 +264,7 @@ class AmazonAI_CloudFrontConfiguration
             $cf_distribution = $this->cloudformation->get_cloudfront_distribution();
             echo '
             <div class="text-content long">
-                CloudFront distribution for <b>'.get_option('amazon_cf_origin').'</b> has been  deployed at <b>'.$cf_distribution['DomainName'].'</b> under the alternate domain name <b>'.get_option('amazon_cf_alias').'</b>
+                CloudFront created distribution <b>'.get_option('amazon_cf_origin').'</b> at <b>'.$cf_distribution['DomainName'].'</b> with an alternate domain name of <b>'.get_option('amazon_cf_alias').'</b>
             </div>';
             echo '
             <div class="text-content long">'.$desc_text_stack_ready.'
@@ -314,7 +314,7 @@ class AmazonAI_CloudFrontConfiguration
         $cf_distribution = $this->cloudformation->get_cloudfront_distribution();
         echo '
         <div class="text-content long">
-            CloudFront distribution for <b>'.get_option('amazon_cf_origin').'</b> has been  deployed at <b>'.$cf_distribution['DomainName'].'</b> under the alternate domain name <b>'.get_option('amazon_cf_alias').'</b>
+            CloudFront created distribution <b>'.get_option('amazon_cf_origin').'</b> at <b>'.$cf_distribution['DomainName'].'</b> with an alternate domain name <b>'.get_option('amazon_cf_alias').'</b>
         </div>';
         echo '
         <div class="text-content long">'.$desc_text_stack_ready.'
@@ -362,7 +362,7 @@ class AmazonAI_CloudFrontConfiguration
         }
         echo '
         <div id="delete_stack_options_div" class="progress-table-div" style="display:'.$display_style.';"><br>
-        <h2 id="delete_stack_heading">Remove Site Acceleration.</h2>
+        <h2 id="delete_stack_heading">Remove Site Acceleration</h2>
         <div class="text-content long">'.$desc_text_remove_site_acceleration.'
         </div>';
         $this->amazon_cf_button_gui('delete_stack_div','stack_delete_btn','Remove Site Acceleration','delete','block');
@@ -385,8 +385,8 @@ class AmazonAI_CloudFrontConfiguration
         <div id="dv_dns_details_div" style="display:'.$display_style.';"><br>
             <div class="text-content long">'.$desc_text_validate_acm_cert.'
             </div>
-            <div class="text-content long">The certificate was requested at <span id="acm_cert_request_info"></span> and must be validated within 72 hours.</div>            
-            <h4>Please update the following record in your DNS records:</h4>            
+            <div class="text-content long">The certificate was requested at <span id="acm_cert_request_info"></span> and must be validated within 72 hours.</div>
+            <h4>To validate the certificate, add the following record in your DNS records:</h4>
             <table id="dv_dns_mappings_table_wrap">
                 <tr>
                     <td>
@@ -405,7 +405,7 @@ class AmazonAI_CloudFrontConfiguration
                     </td>
                 </tr>          
             </table>';
-        $this->amazon_cf_button_gui('validate_acm_div','acm_validate_btn','Check status of SSL certificate','button-primary','block');
+        $this->amazon_cf_button_gui('validate_acm_div','acm_validate_btn','Check status of SSL/TLS certificate','button-primary','block');
         echo '
         </div>
         ';
@@ -425,7 +425,7 @@ class AmazonAI_CloudFrontConfiguration
             <div class="text-content long">'.$desc_text_cdn_alias_dns.'
             </div>
 
-            <h4>Please update the following record in your DNS records:</h4>
+            <h4>Add the following record in your DNS records:</h4>
             <table id="alias_dns_mappings_table_wrap">
                 <tr>
                     <td>

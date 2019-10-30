@@ -541,7 +541,7 @@ class AmazonAI_Common
 			$this->translate->is_translate_accessible($this->translate_client);
 			return true;
 		} catch(TranslateAccessException $e) {
-			$this->show_error_notice("notice-error", "Amazon Translate service is not reachable!");
+			$this->show_error_notice("notice-error", "Amazon Translate service is not reachable.");
 			return false;
 		}
 
@@ -637,35 +637,35 @@ class AmazonAI_Common
 					$accessible = $this->s3_handler->check_if_s3_bucket_accessible();
 					if (!$accessible) {
 						$this->s3_handler->create_s3_bucket();
-						$this->show_error_notice("notice-info", "New S3 bucket created!");
+						$this->show_error_notice("notice-info", "The S3 bucket was successfully created.");
 					}
 				}
 
 				catch(S3BucketNotAccException $e) {
-					$this->show_error_notice("notice-info", "Can't access S3 bucket, will try to create new one!");
+					$this->show_error_notice("notice-info", "The S3 bucket doesn't exist or can't be accessed. Creating a new S3 bucket.");
 
 					// If S3 bucket is not accessible, we will try to create new one.
 
 					$this->s3_handler->create_s3_bucket();
-					$this->show_error_notice("notice-info", "New S3 bucket created!");
+					$this->show_error_notice("notice-info", "The S3 bucket was successfully created.");
 				}
 			}
 		}
 
 		catch(CredsException $e) {
 			$this->deactivate_all();
-			$this->show_error_notice("notice-error", "Can't connect to AWS! Check your credentials and make sure your AWS accout is active!");
+			$this->show_error_notice("notice-error", "Can't connect to AWS. Check your AWS credentials.");
 			return false;
 		}
 
 		catch(S3BucketNotCreException $e) {
-			$this->show_error_notice("notice-error", "Could not create S3 bucket!");
+			$this->show_error_notice("notice-error", "Could not create S3 bucket.");
 			return false;
 		}
 
 		catch(Exception $e) {
 			$this->deactivate_all();
-			$this->show_error_notice("notice-error", "Not known error!");
+			$this->show_error_notice("notice-error", "Unknown error.");
 			return false;
 		}
 
@@ -1096,7 +1096,7 @@ class AmazonAI_Common
 
 		catch(Exception $e) {
 			update_option('amazon_polly_valid_keys', '0');
-			throw new CredsException('Could not connect to AWS');
+			throw new CredsException('Could not connect to AWS. Check your AWS credentials.');
 		}
 	}
 
@@ -1226,7 +1226,7 @@ class AmazonAI_Common
 		// Estimating the total price of convertion of all posts.
 
 		$total_price = 2 * $amazon_polly_price * $count_posts * $post_chars_count_avg;
-		$message = 'You are about to convert ' . number_format($count_posts, 0, '.', ',') . ' pieces of text-based content, which totals approximately ' . number_format($number_of_characters, 0, '.', ',') . ' characters. Based on the Amazon Polly pricing ($4 dollars per 1 million characters) it will cost you about $' . $total_price . ' to convert all of your content into to speech-based audio. Some or all of your costs might be covered by the Free Tier (conversion of 5 million characters per month for free, for the first 12 months, starting from the first request for speech). Learn more https://aws.amazon.com/polly/';
+		$message = 'You are about to convert ' . number_format($count_posts, 0, '.', ',') . ' pieces of text-based content, which totals approximately ' . number_format($number_of_characters, 0, '.', ',') . ' characters. Based on the Amazon Polly pricing ($4 dollars per 1 million characters) it will cost you about $' . $total_price . ' to convert all of your content into to speech-based audio. Some or all of your costs might be covered by the Free Tier (conversion of 5 million characters per month for free, for the first 12 months, starting from the first request for speech). For more information, see https://aws.amazon.com/polly/';
 		return $message;
 	}
 
@@ -1504,7 +1504,7 @@ class AmazonAI_Common
 			$file_handler = $this->get_file_handler();
 			$file_handler->delete($wp_filesystem, $file, $post_id);
 		} catch(Exception $e) {
-			$this->show_error_notice("notice-error", "Amazon Polly - Error while deleting file!");
+			$this->show_error_notice("notice-error", "Encountered an error while deleting the file.");
 			error_log($e);
 		}
 
@@ -1767,7 +1767,7 @@ class AmazonAI_Common
             $this->check_aws_access();
         }
         catch(CredsException $e) {
-            $this->show_error_notice("notice-error", "Can't connect to AWS. Check your credentials and make sure your AWS account is active.");
+            $this->show_error_notice("notice-error", "Can't connect to AWS. Check your AWS credentials.");
             return false;
         }
         return true;

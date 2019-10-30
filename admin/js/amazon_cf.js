@@ -131,7 +131,7 @@ jQuery(document).ready(function($) {
                 display_setup_state('acm_cert', 'in_progress');
             },
             success: function(response) {
-                var message = "There was an error initiating the setup process. Please retry.";
+                var message = "There was an error initiating the setup process. Try again.";
                 if (response['success']) {
                     $("#create_stack_div").hide();
                     $("#setup_progress_div").show();
@@ -186,7 +186,7 @@ jQuery(document).ready(function($) {
                     $('#dv_dns_value').html(result['DVValue']);
                     $('#dv_dns_details_div').show();
                 } else {
-                    var message = "There was an error retrieving DNS records for validating domain ownership. Please retry.";
+                    var message = "There was an error retrieving DNS records for validating domain ownership. Try again.";
                     display_setup_error(message, response['data'], 'acm_cert', 'dv');
                 }
             }
@@ -227,7 +227,7 @@ jQuery(document).ready(function($) {
                     } else if (response['data'] == stack_responses.CREATING) {
                         if (acm_check_count >= ACM_CHECK_LIMIT) {
                             acm_check_count = 0;
-                            var message = "It is taking longer than usual to validate your ACM certificate. Please verify if DNS record has been added and retry.";
+                            var message = "It is taking longer than expected to validate your ACM certificate. Please verify that the DNS record has been added, and then try again.";
                             display_setup_error(message, '', 'acm_cert', 'acm');
                             $('#setup_error_response_wrapper').hide();
                             display_setup_state('cf_dist', 'pending');
@@ -241,7 +241,7 @@ jQuery(document).ready(function($) {
                     }
                 } else {
                     acm_check_count = 0;
-                    var message = "There was an error in validating the ACM certificate. Please retry.";
+                    var message = "There was an error validating the ACM certificate. Try again.";
                     display_setup_error(message, response['data'], 'acm_cert', 'acm');
                     display_setup_state('cf_dist', 'pending');
                     display_setup_state('cdn_alias_dns', 'pending');
@@ -296,7 +296,7 @@ jQuery(document).ready(function($) {
                         check_cf_creation();
                     }, WAIT_TIME_IN_MS);
                 } else {
-                    var message = "There was an error in creating CloudFront distribution. Please retry.";
+                    var message = "There was an error creating the CloudFront distribution. Try again.";
                     display_setup_error(message, response['data'], 'cf_dist', 'update_stack');
                     display_setup_state('cdn_alias_dns', 'pending');
                 }
@@ -347,7 +347,7 @@ jQuery(document).ready(function($) {
                         }, WAIT_TIME_IN_MS);
                     }
                 } else {
-                    var message = "There was an error in retrieving the status of the CloudFront distribution. Please retry.";
+                    var message = "There was an error retrieving the status of the CloudFront distribution. Try again.";
                     display_setup_error(message, response['data'], 'cf_dist', 'cf');
                     display_setup_state('cdn_alias_dns', 'pending');
                 }
@@ -385,7 +385,7 @@ jQuery(document).ready(function($) {
                     $('#cdn_alias_dns_value').html(result['Value']);
                     $('#cdn_alias_dns_details_div').show();
                 } else {
-                    var message = "There was an error in retrieving DNS records for mapping the alternate domain name to your CloudFront distribution. Please retry.";
+                    var message = "There was an error retrieving the DNS record for mapping the alternate domain name to your CloudFront distribution. Try again.";
                     display_setup_error(message, response['data'], 'cdn_alias_dns', 'cdn_alias_dns');
                 }
             }
@@ -417,7 +417,7 @@ jQuery(document).ready(function($) {
                 $('#cdn_alias_dns_map_btn').prop('disabled', true);
             },
             success: function(response) {
-                var message = "There was an error in validating the DNS record for mapping the CNAME to CloudFront. Please retry.";
+                var message = "There was an error validating the DNS record for mapping the CNAME to CloudFront. Try again.";
                 if (response['success']) {
                     $('#setup_error_div').hide();
                     display_setup_state('cdn_alias_dns', 'success');
@@ -514,7 +514,7 @@ jQuery(document).ready(function($) {
 
     $('#override_dns_check').on('click', '#override_dns_check', function(e){
         e.preventDefault();
-        var confirmation_text = "Are you sure you want to override this DNS check?\nPlease ensure your DNS records are correct before proceeding.";
+        var confirmation_text = "Are you sure you want to override this DNS check?\nMake sure your DNS records are correct before proceeding.";
         if (confirm(confirmation_text)) {
             override_dns_check(confirmation_text);
         }
@@ -573,7 +573,7 @@ jQuery(document).ready(function($) {
                         }, WAIT_TIME_IN_MS);
                     }
                 } else {
-                    var message = "There was an error in initiating stack deletion. Please retry.";
+                    var message = "There was an error deleting the stack. Try again.";
                     $('#setup_error_text').html(message);
                     $('#setup_error_response').html(response['data']);
                     $('#setup_error_response_wrapper').show();
@@ -602,7 +602,7 @@ jQuery(document).ready(function($) {
      */
     $('#restart_setup_div').on('click', '#restart_setup_btn', function(e) {
         e.preventDefault();
-        var confirmation_text = "Restarting will delete currently created resources. Are you sure you wanted to proceed?";
+        var confirmation_text = "Restarting will delete all created resources. Are you sure you wanted to proceed?";
         if (confirm(confirmation_text)) {
             $("#setup_progress_div").hide();
             delete_cloudformation();
@@ -643,7 +643,7 @@ jQuery(document).ready(function($) {
                         }, WAIT_TIME_IN_MS);
                     }
                 } else {
-                    var message = "There was an error during the deletion process. Please retry.";
+                    var message = "There was an error during the deletion process. Try again.";
                     $('#setup_error_text').html(message);
                     $('#setup_error_response').html(response['data']);
                     $('#setup_error_response_wrapper').show();
