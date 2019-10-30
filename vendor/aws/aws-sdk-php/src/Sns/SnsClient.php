@@ -44,8 +44,6 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listSubscriptionsAsync(array $args = [])
  * @method \Aws\Result listSubscriptionsByTopic(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listSubscriptionsByTopicAsync(array $args = [])
- * @method \Aws\Result listTagsForResource(array $args = [])
- * @method \GuzzleHttp\Promise\Promise listTagsForResourceAsync(array $args = [])
  * @method \Aws\Result listTopics(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listTopicsAsync(array $args = [])
  * @method \Aws\Result optInPhoneNumber(array $args = [])
@@ -66,11 +64,7 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise setTopicAttributesAsync(array $args = [])
  * @method \Aws\Result subscribe(array $args = [])
  * @method \GuzzleHttp\Promise\Promise subscribeAsync(array $args = [])
- * @method \Aws\Result tagResource(array $args = [])
- * @method \GuzzleHttp\Promise\Promise tagResourceAsync(array $args = [])
  * @method \Aws\Result unsubscribe(array $args = [])
  * @method \GuzzleHttp\Promise\Promise unsubscribeAsync(array $args = [])
- * @method \Aws\Result untagResource(array $args = [])
- * @method \GuzzleHttp\Promise\Promise untagResourceAsync(array $args = [])
  */
 class SnsClient extends AwsClient {}

@@ -127,26 +127,49 @@ class Amazonpolly {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-TranslateConfiguration.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-PodcastConfiguration.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/AmazonAI-AlexaConfiguration.php';
+        //Class responsible for GUI for the CloudFront Menu
+        require_once plugin_dir_path( dirname( __FILE__)) . 'admin/AmazonAI-CloudFrontConfiguration.php';
 
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-amazonpolly-public.php';
+        /**
+         * The class responsible for defining all actions that occur in the public-facing
+         * side of the site.
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-amazonpolly-public.php';
+
+        //Class responsible for CloudFormation and associated resources
+        require_once plugin_dir_path( dirname( __FILE__)) . 'admin/AmazonAI-Cloudformation.php';
+        //This class is responsible for rewriting uURLs
+        require_once plugin_dir_path( dirname( __FILE__)) . 'admin/class-url-rewriter.php';
+
+
+        require_once plugin_dir_path( dirname( __FILE__)) . 'admin/class-custom-settings.php';
+
+        /**
+         * The class responsible for defining all actions that occur in the public-facing
+         * side of the site.
+         */
+        require_once plugin_dir_path( dirname( __FILE__)) . 'public/class-amazonpolly-public.php';
 
 		/**
 		 * The class responsible for creating the podcast feature.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-amazonpolly-pollycast.php';
 
-		/**
-		 * Load AWS PHP SDK
-		 */
-		 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
+        /**
+         * Load AWS PHP SDK
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
+        
+        /**
+         * The class responsible for custom helper functions
+         */
+        require_once plugin_dir_path( dirname( __FILE__)) . 'includes/class-helper.php';
+        /**
+         * Load AWS PHP SDK
+         */
+        require_once plugin_dir_path( dirname( __FILE__)) . 'vendor/autoload.php';
 
-
-
-		$this->loader = new Amazonpolly_Loader();
+         $this->loader = new Amazonpolly_Loader();
 
 	}
 
@@ -177,24 +200,32 @@ class Amazonpolly {
 	 */
 	private function define_admin_hooks() {
 
-		$background_task = new AmazonAI_BackgroundTask();
-		$general_configuration = new AmazonAI_GeneralConfiguration();
-		$polly_configuration = new AmazonAI_PollyConfiguration();
-		$translate_configuration = new AmazonAI_TranslateConfiguration();
-		$podcast_configuration = new AmazonAI_PodcastConfiguration();
-		$alexa_configuration = new AmazonAI_AlexaConfiguration();
-		$polly_service = new AmazonAI_PollyService();
-		$common = new AmazonAI_Common();
-		$translate_service = new AmazonAI_Translator();
+        $background_task = new AmazonAI_BackgroundTask();
+        $general_configuration = new AmazonAI_GeneralConfiguration();
+        $polly_configuration = new AmazonAI_PollyConfiguration();
+        $translate_configuration = new AmazonAI_TranslateConfiguration();
+        $podcast_configuration = new AmazonAI_PodcastConfiguration();
+        $alexa_configuration = new AmazonAI_AlexaConfiguration();
+        $cloudfront_configuration = new AmazonAI_CloudFrontConfiguration();
 
-		$this->loader->add_action( sprintf('admin_post_%s', AmazonAI_BackgroundTask::ADMIN_POST_ACTION), $background_task, 'run' );
+        $cloudformation_service = new AmazonAI_Cloudformation();
+        $polly_service = new AmazonAI_PollyService();
+        $common = new AmazonAI_Common();
+        $translate_service = new AmazonAI_Translator();
 
-		$this->loader->add_action( 'admin_print_footer_scripts', $common, 'add_quicktags' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $common, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $common, 'enqueue_scripts' );
-		$this->loader->add_action( 'add_meta_boxes', $common, 'field_checkbox' );
-		$this->loader->add_action( 'save_post', $polly_service, 'save_post', 10, 3 );
-		$this->loader->add_action( 'amazon_polly_background_task_generate_post_audio', $polly_service, 'generate_audio', 10, 3 );
+        $plugin_name = get_option('amazon_plugin_name');
+        $this->loader->add_filter( "plugin_action_links_$plugin_name", $common, 'add_settings_link');
+
+
+        $this->loader->add_action( sprintf('admin_post_%s', AmazonAI_BackgroundTask::ADMIN_POST_ACTION), $background_task, 'run');
+
+        $this->loader->add_action( 'admin_print_footer_scripts', $common, 'add_quicktags');
+        $this->loader->add_action( 'admin_enqueue_scripts', $common, 'enqueue_styles');
+        $this->loader->add_action( 'admin_enqueue_scripts', $common, 'enqueue_scripts');
+        $this->loader->add_action( 'admin_enqueue_scripts', $common, 'enqueue_custom_scripts');
+        $this->loader->add_action( 'add_meta_boxes', $common, 'field_checkbox');
+        $this->loader->add_action( 'save_post', $polly_service, 'save_post', 10, 3);
+        $this->loader->add_action( 'amazon_polly_background_task_generate_post_audio', $polly_service, 'generate_audio', 10, 3);
 
 
 		$this->loader->add_action( 'before_delete_post', $common, 'delete_post' );
@@ -215,11 +246,30 @@ class Amazonpolly {
 
 		$this->loader->add_action( 'admin_menu', $alexa_configuration, 'amazon_ai_add_menu' );
 
-		$plugin = plugin_basename( plugin_dir_path( dirname( __FILE__ ) ) . 'amazonpolly.php' );
+        $this->loader->add_action( 'admin_menu', $cloudfront_configuration, 'amazon_ai_add_menu');
 
-		$this->loader->add_filter( 'wp_kses_allowed_html', $common, 'allowed_tags_kses' );
-		$this->loader->add_filter( 'tiny_mce_before_init', $common, 'allowed_tags_tinymce' );
-	}
+        $plugin = plugin_basename( plugin_dir_path( dirname( __FILE__)) . 'amazonpolly.php');
+
+        $this->loader->add_filter( 'wp_kses_allowed_html', $common, 'allowed_tags_kses');
+        $this->loader->add_filter( 'tiny_mce_before_init', $common, 'allowed_tags_tinymce');
+
+        $this->loader->add_action('wp_ajax_display_stack_details_creation', $cloudfront_configuration, 'display_stack_details_creation');
+        $this->loader->add_action('wp_ajax_begin_cloudformation', $cloudformation_service, 'begin_cloudformation');
+        $this->loader->add_action('wp_ajax_update_cloudformation', $cloudformation_service, 'update_cloudformation');
+        $this->loader->add_action('wp_ajax_check_acm_cert_creation', $cloudformation_service, 'check_acm_cert_creation');
+        $this->loader->add_action('wp_ajax_check_cf_creation', $cloudformation_service, 'check_cf_creation');
+        $this->loader->add_action('wp_ajax_create_cf_invalidation', $cloudformation_service, 'create_cf_invalidation');
+        $this->loader->add_action('wp_ajax_get_cf_invalidation', $cloudformation_service, 'get_cf_invalidation');
+        $this->loader->add_action('wp_ajax_update_installation_settings', $cloudformation_service, 'update_installation_settings');
+        $this->loader->add_action('wp_ajax_delete_cloudformation', $cloudformation_service, 'delete_cloudformation');
+        $this->loader->add_action('wp_ajax_get_stack_creation_status', $cloudformation_service, 'get_stack_creation_status');
+        $this->loader->add_action('wp_ajax_check_stack_deletion', $cloudformation_service, 'check_stack_deletion');
+        $this->loader->add_action('wp_ajax_get_dv_dns_info', $cloudformation_service, 'get_dv_dns_info');
+        $this->loader->add_action('wp_ajax_get_cdn_alias_dns_info', $cloudformation_service, 'get_cdn_alias_dns_info');
+        $this->loader->add_action('wp_ajax_validate_cdn_alias_mapping', $cloudformation_service, 'validate_cdn_alias_mapping');
+        $this->loader->add_action('wp_ajax_get_stack_state', $cloudformation_service, 'get_stack_state');
+        $this->loader->add_action('wp_ajax_complete_setup', $cloudformation_service, 'complete_setup');
+    }
 
 	/**
 	 * Register all of the hooks related to the public-facing functionality
@@ -243,11 +293,18 @@ class Amazonpolly {
 		$this->loader->add_filter( 'pre_get_posts', $amazon_pollycast, 'filter_pre_get_posts' );
 		$this->loader->add_filter( 'the_excerpt_rss', $amazon_pollycast, 'filter_force_html_decode', 99999 );
 
-		$common = new AmazonAI_Common();
-		if ( $common->is_podcast_enabled() ) {
-			$this->loader->add_action( 'init', $amazon_pollycast, 'create_podcast' );
-		}
-	}
+        $common = new AmazonAI_Common();
+        if ( $common->is_podcast_enabled()) {
+            $this->loader->add_action( 'init', $amazon_pollycast, 'create_podcast');
+        }
+
+        //Rewrite URLs if site acceleration is enabled and a CloudFront distribution has been deployed
+        $url_rewriter = new AmazonAI_UrlRewriter();
+        if ( $common->is_cloudfront_enabled() and $common->is_cloudfront_deployed()) {
+            $this->loader->add_action( 'init', $url_rewriter, 'define_url_rewrite_hooks');
+        }
+    }
+
 
 	/**
 	 * Run the loader to execute all of the hooks with WordPress.

@@ -51,6 +51,12 @@ class AmazonAI_TranslateConfiguration
             $this,
             'translate_gui'
         ), 'amazon_ai_translate');
+        add_settings_field('amazon_polly_trans_enabled', __('Enable translation support:', 'amazonpolly'), array(
+            $this,
+            'translation_enabled_gui'
+        ), 'amazon_ai_translate', 'amazon_ai_translate', array(
+            'label_for' => 'amazon_polly_trans_enabled'
+        ));
 
         add_settings_field( 'amazon_ai_source_language', __('Source language:', 'amazonpolly'), array($this,'source_language_gui'), 'amazon_ai_translate', 'amazon_ai_translate', array('label_for' => 'amazon_ai_source_language'));
         register_setting('amazon_ai_translate', 'amazon_ai_source_language');
@@ -90,7 +96,8 @@ class AmazonAI_TranslateConfiguration
 
 
 
-              foreach ($this->common->get_all_translable_languages() as $language_code) {
+
+              foreach ($this->common->get_all_translatable_languages() as $language_code) {
                 register_setting('amazon_ai_translate', 'amazon_polly_trans_langs_' . $language_code, 'strval');
                 register_setting('amazon_ai_translate', 'amazon_polly_trans_langs_' . $language_code . '_voice', 'strval');
                 register_setting('amazon_ai_translate', 'amazon_polly_trans_langs_' . $language_code . '_label', 'strval');
@@ -269,7 +276,7 @@ class AmazonAI_TranslateConfiguration
                 usort($voice_list['Voices'], 'sort_voices');
                 echo '<table>';
 
-                foreach ($this->common->get_all_translable_languages() as $language_code) {
+                foreach ($this->common->get_all_translatable_languages() as $language_code) {
                   $language_name = $this->common->get_language_name($language_code);
                   $language_label = $this->common->get_language_label($language_code);
                   $selected_display_value = $this->common->get_language_display($language_code);
@@ -286,7 +293,7 @@ class AmazonAI_TranslateConfiguration
     private function is_language_supported() {
 
       $is_language_supported = false;
-      $supported_languages = $this->common->get_all_translable_languages();
+      $supported_languages = $this->common->get_all_translatable_languages();
       $selected_source_language = $this->common->get_source_language();
 
       if (in_array($selected_source_language, $supported_languages)) {
@@ -329,9 +336,9 @@ class AmazonAI_TranslateConfiguration
      */
     public function translation_enabled_gui()
     {
-
         if ($this->is_language_supported()) {
         if ($this->common->validate_amazon_polly_access()) {
+            if ($this->common->is_s3_enabled()) {
                 $start_value = $this->common->checked_validator('amazon_polly_trans_enabled');
                 $translate_accessible = $this->common->is_translation_enabled();
                 $supported_regions    = array(
@@ -352,6 +359,9 @@ class AmazonAI_TranslateConfiguration
                     echo '<p class="description">You need to use one of following regions: N.Virginia, Ohio, Oregon, Ireland</p>';
                     update_option('amazon_polly_trans_enabled', '');
                 }
+            } else {
+                echo '<p class="description">Amazon S3 Storage needs to be enabled</p>';
+            }
         } else {
             echo '<p>Please verify your AWS Credentials are accurate</p>';
         }

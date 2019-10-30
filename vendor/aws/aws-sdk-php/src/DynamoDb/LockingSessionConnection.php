@@ -10,7 +10,11 @@ class LockingSessionConnection extends StandardSessionConnection
 {
     public function __construct(DynamoDbClient $client, array $config = [])
     {
-        parent::__construct($client, $config);
+        parent::__construct($client, $config + [
+            'max_lock_wait_time'       => 10,
+            'min_lock_retry_microtime' => 10000,
+            'max_lock_retry_microtime' => 50000,
+        ]);
     }
 
     /**
@@ -22,7 +26,7 @@ class LockingSessionConnection extends StandardSessionConnection
         // Create the params for the UpdateItem operation so that a lock can be
         // set and item returned (via ReturnValues) in a one, atomic operation.
         $params = [
-            'TableName'        => $this->getTableName(),
+            'TableName'        => $this->config['table_name'],
             'Key'              => $this->formatKey($id),
             'Expected'         => ['lock' => ['Exists' => false]],
             'AttributeUpdates' => ['lock' => ['Value' => ['N' => '1']]],
@@ -30,7 +34,7 @@ class LockingSessionConnection extends StandardSessionConnection
         ];
 
         // Acquire the lock and fetch the item data.
-        $timeout  = time() + $this->getMaxLockWaitTime();
+        $timeout  = time() + $this->config['max_lock_wait_time'];
         while (true) {
             try {
                 $item = [];
@@ -46,8 +50,8 @@ class LockingSessionConnection extends StandardSessionConnection
                     && time() < $timeout
                 ) {
                     usleep(rand(
-                        $this->getMinLockRetryMicrotime(),
-                        $this->getMaxLockRetryMicrotime()
+                        $this->config['min_lock_retry_microtime'],
+                        $this->config['max_lock_retry_microtime']
                     ));
                 } else {
                     break;

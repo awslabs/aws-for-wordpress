@@ -80,7 +80,7 @@ class XmlBody
     private function defaultShape(Shape $shape, $name, $value, XMLWriter $xml)
     {
         $this->startElement($shape, $name, $xml);
-        $xml->text($value);
+        $xml->writeRaw($value);
         $xml->endElement();
     }
 

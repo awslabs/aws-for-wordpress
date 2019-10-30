@@ -123,7 +123,7 @@ class ObjectUploader implements PromisorInterface
         }
 
         // If body >= 5 MB, then use multipart. [YES]
-        if ($body->isSeekable() && $body->getMetadata('uri') !== 'php://input') {
+        if ($body->isSeekable()) {
             // If the body is seekable, just rewind the body.
             $body->seek(0);
         } else {

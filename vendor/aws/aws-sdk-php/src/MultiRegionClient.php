@@ -20,8 +20,6 @@ class MultiRegionClient implements AwsClientInterface
     private $config;
     /** @var HandlerList */
     private $handlerList;
-    /** @var array */
-    private $aliases;
 
     public static function getArguments()
     {

@@ -7,8 +7,6 @@ use Aws\AwsClient;
  * This client is used to interact with the **Amazon Transcribe Service** service.
  * @method \Aws\Result createVocabulary(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createVocabularyAsync(array $args = [])
- * @method \Aws\Result deleteTranscriptionJob(array $args = [])
- * @method \GuzzleHttp\Promise\Promise deleteTranscriptionJobAsync(array $args = [])
  * @method \Aws\Result deleteVocabulary(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteVocabularyAsync(array $args = [])
  * @method \Aws\Result getTranscriptionJob(array $args = [])

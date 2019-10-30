@@ -222,7 +222,13 @@ class Waiter implements PromisorInterface
         }
 
         $actuals = $result->search($acceptor['argument']) ?: [];
-        return in_array($acceptor['expected'], $actuals);
+        foreach ($actuals as $actual) {
+            if ($actual == $acceptor['expected']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

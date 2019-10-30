@@ -60,7 +60,8 @@ class AmazonAI_PodcastConfiguration {
                 add_settings_field( 'amazon_polly_podcast_https', __( 'Use HTTPS for audio files:', 'amazonpolly' ), array( $this, 'podcast_https_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_https' ) );
                 add_settings_field( 'amazon_polly_podcast_button', __( 'Show subscribe button:', 'amazonpolly' ), array( $this, 'podcast_subscribe_button_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_button' ) );
                 add_settings_field( 'amazon_polly_podcast_button_link', __( 'Subscribe link:', 'amazonpolly' ), array( $this, 'podcast_subscribe_button_link_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_button_link' ) );
-								add_settings_field( 'amazon_polly_podcast_button', __( 'Include RSS2 Namespaces:', 'amazonpolly' ), array( $this, 'podcast_rss2namespace_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'podcast_rss2namespace' ) );
+                add_settings_field( 'amazon_polly_podcast_button', __( 'Include RSS2 Namespaces:', 'amazonpolly' ), array( $this, 'podcast_rss2namespace_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'podcast_rss2namespace' ) );
+
 
                 register_setting('amazon_ai_podcast', 'amazon_polly_podcast_title');
                 register_setting('amazon_ai_podcast', 'amazon_polly_podcast_description');
@@ -74,9 +75,9 @@ class AmazonAI_PodcastConfiguration {
                 register_setting('amazon_ai_podcast', 'amazon_polly_podcast_https');
                 register_setting('amazon_ai_podcast', 'amazon_polly_podcast_button');
                 register_setting('amazon_ai_podcast', 'amazon_polly_podcast_button_link');
-								register_setting('amazon_ai_podcast', 'podcast_rss2namespace');
+                register_setting('amazon_ai_podcast', 'podcast_rss2namespace');
 
-			}
+            }
 		}
 
 		/**
@@ -116,11 +117,9 @@ class AmazonAI_PodcastConfiguration {
 
 		}
 
-		public function podcast_rss2namespace_gui() {
-
-			echo '<input type="checkbox" name="podcast_rss2namespace" id="podcast_rss2namespace" ' . $this->common->checked_validator( 'podcast_rss2namespace' ) . '> ';
-
-		}
+        public function podcast_rss2namespace_gui() {
+            echo '<input type="checkbox" name="podcast_rss2namespace" id="podcast_rss2namespace" ' . $this->common->checked_validator( 'podcast_rss2namespace' ) . '> ';
+        }
 
 		/**
 		 * Render the HTTPS podcast input.

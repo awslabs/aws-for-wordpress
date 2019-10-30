@@ -93,12 +93,17 @@ class Amazonpolly_Public {
 	 */
 	public function content_filter( $content ) {
 
-		$post_id = get_the_ID();
-		if ( empty( $post_id ) ) {
+		// Really strange case
+		if (!isset($GLOBALS)) {
 			return $content;
+		} else {
+			if (!array_key_exists('post', $GLOBALS)) {
+				return $content;
+			}
 		}
 
 
+		$post_id = $GLOBALS['post']->ID;
 		$common = new AmazonAI_Common();
 
 		$source_language = $common->get_post_source_language($post_id);
@@ -227,7 +232,7 @@ class Amazonpolly_Public {
 
 		$number_of_flags = 1;
 
-		foreach ($common->get_all_translable_languages() as $language_code) {
+		foreach ($common->get_all_translatable_languages() as $language_code) {
 			$content = get_post_meta( $post_id, 'amazon_polly_transcript_' . $language_code , true );
 
 
@@ -293,7 +298,6 @@ class Amazonpolly_Public {
 			<audio class="amazon-ai-player" id="amazon-ai-player" preload="none" controls ' . $autoplay . ' ' . $controlsList . '>
 				<source type="audio/mpeg" src="' . $new_audio_location . '">
 			</audio>
-			<img src="https://d12ee1u74lotna.cloudfront.net/images/player_line.png">
 		</div>';
 
 		return $response;

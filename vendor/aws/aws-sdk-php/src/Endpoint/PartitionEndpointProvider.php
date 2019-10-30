@@ -9,19 +9,13 @@ class PartitionEndpointProvider
     private $partitions;
     /** @var string */
     private $defaultPartition;
-    /** @var array  */
-    private $options;
 
-    public function __construct(
-        array $partitions,
-        $defaultPartition = 'aws',
-        $options = []
-    ) {
+    public function __construct(array $partitions, $defaultPartition = 'aws')
+    {
         $this->partitions = array_map(function (array $definition) {
             return new Partition($definition);
         }, array_values($partitions));
         $this->defaultPartition = $defaultPartition;
-        $this->options = $options;
     }
 
     public function __invoke(array $args = [])
@@ -30,7 +24,6 @@ class PartitionEndpointProvider
             isset($args['region']) ? $args['region'] : '',
             isset($args['service']) ? $args['service'] : ''
         );
-        $args['options'] = $this->options;
 
         return $partition($args);
     }
@@ -75,16 +68,15 @@ class PartitionEndpointProvider
     /**
      * Creates and returns the default SDK partition provider.
      *
-     * @param array $options
      * @return PartitionEndpointProvider
      */
-    public static function defaultProvider($options = [])
+    public static function defaultProvider()
     {
         $data = \Aws\load_compiled_json(__DIR__ . '/../data/endpoints.json');
         $prefixData = \Aws\load_compiled_json(__DIR__ . '/../data/endpoints_prefix_history.json');
         $mergedData = self::mergePrefixData($data, $prefixData);
 
-        return new self($mergedData['partitions'], 'aws', $options);
+        return new self($mergedData['partitions']);
     }
 
     /**

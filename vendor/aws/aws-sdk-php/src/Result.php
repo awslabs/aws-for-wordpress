@@ -6,10 +6,9 @@ use JmesPath\Env as JmesPath;
 /**
  * AWS result.
  */
-class Result implements ResultInterface, MonitoringEventsInterface
+class Result implements ResultInterface
 {
     use HasDataTrait;
-    use HasMonitoringEventsTrait;
 
     public function __construct(array $data = [])
     {

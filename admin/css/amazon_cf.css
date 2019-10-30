@@ -1,0 +1,140 @@
+.loader {
+    border: 16px solid #f3f3f3;
+    /* Light grey */
+    border-top: 16px solid #3498db;
+    /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.text-btn {
+    border: none;
+    background-color: inherit;
+    cursor: pointer;
+}
+
+.form-table .label {
+    width: 30%;
+}
+
+.form-table .input-textbox {
+    width: 40%;
+}
+
+.form-table .text-content {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 100%;
+}
+
+.form-table .desc-row {
+    padding-top: 0px;
+    padding-bottom: 20px;
+}
+
+.progress-table-div .label {
+    width: 150px;
+}
+
+.progress-table-div .status {
+    width: 50px;
+}
+
+.info-table th,
+.info-table td {
+    text-align: left;
+    padding-left: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.small-loader {
+    border: 5px solid #f3f3f3;
+    /* Light grey */
+    border-top: 5px solid #3498db;
+    /* Blue */
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.text-content {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 90%;
+}
+
+.progress-table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 80%;
+}
+
+.progress-table td,
+#customers th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.progress-table tr:hover {
+    background-color: #ddd;
+}
+
+.progress-table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    color: white;
+}
+
+a.info {
+    vertical-align: bottom;
+    position: relative;
+    /* Anything but static */
+    width: 1.5em;
+    height: 1.5em;
+    text-indent: -9999em;
+    display: inline-block;
+    color: white;
+    font-weight: bold;
+    font-size: 1em;
+    line-height: 1em;
+    background-color: #91b2d2;
+    margin-left: .25em;
+    -webkit-border-radius: .75em;
+    -moz-border-radius: .75em;
+    border-radius: .75em;
+}
+
+a.info:before {
+    content: "?";
+    position: absolute;
+    top: .25em;
+    left: 0;
+    text-indent: 0;
+    display: block;
+    width: 1.5em;
+    text-align: center;
+}

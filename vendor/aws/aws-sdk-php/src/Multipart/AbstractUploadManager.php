@@ -137,29 +137,13 @@ abstract class AbstractUploadManager implements Promise\PromisorInterface
             // Complete the multipart upload.
             yield $this->execCommand('complete', $this->getCompleteParams());
             $this->state->setStatus(UploadState::COMPLETED);
-        })->otherwise($this->buildFailureCatch());
-    }
-
-    private function transformException($e)
-    {
-        // Throw errors from the operations as a specific Multipart error.
-        if ($e instanceof AwsException) {
-            $e = new $this->config['exception_class']($this->state, $e);
-        }
-        throw $e;
-    }
-
-    private function buildFailureCatch()
-    {
-        if (interface_exists("Throwable")) {
-            return function (\Throwable $e) {
-                return $this->transformException($e);
-            };
-        } else {
-            return function (\Exception $e) {
-                return $this->transformException($e);
-            };
-        }
+        })->otherwise(function (\Exception $e) {
+            // Throw errors from the operations as a specific Multipart error.
+            if ($e instanceof AwsException) {
+                $e = new $this->config['exception_class']($this->state, $e);
+            }
+            throw $e;
+        });
     }
 
     protected function getConfig()

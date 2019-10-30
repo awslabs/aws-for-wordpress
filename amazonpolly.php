@@ -13,10 +13,10 @@
  * @package           Amazonpolly
  *
  * @wordpress-plugin
- * Plugin Name:       Amazon AI
+ * Plugin Name:       AWS for WordPress
  * Plugin URI:        https://wordpress.org/plugins/amazon-polly/
- * Description:       Create audio version of your posts, translate them into other languages and create podcasts! Amazon Polly is a service that turns text into lifelike speech. With dozens of voices across a variety of languages, you can select the ideal voice and build engaging speech-enabled applications that work in many different countries. The Amazon Polly plugin for WordPress is a sample application that shows how WordPress creators can easily add Text-to-Speech capabilities to written content with Amazon Polly. You can generate an audio feed for text-based content and insert it into an embedded player to increase the accessibility of your WordPress site. The sample code also enables you to publish podcasts directly from your site and make them available for listeners in the form of podcasts. In addition, the plugin allows to translate your text from one language to another using Amazon Translate– which is a neural machine translation service that delivers fast, high-quality, and affordable language translation. Amazon Translate allows you to localize content - such as websites and applications - for international users, and to easily translate large volumes of text efficiently.
- * Version:           3.1.5
+ * Description:       Create audio versions of your posts, translate them into other languages, and create podcasts. Integrate with Amazon Alexa to listen to your posts on Alexa-enabled devices. Use Amazon CloudFront to accelerate your website and provide a faster, more reliable viewing experience.
+ * Version:           4.0.0
  * Author:            AWS Labs, WP Engine
  * Author URI:        https://aws.amazon.com/
  * License:           GPL-3.0 ONLY
@@ -56,6 +56,11 @@ register_deactivation_hook( __FILE__, 'deactivate_amazonpolly' );
  * admin-specific hooks, and public-facing site hooks.
  */
 require plugin_dir_path( __FILE__ ) . 'includes/class-amazonpolly.php';
+
+/*
+ * Log error messages for CloudFront setup in this file
+ */
+update_option('aws_cloudfront_logfile',plugin_dir_path(__FILE__).'amazon_ai_cloudfront.log');
 
 /**
  * Begins execution of the plugin.

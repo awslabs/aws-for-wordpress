@@ -18,9 +18,6 @@ class EcsCredentialProvider
     /** @var callable */
     private $client;
 
-    /** @var float|mixed */
-    private $timeout;
-
     /**
      *  The constructor accepts following options:
      *  - timeout: (optional) Connection timeout, in seconds, default 1.0

@@ -1,6 +1,6 @@
 <?php
 /**
- * Common operations used by the Amazon AI plugin.
+ * Common operations used by the AWS for wordpress plugin.
  *
  * @link       amazon.com
  * @since      2.5.0
@@ -10,35 +10,35 @@ class AmazonAI_Common
 
 {
 
-	// Information about languages supported by the Amazon AI plugin
+	// Information about languages supported by the AWS plugin
 	private $languages = [
-		['code' => 'ar', 'name' => 'Arabic', 'transable' => '1', 'polly' => '1'],
-		['code' => 'da', 'name' => 'Danish', 'transable' => '1', 'polly' => '1'],
-		['code' => 'nl', 'name' => 'Dutch', 'transable' => '1', 'polly' => '1'],
-		['code' => 'zh', 'name' => 'Chinese', 'transable' => '1', 'polly' => '1'],
-		['code' => 'cs', 'name' => 'Czech', 'transable' => '1', 'polly' => ''],
-		['code' => 'en', 'name' => 'English', 'transable' => '1', 'polly' => '1'],
-		['code' => 'fi', 'name' => 'Finish', 'transable' => '1', 'polly' => ''],
-		['code' => 'fr', 'name' => 'French', 'transable' => '1', 'polly' => '1'],
-		['code' => 'de', 'name' => 'German', 'transable' => '1', 'polly' => '1'],
-		['code' => 'he', 'name' => 'Hebrew', 'transable' => '1', 'polly' => ''],
-		['code' => 'hi', 'name' => 'Hindi', 'transable' => '1', 'polly' => ''],
-		['code' => 'is', 'name' => 'Icelandic', 'transable' => '0', 'polly' => '1'],
-		['code' => 'it', 'name' => 'Italian', 'transable' => '1', 'polly' => '1'],
-		['code' => 'id', 'name' => 'Indonesian', 'transable' => '1', 'polly' => ''],
-		['code' => 'ja', 'name' => 'Japanese', 'transable' => '1', 'polly' => '1'],
-		['code' => 'ko', 'name' => 'Korean', 'transable' => '1', 'polly' => '1'],
-		['code' => 'ms', 'name' => 'Malay', 'transable' => '1', 'polly' => ''],
-		['code' => 'no', 'name' => 'Norwegian', 'transable' => '1', 'polly' => '1'],
-		['code' => 'fa', 'name' => 'Persian', 'transable' => '1', 'polly' => ''],
-		['code' => 'pl', 'name' => 'Polish', 'transable' => '1', 'polly' => '1'],
-		['code' => 'pt', 'name' => 'Portuguese', 'transable' => '1', 'polly' => '1'],
-		['code' => 'ro', 'name' => 'Romanian', 'transable' => '', 'polly' => '1'],
-		['code' => 'ru', 'name' => 'Russian', 'transable' => '1', 'polly' => '1'],
-		['code' => 'es', 'name' => 'Spanish', 'transable' => '1', 'polly' => '1'],
-		['code' => 'sv', 'name' => 'Swedish', 'transable' => '1', 'polly' => '1'],
-		['code' => 'tr', 'name' => 'Turkish', 'transable' => '1', 'polly' => '1'],
-		['code' => 'cy', 'name' => 'Welsh', 'transable' => '', 'polly' => '1']
+		['code' => 'ar', 'name' => 'Arabic', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'da', 'name' => 'Danish', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'nl', 'name' => 'Dutch', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'zh', 'name' => 'Chinese', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'cs', 'name' => 'Czech', 'translatable' => '1', 'polly' => ''],
+		['code' => 'en', 'name' => 'English', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'fi', 'name' => 'Finish', 'translatable' => '1', 'polly' => ''],
+		['code' => 'fr', 'name' => 'French', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'de', 'name' => 'German', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'he', 'name' => 'Hebrew', 'translatable' => '1', 'polly' => ''],
+		['code' => 'hi', 'name' => 'Hindi', 'translatable' => '1', 'polly' => ''],
+		['code' => 'is', 'name' => 'Icelandic', 'translatable' => '0', 'polly' => '1'],
+		['code' => 'it', 'name' => 'Italian', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'id', 'name' => 'Indonesian', 'translatable' => '1', 'polly' => ''],
+		['code' => 'ja', 'name' => 'Japanese', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'ko', 'name' => 'Korean', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'ms', 'name' => 'Malay', 'translatable' => '1', 'polly' => ''],
+		['code' => 'no', 'name' => 'Norwegian', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'fa', 'name' => 'Persian', 'translatable' => '1', 'polly' => ''],
+		['code' => 'pl', 'name' => 'Polish', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'pt', 'name' => 'Portuguese', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'ro', 'name' => 'Romanian', 'translatable' => '', 'polly' => '1'],
+		['code' => 'ru', 'name' => 'Russian', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'es', 'name' => 'Spanish', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'sv', 'name' => 'Swedish', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'tr', 'name' => 'Turkish', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'cy', 'name' => 'Welsh', 'translatable' => '', 'polly' => '1']
 	];
 
 	public function prepare_paragraphs($post_id) {
@@ -61,7 +61,7 @@ class AmazonAI_Common
 
 	public function get_subscribe_link() {
 
-		$value = get_option( 'amazon_polly_podcast_button_link' );
+        $value = get_option( 'amazon_polly_podcast_button_link' );
 
 		if (empty($value)) {
 			$value = esc_attr( get_feed_link( 'amazon-pollycast' ) );
@@ -157,12 +157,12 @@ class AmazonAI_Common
 		return $supported_languages;
 	}
 
-	public function get_all_translable_languages() {
+	public function get_all_translatable_languages() {
 		$supported_languages = [];
 
 		foreach ($this->languages as $language_data) {
 			$language_code = $language_data['code'];
-			$is_language_supported = $language_data['transable'];
+			$is_language_supported = $language_data['translatable'];
 
 			if ( !empty($is_language_supported) ) {
 				array_push($supported_languages, $language_code);
@@ -229,13 +229,17 @@ class AmazonAI_Common
     return '';
   }
 
-	private $sdk;
-	private $polly_client;
-	private $translate_client;
-	private $s3_handler;
-	private $local_file_handler;
-	private $translate;
-	private $logger;
+    private $sdk;
+    private $sdk_use1; // SDK with region fixed as us-east-1
+    private $polly_client;
+    private $translate_client;
+    private $s3_handler;
+    private $local_file_handler;
+    private $translate;
+    private $logger;
+    private $cloudformation_client;
+    private $cloudfront_client;
+    private $acm_client;
 
 	/**
 	 * Creates SDK objects for the plugin.
@@ -255,9 +259,46 @@ class AmazonAI_Common
 		$this->s3_handler = new AmazonAI_S3FileHandler();
 		$this->local_file_handler = new AmazonAI_LocalFileHandler();
 
-		$this->s3_handler->set_s3_client($this->sdk->createS3());
-		$this->translate = new AmazonAI_Translator();
-	}
+        $this->s3_handler->set_s3_client($this->sdk->createS3());
+        $this->translate = new AmazonAI_Translator();
+
+        $aws_sdk_config_use1 = $this->get_aws_sdk_config_use1();
+        $this->sdk_use1 = new Aws\Sdk($aws_sdk_config_use1);
+        //Client for running Cloudformation actions
+        $this->cloudformation_client = $this->sdk_use1->createCloudFormation();
+        //Client for running CloudFront actions
+        $this->cloudfront_client = $this->sdk_use1->createCloudFront();
+        //Client for running ACM actions
+        $this->acm_client = $this->sdk_use1->createAcm();
+    }
+
+
+    /**
+     * Method returns SDK Client which is reponsible for calling functions associated with Cloudformation
+     *
+     * @since       4.0.0
+     */
+    public function get_cloudformation_client() {
+        return $this->cloudformation_client;
+    }
+
+    /**
+     * Method returns SDK Client which is reponsible for calling functions associated with AWS Certificate Manager
+     *
+     * @since       4.0.0
+     */
+    public function get_acm_client() {
+        return $this->acm_client;
+    }
+
+    /**
+     * Method returns SDK Client which is reponsible for calling functions associated with CloudFront distribution
+     *
+     * @since       4.0.0
+     */
+    public function get_cloudfront_client() {
+        return $this->cloudfront_client;
+    }
 
 	public function get_translate_client() {
 		return $this->translate_client;
@@ -706,7 +747,7 @@ class AmazonAI_Common
 		return $region;
 	}
 
-	public function if_translable_enabled_for_language($language_code) {
+	public function if_translatable_enabled_for_language($language_code) {
 		$source_language_code = $this->get_source_language();
 		$value = $this->check_if_language_is_checked($language_code, $source_language_code);
 		if (empty($value)) {
@@ -1087,6 +1128,35 @@ class AmazonAI_Common
 
 		return $aws_sdk_config;
 	}
+
+     /**
+      * Returns AWS SDK configuration to allow connection with AWS account and region us-east-1.
+      *
+      * @since    4.0.0
+      */
+    private function get_aws_sdk_config_use1()
+        {
+            $aws_access_key = get_option('amazon_polly_access_key');
+            $aws_secret_key = get_option('amazon_polly_secret_key');
+            if (empty($aws_access_key)) {
+                $aws_sdk_config = array(
+                    'region' => 'us-east-1' ,
+                    'version' => 'latest',
+                );
+            }
+            else {
+                $aws_sdk_config = array(
+                    'region' => 'us-east-1' ,
+                    'version' => 'latest',
+                    'credentials' => array(
+                        'key' => $aws_access_key,
+                        'secret' => $aws_secret_key,
+                    ) ,
+                );
+            }
+
+            return $aws_sdk_config;
+        }
 
 
 	/**
@@ -1593,11 +1663,11 @@ class AmazonAI_Common
 	 *
 	 * @since  2.0.0
 	 */
-	public function is_language_translable( $provided_language_code ) {
+	public function is_language_translatable( $provided_language_code ) {
 
 		foreach ($this->languages as $language_data) {
 			$language_code = $language_data['code'];
-			$is_language_supported = $language_data['transable'];
+			$is_language_supported = $language_data['translatable'];
 
 			if ( !empty($is_language_supported) ) {
 				if ($provided_language_code === $language_code) {
@@ -1610,17 +1680,18 @@ class AmazonAI_Common
 	}
 
 
-	/**
-	 * Register the stylesheets for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
-		wp_enqueue_style( 'amazon-polly', plugin_dir_url( __FILE__ ) . 'css/amazonpolly-admin.css', array(), null, 'all' );
-		wp_enqueue_style( 'jquery-ui-core' );
-		wp_enqueue_style( 'jquery-ui-progressbar' );
-		wp_enqueue_style( 'jquery-ui', '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.21.1', 'all' );
-	}
+    /**
+     * Register the stylesheets for the admin area.
+     *
+     * @since    1.0.0
+     */
+    public function enqueue_styles() {
+        wp_enqueue_style( 'amazon-polly', plugin_dir_url( __FILE__ ) . 'css/amazonpolly-admin.css', array(), null, 'all' );
+        wp_enqueue_style( 'font-awesome', plugin_dir_url( __FILE__ ) . 'css/all.min.css', array(), null, 'all' );
+        wp_enqueue_style( 'jquery-ui-core' );
+        wp_enqueue_style( 'jquery-ui-progressbar' );
+        wp_enqueue_style( 'jquery-ui', '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.21.1', 'all' );
+    }
 
 	/**
 	 * Register the JavaScript for the admin area.
@@ -1636,7 +1707,21 @@ class AmazonAI_Common
 		);
 		wp_localize_script( 'jquery', 'pollyajax', $nonce_array );
 
-	}
+    }
+    /**
+     * Register JavaScript and CSS for the CloudFront page
+     *
+     * @since           4.0.0
+     */
+    public function enqueue_custom_scripts() {
+        wp_register_script( 'amazon_cf_script', plugin_dir_url( __FILE__ ) . 'js/amazon_cf.js', array( 'jquery' ), null, false );
+
+        wp_enqueue_script( 'amazon_cf_script' );
+        wp_enqueue_style( 'amazon_cf_style', plugin_dir_url( __FILE__ ) . 'css/amazon_cf.css', array(), null, 'all' );
+
+        wp_localize_script( 'amazon_cf_script', 'amazon_cf_ajax', array( 'ajax_url' => admin_url('admin-ajax.php')) );
+
+    }
 
 	public function is_translation_supported($source_language, $target_language) {
 
@@ -1671,6 +1756,48 @@ class AmazonAI_Common
 			// Priority of the box.
 		);
 	}
+
+    /**
+     * Validates if AWS configuration is correct and AWS can be reached for CloudFront page
+     *
+     * @since    4.0.0
+     */
+    public function validate_cloudfront_access() {
+        try {
+            $this->check_aws_access();
+        }
+        catch(CredsException $e) {
+            $this->show_error_notice("notice-error", "Can't connect to AWS. Check your credentials and make sure your AWS account is active.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks if a CloudFront distribution has been created
+     *
+     * @since           4.0.0
+     */
+    public function is_cloudfront_deployed() {
+        return get_option('amazon_stack_state') == 'ready';
+    }
+
+    /**
+     * Checks if the URL Rewrite after CloudFront distribution deployment is enabled
+     *
+     * @since           4.0.0
+     */
+    public function is_cloudfront_enabled() {
+        return get_option('amazon_cloudfront_enabled') == 'checked';
+    }
+
+    public function add_settings_link($links) {
+        $settings_link = '<a href="admin.php?page=amazon_ai">Settings</a>';
+        array_push( $links, $settings_link );
+        return $links;
+    }
+
+
 
 
 }

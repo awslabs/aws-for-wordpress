@@ -39,7 +39,6 @@ interface SignatureInterface
     public function presign(
         RequestInterface $request,
         CredentialsInterface $credentials,
-        $expires,
-        array $options = []
+        $expires
     );
 }

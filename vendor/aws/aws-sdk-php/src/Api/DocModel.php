@@ -109,7 +109,7 @@ class DocModel
             return '';
         }
 
-        $tidy = new \tidy();
+        $tidy = new \Tidy();
         $tidy->parseString($content, [
             'indent' => true,
             'doctype' => 'omit',

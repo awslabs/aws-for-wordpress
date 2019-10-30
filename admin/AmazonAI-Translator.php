@@ -266,9 +266,9 @@ class AmazonAI_Translator {
 
 		} else {
 
-			foreach ( $common->get_all_translable_languages() as $supported_lan ) {
-				if ( $common->is_language_translable( $supported_lan ) and ( $supported_lan != $source_language ) ) {
-					if ($common->if_translable_enabled_for_language($supported_lan)) {
+			foreach ( $common->get_all_translatable_languages() as $supported_lan ) {
+				if ( $common->is_language_translatable( $supported_lan ) and ( $supported_lan != $source_language ) ) {
+					if ($common->if_translatable_enabled_for_language($supported_lan)) {
 						$all_langs[ $index ] = $supported_lan;
 						$index++;
 					}
@@ -294,7 +294,7 @@ class AmazonAI_Translator {
 				$logger->log(sprintf('%s Translating from ( %s ) to ( %s )', __METHOD__, $source_language, $language_code));
 				$wp_filesystem = $common->prepare_wp_filesystem();
 
-				if ( $common->is_language_translable( $language_code ) and ( $language_code != $source_language ) ) {
+				if ( $common->is_language_translatable( $language_code ) and ( $language_code != $source_language ) ) {
 
 					try {
 						$clean_title = $common->clean_text( $post_id, false, true );
