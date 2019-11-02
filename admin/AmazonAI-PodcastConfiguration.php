@@ -88,7 +88,7 @@ class AmazonAI_PodcastConfiguration {
 		public function podcast_title_gui() {
             $value = get_option( 'amazon_polly_podcast_title' );
             echo sprintf('<input class="regular-text" name="amazon_polly_podcast_title" id="amazon_polly_podcast_title" value="%s"/>', esc_attr( $value ));
-            echo sprintf('<p class="description">If not specified, will be used default title: %s</p>', get_wp_title_rss());
+            echo sprintf('<p class="description">If not specified, the default title will be used: %s</p>', get_wp_title_rss());
 		}
 
 		/**
@@ -101,7 +101,7 @@ class AmazonAI_PodcastConfiguration {
 
             echo sprintf('<textarea rows="6" class="regular-text" name="amazon_polly_podcast_description" id="amazon_polly_podcast_description">%s</textarea>', esc_attr( $value ));
             echo sprintf(
-                '<p class="description">If not specified, will be used default description: %s</p>',
+                '<p class="description">If not specified, the default description will be used: %s</p>',
                 get_bloginfo('description') ?: get_bloginfo('title')
             );
 		}
@@ -280,7 +280,7 @@ class AmazonAI_PodcastConfiguration {
 				echo '<input type="checkbox" name="amazon_polly_podcast_enabled" id="amazon_polly_podcast_enabled" ' . $this->common->checked_validator( 'amazon_polly_podcast_enabled' ) . '> ';
 				echo '<p class="description" for="amazon_polly_podcast_enabled">If enabled, Amazon Pollycast will be generated</p>';
 			} else {
-				echo '<p>Please verify your AWS Credentials are accurate</p>';
+				echo '<p>Verify that your AWS credentials are accurate</p>';
 			}
 
 		}

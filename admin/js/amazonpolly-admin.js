@@ -204,19 +204,19 @@
 
 			$( '#amazon_polly_s3_learnmore' ).click(
 				function(){
-					alert( 'With this option selected, audio files will not be saved on and streamed from local WordPress server, but instead, from Amazon S3 (Simple Storage Service). For additional information and pricing, please visit: https://aws.amazon.com/s3 ' );
+					alert( 'With this option selected, audio files will not be saved to or streamed from the local WordPress server, but instead, from Amazon S3. For more information and pricing, see https://aws.amazon.com/s3 ' );
 				}
 			);
 
 			$( '#amazon_polly_cloudfront_learnmore' ).click(
 				function(){
-					alert( 'If you have created CloudFront distribution for your S3 bucket, you can provide here its name. For additional information and pricing, please visit following page: https://aws.amazon.com/cloudfront ' );
+					alert( 'If you have a CloudFront distribution for your S3 bucket, enter its name here. For more information and pricing, see https://aws.amazon.com/cloudfront ' );
 				}
 			);
 
 			if( $('#amazon_polly_trans_button').length ) {
 				if( $('#major-publishing-actions').length ) {
-				     $( '#major-publishing-actions' ).append("<div id='amazon-polly-translate-reminder'>This content will be published in 1 language. To translate to other languages, click on <b>Translate</b> button after publishing/updating.</div>");
+				     $( '#major-publishing-actions' ).append("<div id='amazon-polly-translate-reminder'>This content will be published in one language. To translate to other languages, choose <b>Translate</b> after publishing or updating.</div>");
 				}
 			}
 
