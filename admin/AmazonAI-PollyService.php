@@ -347,15 +347,23 @@ class AmazonAI_PollyService {
 			//Preparing Amazon Polly client object.
 			$polly_client = $common->get_polly_client();
 
-            //Detect Polly Engine (Standard / Neural).
-            $engine = $common->get_polly_engine($voice_id);
-            $news = $common->should_news_style_be_used($voice_id);
+      //Detect Polly Engine (Standard / Neural).
+      $engine = $common->get_polly_engine($voice_id);
+      $news = $common->should_news_style_be_used($voice_id);
+
+			$logger->log(sprintf('%s Final Polly text:', __METHOD__));
+			$logger->log($text_content);
+			$logger->log(sprintf('%s Engine: %s ', __METHOD__, $engine));
+			$logger->log(sprintf('%s Voice: %s ', __METHOD__, $voice_id));
+			$logger->log(sprintf('%s SampleRate: %s ', __METHOD__, $sample_rate));
+
+
 
 			//Call Amazon Polly service.
 			if ( ! empty( $lexicons ) and ( count( $lexicons_array ) > 0 ) ) {
 				$result = $polly_client->synthesizeSpeech(
 					array(
-                        'Engine' 	   => $engine,
+            'Engine' 	   => $engine,
 						'OutputFormat' => 'mp3',
 						'SampleRate'   => $sample_rate,
 						'Text'         => $text_content,
@@ -368,7 +376,7 @@ class AmazonAI_PollyService {
 
 				$result = $polly_client->synthesizeSpeech(
 					array(
-                        'Engine' 	   => $engine,
+            'Engine' 	   => $engine,
 						'OutputFormat' => 'mp3',
 						'SampleRate'   => $sample_rate,
 						'Text'         => $text_content,
