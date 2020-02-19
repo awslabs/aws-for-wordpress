@@ -334,8 +334,11 @@ class AmazonAI_PollyService {
 			// Adding special polly mark.
 			$text_content = $this->add_mark_tag($common, $text_content);
 
-            // Adding newscaster style tag
-            $text_content = $this->add_newscaster_tag($common, $text_content, $voice_id);
+      // Adding newscaster style tag
+			$text_content = $this->add_newscaster_tag($common, $text_content, $voice_id);
+
+			// Adding conversational style tag
+			$text_content = $this->add_conversational_tag($common, $text_content, $voice_id);
 
 			// Adding speak polly mark.
 			$text_content = $this->add_speak_tags($common, $text_content);
@@ -349,13 +352,16 @@ class AmazonAI_PollyService {
 
       //Detect Polly Engine (Standard / Neural).
       $engine = $common->get_polly_engine($voice_id);
-      $news = $common->should_news_style_be_used($voice_id);
+      $news_style = $common->should_news_style_be_used($voice_id);
+			$conversational_style = $common->should_conversational_style_be_used($voice_id);
 
 			$logger->log(sprintf('%s Final Polly text:', __METHOD__));
 			$logger->log($text_content);
 			$logger->log(sprintf('%s Engine: %s ', __METHOD__, $engine));
 			$logger->log(sprintf('%s Voice: %s ', __METHOD__, $voice_id));
 			$logger->log(sprintf('%s SampleRate: %s ', __METHOD__, $sample_rate));
+			$logger->log(sprintf('%s News Style Enabled: %s ', __METHOD__, $news_style));
+			$logger->log(sprintf('%s Conversational Style Enabled: %s ', __METHOD__, $conversational_style));
 
 
 
@@ -497,6 +503,13 @@ class AmazonAI_PollyService {
     private function add_newscaster_tag($common, $text_content, $voice) {
         if ($common->should_news_style_be_used($voice)) {
             $text_content = '<amazon:domain name="news">' . $text_content . '</amazon:domain>';
+        }
+        return $text_content;
+    }
+
+		private function add_conversational_tag($common, $text_content, $voice) {
+        if ($common->should_conversational_style_be_used($voice)) {
+            $text_content = '<amazon:domain name="conversational">' . $text_content . '</amazon:domain>';
         }
         return $text_content;
     }

@@ -182,7 +182,7 @@ class AmazonAI_TranslateConfiguration
         $display_values   = [ 'Flag', 'Label', 'Flag + Label' ];
 
 
-        $only_labels = array("ar", "fa", "hi", "ms");
+        $only_labels = array("af","am","bn","bs","fa-AF","ha","ps","so","sw","tl","ta","ur","sr","ar", "fa", "hi", "ms");
         if ( in_array($lanuage, $only_labels) ) {
             $display_values   = [ 'Label' ];
         }

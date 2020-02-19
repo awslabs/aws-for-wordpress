@@ -12,32 +12,61 @@ class AmazonAI_Common
 
 	// Information about languages supported by the AWS plugin
 	private $languages = [
+
+		['code' => 'af', 'name' => 'Afrikaans', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'sq', 'name' => 'Albanian', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'am', 'name' => 'Amharic', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'ar', 'name' => 'Arabic', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'az', 'name' => 'Azerbaijani', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'bn', 'name' => 'Bengali', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'bs', 'name' => 'Bosnian', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'bg', 'name' => 'Bulgarian', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'fr-CA', 'name' => 'Canadian French', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'da', 'name' => 'Danish', 'translatable' => '1', 'polly' => '1'],
 		['code' => 'nl', 'name' => 'Dutch', 'translatable' => '1', 'polly' => '1'],
 		['code' => 'zh', 'name' => 'Chinese', 'translatable' => '1', 'polly' => '1'],
-		['code' => 'cs', 'name' => 'Czech', 'translatable' => '1', 'polly' => ''],
+		['code' => 'hr', 'name' => 'Croatian', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'cs', 'name' => 'Czech', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'fa-AF', 'name' => 'Dari', 'translatable' => '1', 'polly' => '1'],
 		['code' => 'en', 'name' => 'English', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'et', 'name' => 'Estonian', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'fi', 'name' => 'Finish', 'translatable' => '1', 'polly' => ''],
 		['code' => 'fr', 'name' => 'French', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'ka', 'name' => 'Georgian', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'de', 'name' => 'German', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'el', 'name' => 'Greek', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'ha', 'name' => 'Hausa', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'he', 'name' => 'Hebrew', 'translatable' => '1', 'polly' => ''],
 		['code' => 'hi', 'name' => 'Hindi', 'translatable' => '1', 'polly' => ''],
+		['code' => 'hu', 'name' => 'Hungarian', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'is', 'name' => 'Icelandic', 'translatable' => '0', 'polly' => '1'],
 		['code' => 'it', 'name' => 'Italian', 'translatable' => '1', 'polly' => '1'],
 		['code' => 'id', 'name' => 'Indonesian', 'translatable' => '1', 'polly' => ''],
 		['code' => 'ja', 'name' => 'Japanese', 'translatable' => '1', 'polly' => '1'],
 		['code' => 'ko', 'name' => 'Korean', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'lv', 'name' => 'Latvian', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'ms', 'name' => 'Malay', 'translatable' => '1', 'polly' => ''],
 		['code' => 'no', 'name' => 'Norwegian', 'translatable' => '1', 'polly' => '1'],
 		['code' => 'fa', 'name' => 'Persian', 'translatable' => '1', 'polly' => ''],
 		['code' => 'pl', 'name' => 'Polish', 'translatable' => '1', 'polly' => '1'],
 		['code' => 'pt', 'name' => 'Portuguese', 'translatable' => '1', 'polly' => '1'],
-		['code' => 'ro', 'name' => 'Romanian', 'translatable' => '', 'polly' => '1'],
+		['code' => 'ps', 'name' => 'Pushto', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'ro', 'name' => 'Romanian', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'sr', 'name' => 'Serbian', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'sk', 'name' => 'Slovak', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'sl', 'name' => 'Slovenian', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'so', 'name' => 'Somali', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'sw', 'name' => 'Swahili', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'ru', 'name' => 'Russian', 'translatable' => '1', 'polly' => '1'],
 		['code' => 'es', 'name' => 'Spanish', 'translatable' => '1', 'polly' => '1'],
 		['code' => 'sv', 'name' => 'Swedish', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'tl', 'name' => 'Tagalog', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'ta', 'name' => 'Tamil', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'th', 'name' => 'Thai', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'tr', 'name' => 'Turkish', 'translatable' => '1', 'polly' => '1'],
+		['code' => 'uk', 'name' => 'Ukrainian', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'ur', 'name' => 'Urdu', 'translatable' => '1', 'polly' => '0'],
+		['code' => 'vi', 'name' => 'Vietnamese', 'translatable' => '1', 'polly' => '0'],
 		['code' => 'cy', 'name' => 'Welsh', 'translatable' => '', 'polly' => '1']
 	];
 
@@ -960,14 +989,60 @@ class AmazonAI_Common
 
 		$option_value = get_option('amazon_polly_news', '');
 		if (empty($option_value)) {
-			return '';
+			return false;
 		}
 		else {
 			return ' checked ';
 		}
 	}
 
+
+		public function is_polly_conversational_enabled() {
+
+			if (!$this->is_polly_neural_enabled()) {
+				return false;
+			}
+
+			if ($this->is_polly_news_enabled()) {
+				return false;
+			}
+
+			$option_value = get_option('amazon_polly_conversational', '');
+			if (empty($option_value)) {
+				return '';
+			}
+			else {
+				return ' checked ';
+			}
+		}
+
+		public function should_conversational_style_be_used($voice) {
+
+			if ( !$this->is_conversational_style_for_voice($voice)) {
+				return false;
+			}
+
+			if ($this->should_news_style_be_used($voice)) {
+				return false;
+			}
+
+			if ($this->is_polly_conversational_enabled()) {
+				$engine = $this->get_polly_engine($voice);
+				if ('neural' == $engine) {
+					return true;
+				}
+				return false;
+			}
+
+			return false;
+		}
+
+
 	public function should_news_style_be_used($voice) {
+
+		if ( !$this->is_news_style_for_voice($voice)) {
+			return false;
+		}
 
 		if ($this->is_polly_news_enabled()) {
 			$engine = $this->get_polly_engine($voice);
@@ -981,6 +1056,18 @@ class AmazonAI_Common
 	}
 
 
+		public function is_conversational_supported_in_region() {
+
+			$selected_region = $this->get_aws_region();
+			$conversational_supported_regions = array("us-east-1","us-west-2","eu-west-1");
+
+			if (in_array($selected_region, $conversational_supported_regions)) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 	public function is_neural_supported_in_region() {
 
 		$selected_region = $this->get_aws_region();
@@ -993,9 +1080,28 @@ class AmazonAI_Common
 		}
 	}
 
+	public function is_news_style_for_voice($voice) {
+		$supported_voices = array("Joanna","Matthew");
+
+		if (in_array($voice, $supported_voices)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public function is_conversational_style_for_voice($voice) {
+		$supported_voices = array("Joanna","Matthew");
+
+		if (in_array($voice, $supported_voices)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	public function is_neural_supported_for_voice($voice) {
-		$neural_supported_voices = array("Amy","Emma","Brian","Ivy","Joanna","Kendra","Kimberly","Salli","Joey","Justin","Matthew");
+		$neural_supported_voices = array("Amy","Emma","Brian","Ivy","Joanna","Kendra","Kimberly","Salli","Joey","Justin","Matthew","Camila","Lupe");
 
 		if (in_array($voice, $neural_supported_voices)) {
 			return true;

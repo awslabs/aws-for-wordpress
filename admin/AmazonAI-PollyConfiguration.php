@@ -55,12 +55,16 @@ class AmazonAI_PollyConfiguration {
         if ($this->common->is_polly_enabled() ) {
             if ($this->common->validate_amazon_polly_access()) {
                 if ($this->common->is_language_supported_for_polly()) {
+                  add_settings_field( 'amazon_polly_voice_id', __( 'Voice name:', 'amazonpolly' ), array( $this, 'voices_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_voice_id' ) );
+                  register_setting('amazon_ai_polly', 'amazon_polly_voice_id');
+
                     add_settings_field( 'amazon_polly_neural', __( 'Neural Text-To-Speech:', 'amazonpolly' ), array( $this, 'neural_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_neural' ) );
                     register_setting('amazon_ai_polly', 'amazon_polly_neural');
                     add_settings_field( 'amazon_polly_news', __( 'Newscaster Style:', 'amazonpolly' ), array( $this, 'news_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_news' ) );
                     register_setting('amazon_ai_polly', 'amazon_polly_news');
+                    add_settings_field( 'amazon_polly_conversational', __( 'Conversational Style:', 'amazonpolly' ), array( $this, 'conversational_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_conversational' ) );
+                    register_setting('amazon_ai_polly', 'amazon_polly_conversational');
                     add_settings_field( 'amazon_polly_sample_rate', __('Sample rate:', 'amazonpolly'), array($this,'sample_rate_gui'), 'amazon_ai_polly', 'amazon_ai_polly', array('label_for' => 'amazon_polly_sample_rate'));
-        			add_settings_field( 'amazon_polly_voice_id', __( 'Voice name:', 'amazonpolly' ), array( $this, 'voices_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_voice_id' ) );
         			add_settings_field( 'amazon_polly_auto_breaths', __( 'Automated breaths:', 'amazonpolly' ), array( $this, 'auto_breaths_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_auto_breaths_id' ) );
         			add_settings_field( 'amazon_polly_ssml', __( 'Enable SSML support:', 'amazonpolly' ), array( $this, 'ssml_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_ssml' ) );
         			add_settings_field( 'amazon_polly_lexicons', __( 'Lexicons:', 'amazonpolly' ), array( $this, 'lexicons_gui' ), 'amazon_ai_polly', 'amazon_ai_polly', array( 'label_for' => 'amazon_polly_lexicons' ) );
@@ -95,7 +99,6 @@ class AmazonAI_PollyConfiguration {
                     register_setting('amazon_ai_polly', 'amazon_ai_logging');
 
         			register_setting('amazon_ai_polly', 'amazon_polly_sample_rate');
-        			register_setting('amazon_ai_polly', 'amazon_polly_voice_id');
         			register_setting('amazon_ai_polly', 'amazon_polly_auto_breaths');
         			register_setting('amazon_ai_polly', 'amazon_polly_ssml');
         			register_setting('amazon_ai_polly', 'amazon_polly_lexicons');
@@ -304,12 +307,19 @@ class AmazonAI_PollyConfiguration {
      *
      */
     public function neural_gui() {
+
+      $voice_id   = $this->common->get_voice_id();
+      if ( $this->common->is_neural_supported_for_voice($voice_id) ) {
         if ($this->common->is_neural_supported_in_region()) {
             echo '<input type="checkbox" name="amazon_polly_neural" id="amazon_polly_neural" ' . $this->common->is_polly_neural_enabled() . '> ';
             echo '<p class="description" for="amazon_polly_neural">Delivers significant improvements in speech quality. Available only for US and UK English voices. Amazon Polly\'s Neural voices are priced at $16.00 per 1 million characters for speech or Speech Marks requested (when outside the free tier).</p>';
         } else {
             echo '<p class="description" for="amazon_polly_news">Option not supported in this region</p>';
         }
+      } else {
+        echo '<p class="description" for="amazon_polly_news">Option not supported for this voice</p>';
+      }
+
     }
 
     /**
@@ -317,12 +327,48 @@ class AmazonAI_PollyConfiguration {
      *
      */
     public function news_gui() {
-        if ($this->common->is_neural_supported_in_region()) {
+
+      if ($this->common->is_neural_supported_in_region()) {
+        if ($this->common->is_polly_neural_enabled()) {
+          $voice_id = $this->common->get_voice_id();
+          if ( $this->common->is_news_style_for_voice($voice_id) ) {
             echo '<input type="checkbox" name="amazon_polly_news" id="amazon_polly_news" ' . $this->common->is_polly_news_enabled() . '> ';
-            echo '<p class="description" for="amazon_polly_news">Newscaster Style. Available only when Neural Text-To-Speech is enabled and only for the Matthew and Joanna voices.</p>';
+          } else {
+            echo '<p class="description" for="amazon_polly_news">Option not supported for this voice</p>';
+          }
         } else {
-            echo '<p class="description" for="amazon_polly_news">Option not supported in this region</p>';
+          echo '<p class="description" for="amazon_polly_news">Neural needs to be enabled</p>';
         }
+      } else {
+        echo '<p class="description" for="amazon_polly_news">Option not supported in this region</p>';
+      }
+    }
+
+    /**
+     * Render the Conversational GUI
+     *
+     */
+    public function conversational_gui() {
+
+      if ($this->common->is_neural_supported_in_region()) {
+        if ($this->common->is_polly_neural_enabled()) {
+          $voice_id = $this->common->get_voice_id();
+          if ( $this->common->is_conversational_style_for_voice($voice_id) ) {
+            if ( !$this->common->is_polly_news_enabled()) {
+              echo '<input type="checkbox" name="amazon_polly_conversational" id="amazon_polly_conversational" ' . $this->common->is_polly_conversational_enabled() . '> ';
+            } else {
+              echo '<p class="description" for="amazon_polly_conversational">Only one style can be used</p>';
+            }
+          } else {
+            echo '<p class="description" for="amazon_polly_conversational">Option not supported for this voice</p>';
+          }
+        } else {
+          echo '<p class="description" for="amazon_polly_conversational">Neural needs to be enabled</p>';
+        }
+      } else {
+        echo '<p class="description" for="amazon_polly_conversational">Option not supported in this region</p>';
+      }
+
     }
 
     /**
