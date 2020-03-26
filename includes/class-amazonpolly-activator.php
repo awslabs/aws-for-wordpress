@@ -29,7 +29,7 @@ class Amazonpolly_Activator {
 	public static function activate() {
 
 		// Flush the permalinks to enable the "amazon-pollycast" route.
-		$amazon_pollycast = new Amazonpolly_PollyCast();
+		$amazon_pollycast = new Amazonpolly_PollyCast(new AmazonAI_Common());
 		$amazon_pollycast->create_podcast();
 		flush_rewrite_rules();
 

@@ -3,6 +3,8 @@
  * RSS2 Feed Template for displaying RSS2 Posts feed.
  *
  * @package WordPress
+ *
+ * @var AmazonAI_Common $amazonai_common
  */
 
 header( 'Content-Type: ' . feed_content_type( 'rss2' ) . '; charset=' . get_option( 'blog_charset' ), true );
@@ -10,7 +12,7 @@ $more = 1;
 
 echo '<?xml version="1.0" encoding="' . esc_attr( get_option( 'blog_charset' ) ) . '"?' . '>';
 
-$amazon_pollycast = new Amazonpolly_PollyCast();
+$amazon_pollycast = new Amazonpolly_PollyCast($amazonai_common);
 
 /**
  * Fires between the xml and rss tags in a feed.
@@ -32,8 +34,7 @@ $itunes_explicit    = $amazon_pollycast->get_itunes_explicit();
 $itunes_title       = $amazon_pollycast->get_itunes_title();
 $itunes_description = $amazon_pollycast->get_itunes_description();
 
-$common = new AmazonAI_Common();
-$itunes_author = $common->get_podcast_author();
+$itunes_author = $amazonai_common->get_podcast_author();
 $amazon_pollycast->start_podcast_rss();
 
 ?>
@@ -54,7 +55,7 @@ $amazon_pollycast->start_podcast_rss();
 	 *
 	 * @since 2.0.0
 	 */
-	 $rss2namespace = $common->is_rss2namespace_enabled();
+	 $rss2namespace = $amazonai_common->is_rss2namespace_enabled();
 	 if ($rss2namespace) {
 		 do_action( 'rss2_ns' );
 	 }
@@ -144,7 +145,7 @@ $amazon_pollycast->start_podcast_rss();
 		<pubDate><?php echo esc_html( mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ) ); ?></pubDate>
 		<description><![CDATA[<?php the_excerpt_rss(); ?>]]></description><?php
 			$fileSize = 0;
-			if ($common->is_medialibrary_enabled() && !$common->is_s3_enabled()) {
+			if ($amazonai_common->is_medialibrary_enabled() && !$amazonai_common->is_s3_enabled()) {
 				$fileSize = filesize(getcwd() . str_replace(get_home_url(), "", preg_replace('/\?.*/', '', $audio_file)));
 			}
 		?>

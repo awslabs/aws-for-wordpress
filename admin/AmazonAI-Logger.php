@@ -12,13 +12,8 @@ class AmazonAI_Logger
 
 	public function log($log) {
 
-		if (true === WP_DEBUG) {
-
-			$common = new AmazonAI_Common();
-			if ( $common->is_logging_enabled() ) {
-				error_log($log);
-			}
-
+		if (true === WP_DEBUG && apply_filters('amazon_polly_logging_enabled', false)) {
+			error_log($log);
 		}
 	}
 

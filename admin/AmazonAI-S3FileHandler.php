@@ -10,8 +10,21 @@
  */
 
 class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
+  	private $s3_client;
+  
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
 
-  private $s3_client;
+	/**
+	 * AmazonAI_S3FileHandler constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
   /**
 	 * Return type of storage which is supported by class (S3).
@@ -36,7 +49,7 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
   	 */
     public function delete($wp_filesystem, $file, $post_id) {
 
-      $common = new AmazonAI_Common();
+      $common = $this->common;
 
       // Retrieve the name of the bucket where audio files are stored.
       $s3_bucket  = $this->get_bucket_name();
@@ -95,12 +108,12 @@ class AmazonAI_S3FileHandler extends AmazonAI_FileHandler {
     public function get_s3_object_link($post_id, $file_name) {
 
       $s3BucketName = $this->get_bucket_name();
-      $cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
+      $cloudfront_domain_name = apply_filters('amazon_polly_cloudfront_domain', get_option( 'amazon_polly_cloudfront' ));
       $key = $this->get_prefix($post_id) . $file_name;
 
       if ( empty( $cloudfront_domain_name ) ) {
 
-        $common = new AmazonAI_Common();
+        $common = $this->common;
         $selected_region = $common->get_aws_region();
 
         $audio_location_link = 'https://s3.' . $selected_region . '.amazonaws.com/' . $s3BucketName . '/' . $key;

@@ -10,6 +10,19 @@
  */
 class AmazonAI_AlexaConfiguration
 {
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
+
+	/**
+	 * AmazonAI_PodcastConfiguration constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
     public function amazon_ai_add_menu()
     {
@@ -28,9 +41,6 @@ class AmazonAI_AlexaConfiguration
 			 <form method="post" action="options.php">
 	 </div>
 	 <?php
-
-      $this->common = new AmazonAI_Common();
-      $this->common->init();
       if ( $this->common->is_podcast_enabled() ) {
         echo '<p class="description">You can extend WordPress websites and blogs through Alexa devices. This opens new possibilities for the creators and authors of websites to reach an even broader audience. It also makes it easier for people to listen to their favorite blogs by just asking Alexa to read them! </p>';
         echo '<img width="500" src="https://d12ee1u74lotna.cloudfront.net/images/alexa1.gif" alt="Alexa Interaction">';

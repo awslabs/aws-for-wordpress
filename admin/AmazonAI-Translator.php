@@ -11,6 +11,19 @@
  */
 
 class AmazonAI_Translator {
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
+
+	/**
+	 * AmazonAI_Translator constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
   /**
 	 * Method validates if plugin has got access to Amazon Translate service by performing simple
@@ -234,9 +247,8 @@ class AmazonAI_Translator {
 
 		check_ajax_referer( 'pollyajaxnonce', 'nonce' );
 
-		$polly = new AmazonAI_PollyService();
-		$common = new AmazonAI_Common();
-		$common->init();
+		$common = $this->common;
+		$polly = new AmazonAI_PollyService($common);
 
 		$logger = new AmazonAI_Logger();
 		$logger->log(sprintf('%s Ajax Translate', __METHOD__));

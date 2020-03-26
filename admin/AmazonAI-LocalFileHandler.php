@@ -10,7 +10,19 @@
  */
 
 class AmazonAI_LocalFileHandler extends AmazonAI_FileHandler {
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
 
+	/**
+	 * AmazonAI_LocalFileHandler constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
   /**
 	 * Return type of storage which is supported by class (local).
@@ -72,7 +84,7 @@ class AmazonAI_LocalFileHandler extends AmazonAI_FileHandler {
         $audio_location_link = trailingslashit(wp_upload_dir()['baseurl']) . $this->get_prefix($post_id) . $file_name;
 
         // Adding audio info to media library (If Media Library was selected)
-        $common = new AmazonAI_Common();
+        $common = $this->common;
         if ($common->is_medialibrary_enabled()) {
 
           //One more time creating temp file, before deleting previous attachment

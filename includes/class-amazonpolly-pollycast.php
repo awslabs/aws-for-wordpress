@@ -17,6 +17,19 @@
  * @author     WP Engine
  */
 class Amazonpolly_PollyCast {
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
+
+	/**
+	 * AmazonAI_PodcastConfiguration constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
 	/**
 	 * The slug of this podcast feed.
@@ -45,6 +58,9 @@ class Amazonpolly_PollyCast {
 	 * @access   public
 	 */
 	public function render_rss() {
+		// Used by template
+		$amazonai_common = $this->common;
+
 		require_once dirname( __FILE__ ) . '/template-amazon-pollycast.php';
 	}
 
@@ -80,8 +96,7 @@ class Amazonpolly_PollyCast {
 			$query->set( 'category_name', $post_category );
 		}
 
-		$common = new AmazonAI_Common();
-		$feed_size = $common->get_feed_size();
+		$feed_size = $this->common->get_feed_size();
 
 		// How many items to show in the Amazon PollyCast feed.
 		$query->set( 'posts_per_rss', $feed_size );
@@ -95,7 +110,6 @@ class Amazonpolly_PollyCast {
 	 * @return   list list of types.
 	 */
 	public function get_posttypes_array() {
-		$this->common = new AmazonAI_Common();
 		$posttypes_array = $this->common->get_posttypes();
 		$posttypes_array = explode( ' ', $posttypes_array );
 		$posttypes_array = apply_filters( 'amazon_polly_post_types', $posttypes_array );

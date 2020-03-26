@@ -14,6 +14,19 @@ class AmazonAI_PollyService {
 	const GENERATE_POST_AUDIO_TASK = 'generate_post_audio';
 	const NONCE_NAME = 'amazon-polly-post-nonce';
 
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
+
+	/**
+	 * AmazonAI_PollyService constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
 	/**
 	 * Important. Run whenever new post is being created (or updated). The method generates a background task to generate the audio file.
@@ -21,11 +34,7 @@ class AmazonAI_PollyService {
 	 * @since    1.0.0
 	 */
 	public function save_post( $post_id, $post, $updated ) {
-
-		// Creating new standard common object for interacting with other methods of the plugin.
-		$common = new AmazonAI_Common();
-		$common->init();
-
+		$common = $this->common;
 		$logger = new AmazonAI_Logger();
 		$logger->log(sprintf('%s Saving post ( id=%s )', __METHOD__, $post_id));
 
@@ -76,7 +85,6 @@ class AmazonAI_PollyService {
 	 * @since    1.0.0
 	 */
 	public function generate_audio( $post_id ) {
-
 		$logger = new AmazonAI_Logger();
 		$logger->log(sprintf('%s Generating audio for post ( id=%s )', __METHOD__, $post_id));
 
@@ -88,9 +96,7 @@ class AmazonAI_PollyService {
 		do_action('amazon_polly_pre_generate_audio', $post_id);
 
 		// Creating new standard common object for interacting with other methods of the plugin.
-		$common = new AmazonAI_Common();
-		$common->init();
-
+		$common = $this->common;
 		$is_polly_enabled = (bool) get_post_meta($post_id, 'amazon_polly_enable', true);
 		$is_key_valid = (bool) get_option('amazon_polly_valid_keys');
 		$voice_id = get_post_meta($post_id, 'amazon_polly_voice_id', true);
@@ -257,8 +263,7 @@ class AmazonAI_PollyService {
 		$logger->log(sprintf('%s Converting to Audio', __METHOD__));
 
 		// Creating new standard common object for interacting with other methods of the plugin.
-		$common = new AmazonAI_Common();
-		$common->init();
+		$common = $this->common;
 
 		// This part will be called only in case of translate opration and converting
 		// text into other languages (only then the last parameter is not empty).
@@ -538,8 +543,7 @@ class AmazonAI_PollyService {
 			check_ajax_referer( 'pollyajaxnonce', 'nonce' );
 
 			$batch_size                  = 1;
-			$common = new AmazonAI_Common();
-			$common->init();
+			$common = $this->common;
 			$post_types_supported        = $common->get_posttypes_array();
 			$amazon_polly_voice_id       = $common->get_voice_id();
 			$amazon_polly_sample_rate    = $common->get_sample_rate();
@@ -606,8 +610,7 @@ class AmazonAI_PollyService {
 		 */
 		private function get_percentage_complete() {
 			$total_posts               = 0;
-			$common = new AmazonAI_Common();
-			$common->init();
+			$common = $this->common;
 			$post_types_supported      = $common->get_posttypes_array();
 			$posts_needing_translation = $this->get_num_posts_needing_transcription();
 
@@ -633,8 +636,7 @@ class AmazonAI_PollyService {
 			 */
 			public function get_num_posts_needing_transcription() {
 
-				$common = new AmazonAI_Common();
-				$common->init();
+				$common = $this->common;
 				$post_types_supported        = $common->get_posttypes_array();
 				$amazon_polly_voice_id       = get_option( 'amazon_polly_voice_id' );
 				$amazon_polly_sample_rate    = get_option( 'amazon_polly_sample_rate' );

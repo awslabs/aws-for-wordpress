@@ -10,10 +10,22 @@
  */
 class AmazonAI_TranslateConfiguration
 {
-    private $common;
-    private $aws_ok;
-    private $s3_ok;
+	private $aws_ok;
+	private $s3_ok;
 
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
+
+	/**
+	 * AmazonAI_TranslateConfiguration constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
     public function amazon_ai_add_menu()
     {
@@ -44,9 +56,6 @@ class AmazonAI_TranslateConfiguration
 
     function display_options()
     {
-        $this->common = new AmazonAI_Common();
-        $this->common->init();
-
         add_settings_section('amazon_ai_translate', "Amazon Translate configuration", array(
             $this,
             'translate_gui'

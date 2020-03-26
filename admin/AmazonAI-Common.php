@@ -70,6 +70,27 @@ class AmazonAI_Common
 		['code' => 'cy', 'name' => 'Welsh', 'translatable' => '', 'polly' => '1']
 	];
 
+	private $sdk;
+	private $sdk_use1; // SDK with region fixed as us-east-1
+	private $polly_client;
+	private $translate_client;
+	private $s3_handler;
+	private $local_file_handler;
+	private $translate;
+	private $logger;
+	private $cloudformation_client;
+	private $cloudfront_client;
+	private $acm_client;
+
+	/**
+	 * Creates SDK objects for the plugin.
+	 *
+	 * @since    2.5.0
+	 */
+	public function __construct() {
+		$this->logger = new AmazonAI_Logger();
+	}
+
 	public function prepare_paragraphs($post_id) {
 
 		$clean_content = '';
@@ -258,38 +279,17 @@ class AmazonAI_Common
     return '';
   }
 
-    private $sdk;
-    private $sdk_use1; // SDK with region fixed as us-east-1
-    private $polly_client;
-    private $translate_client;
-    private $s3_handler;
-    private $local_file_handler;
-    private $translate;
-    private $logger;
-    private $cloudformation_client;
-    private $cloudfront_client;
-    private $acm_client;
-
-	/**
-	 * Creates SDK objects for the plugin.
-	 *
-	 * @since    2.5.0
-	 */
-	public function __construct() {
-		$this->logger = new AmazonAI_Logger();
-	}
-
 	public function init() {
 		$aws_sdk_config = $this->get_aws_sdk_config();
 		$this->sdk = new Aws\Sdk($aws_sdk_config);
 		$this->polly_client = $this->sdk->createPolly();
 		$this->translate_client = $this->sdk->createTranslate();
 
-		$this->s3_handler = new AmazonAI_S3FileHandler();
-		$this->local_file_handler = new AmazonAI_LocalFileHandler();
+		$this->s3_handler = new AmazonAI_S3FileHandler($this);
+		$this->local_file_handler = new AmazonAI_LocalFileHandler($this);
 
         $this->s3_handler->set_s3_client($this->sdk->createS3());
-        $this->translate = new AmazonAI_Translator();
+        $this->translate = new AmazonAI_Translator($this);
 
         $aws_sdk_config_use1 = $this->get_aws_sdk_config_use1();
         $this->sdk_use1 = new Aws\Sdk($aws_sdk_config_use1);
@@ -624,7 +624,7 @@ class AmazonAI_Common
 
 		$file_name	= 'amazon_polly_' . $post_id . $language . '.mp3';
 		$s3BucketName = $this->get_s3_bucket_name();
-		$cloudfront_domain_name = get_option( 'amazon_polly_cloudfront' );
+		$cloudfront_domain_name = apply_filters('amazon_polly_cloudfront_domain', get_option( 'amazon_polly_cloudfront' ));
 
 		if ( get_option('uploads_use_yearmonth_folders') ) {
 			$key = get_the_date( 'Y', $post_id ) . '/' . get_the_date( 'm', $post_id ) . '/' . $file_name;
@@ -767,7 +767,7 @@ class AmazonAI_Common
 	 */
 	public function get_aws_region()
 	{
-		$region = get_option('amazon_polly_region');
+		$region = apply_filters('amazon_polly_aws_region', get_option('amazon_polly_region'));
 		if (empty($region)) {
 			update_option('amazon_polly_region', 'us-east-1');
 			$region = 'us-east-1';
@@ -1211,58 +1211,43 @@ class AmazonAI_Common
 	 *
 	 * @since    2.5.0
 	 */
-	private function get_aws_sdk_config()
+	private function get_aws_sdk_config($region = null)
 	{
+		$aws_sdk_config = [
+			'region' => $this->get_aws_region(),
+			'version' => 'latest',
+		];
+		$credentials = false;
 		$aws_access_key = get_option('amazon_polly_access_key');
 		$aws_secret_key = get_option('amazon_polly_secret_key');
-		if (empty($aws_access_key)) {
-			$aws_sdk_config = array(
-				'region' => $this->get_aws_region() ,
-				'version' => 'latest',
-			);
+
+		if ($aws_access_key && $aws_secret_key) {
+			$credentials = [
+				'key' => $aws_access_key,
+				'secret' => $aws_secret_key,
+			];
 		}
-		else {
-			$aws_sdk_config = array(
-				'region' => $this->get_aws_region() ,
-				'version' => 'latest',
-				'credentials' => array(
-					'key' => $aws_access_key,
-					'secret' => $aws_secret_key,
-				) ,
-			);
+
+		if ($credentials = apply_filters('amazon_polly_aws_sdk_credentials', $credentials)) {
+			$aws_sdk_config['credentials'] = $credentials;
+		}
+
+		if ($region) {
+			$aws_sdk_config['region'] = $region;
 		}
 
 		return $aws_sdk_config;
 	}
 
-     /**
+  /**
       * Returns AWS SDK configuration to allow connection with AWS account and region us-east-1.
       *
       * @since    4.0.0
       */
     private function get_aws_sdk_config_use1()
-        {
-            $aws_access_key = get_option('amazon_polly_access_key');
-            $aws_secret_key = get_option('amazon_polly_secret_key');
-            if (empty($aws_access_key)) {
-                $aws_sdk_config = array(
-                    'region' => 'us-east-1' ,
-                    'version' => 'latest',
-                );
-            }
-            else {
-                $aws_sdk_config = array(
-                    'region' => 'us-east-1' ,
-                    'version' => 'latest',
-                    'credentials' => array(
-                        'key' => $aws_access_key,
-                        'secret' => $aws_secret_key,
-                    ) ,
-                );
-            }
-
-            return $aws_sdk_config;
-        }
+    {
+        return $this->get_aws_sdk_config('us-east-1');
+    }
 
 
 	/**
@@ -1675,9 +1660,7 @@ class AmazonAI_Common
 	 * @since    1.0.7
 	 */
 	public function add_quicktags() {
-
-		$common = new AmazonAI_Common();
-		$is_ssml_enabled = $common->is_ssml_enabled();
+		$is_ssml_enabled = $this->is_ssml_enabled();
 
 		if ( $is_ssml_enabled ) {
 			if ( wp_script_is( 'quicktags' ) ) {
@@ -1847,12 +1830,14 @@ class AmazonAI_Common
 
 		$post_types_supported = $this->get_posttypes_array();
 
+		$meta_box = new AmazonAI_PostMetaBox($this);
+
 		add_meta_box(
 			'amazon_polly_box_id',
 			// This is HTML id of the box on edit screen.
 			'Amazon Polly',
 			// Title of the box.
-			'amazon_polly_box_content',
+			[ $meta_box, 'display_box_content'],
 			// Function to be called to display the checkboxes, see the function below.
 			$post_types_supported,
 			// On which edit screen the box should appear.
@@ -1903,7 +1888,19 @@ class AmazonAI_Common
         return $links;
     }
 
+		public function aws_configuration_update($new_value, $old_value) {
 
+			$default_value = '********************';
 
+			if ( !isset($new_value) ) {
+				$new_value = $default_value;
+			}
+
+			if ($new_value != $default_value) {
+				update_option('amazon_polly_secret_key', $new_value);
+			}
+
+			return $default_value;
+    }
 
 }

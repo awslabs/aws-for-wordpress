@@ -49,22 +49,28 @@ class Amazonpolly_Public {
 	private $option_name = 'amazon_polly';
 
 	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
+	 * @param string $plugin_name The name of the plugin.
+	 * @param string $version The version of this plugin.
+	 * @param AmazonAI_Common $common
+	 *
 	 * @since    1.0.0
-	 * @param      string $plugin_name       The name of the plugin.
-	 * @param      string $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version ) {
+	public function __construct( $plugin_name, $version, AmazonAI_Common $common ) {
 
 		$this->plugin_name = $plugin_name;
 		$this->version     = $version;
-
+		$this->common = $common;
 	}
 
 	public function title_filter( $title, $id = null ) {
-
-		$common = new AmazonAI_Common();
+		$common = $this->common;
 
 			if ( is_singular() ) {
 
@@ -104,7 +110,7 @@ class Amazonpolly_Public {
 
 
 		$post_id = $GLOBALS['post']->ID;
-		$common = new AmazonAI_Common();
+		$common = $this->common;
 
 		$source_language = $common->get_post_source_language($post_id);
 		$polly_content = '';
@@ -288,7 +294,7 @@ class Amazonpolly_Public {
 			$new_audio_location = str_replace( '.mp3', $language_code . '.mp3', $audio_location );
 		}
 
-		$common = new AmazonAI_Common();
+		$common = $this->common;
 		$controlsList = '';
 		if ( !$common->is_audio_download_enabled() ) {
 			$controlsList = ' controlsList="nodownload" ';
@@ -307,7 +313,7 @@ class Amazonpolly_Public {
 
 		$part = '';
 
-		$common = new AmazonAI_Common();
+		$common = $this->common;
 		$is_subscribe_button_enabled = $common->is_subscribe_button_enabled();
 		if ($is_subscribe_button_enabled) {
 

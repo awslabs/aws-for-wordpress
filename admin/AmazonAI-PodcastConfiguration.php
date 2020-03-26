@@ -10,6 +10,19 @@
  */
 
 class AmazonAI_PodcastConfiguration {
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
+
+	/**
+	 * AmazonAI_PodcastConfiguration constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
 	public function amazon_ai_add_menu() {
 		$this->plugin_screen_hook_suffix = add_submenu_page( 'amazon_ai', 'Podcast', 'Podcast', 'manage_options', 'amazon_ai_podcast', array( $this, 'amazonai_gui' ));
@@ -39,10 +52,6 @@ class AmazonAI_PodcastConfiguration {
 
 		function display_options()
 		{
-
-			$this->common = new AmazonAI_Common();
-			$this->common->init();
-
 			add_settings_section('amazon_ai_podcast', "Amazon Pollycast configuration", array($this,'podcast_gui'), 'amazon_ai_podcast');
 			add_settings_field( 'amazon_polly_podcast_enabled', __( 'Pollycast enabled:', 'amazonpolly' ), array( $this, 'podcast_enabled_gui' ), 'amazon_ai_podcast', 'amazon_ai_podcast', array( 'label_for' => 'amazon_polly_podcast_enabled' ) );
 			register_setting('amazon_ai_podcast', 'amazon_polly_podcast_enabled');

@@ -11,9 +11,19 @@
 
 class AmazonAI_GeneralConfiguration
 {
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
 
-  private $common;
-
+	/**
+	 * AmazonAI_GeneralConfiguration constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
     public function amazon_ai_add_menu()
     {
@@ -57,9 +67,6 @@ class AmazonAI_GeneralConfiguration
     function display_options()
     {
 
-        $this->common = new AmazonAI_Common();
-        $this->common->init();
-
         // ************************************************* *
         // ************** GENERAL SECTION ************** *
         add_settings_section('amazon_ai_general', "", array(
@@ -72,16 +79,16 @@ class AmazonAI_GeneralConfiguration
         ), 'amazon_ai', 'amazon_ai_general', array(
             'label_for' => 'amazon_polly_access_key'
         ));
-        add_settings_field('amazon_polly_secret_key', __('AWS secret key:', 'amazonpolly'), array(
+        add_settings_field('amazon_polly_secret_key_fake', __('AWS secret key:', 'amazonpolly'), array(
             $this,
             'secret_key_gui'
         ), 'amazon_ai', 'amazon_ai_general', array(
-            'label_for' => 'amazon_polly_secret_key'
+            'label_for' => 'amazon_polly_secret_key_fake'
         ));
 
 
         register_setting('amazon_ai', 'amazon_polly_access_key');
-        register_setting('amazon_ai', 'amazon_polly_secret_key');
+        register_setting('amazon_ai', 'amazon_polly_secret_key_fake');
 
           add_settings_field('amazon_polly_region', __('AWS Region:', 'amazonpolly'), array(
               $this,
@@ -115,8 +122,8 @@ class AmazonAI_GeneralConfiguration
      * @since  1.0.0
      */
     function secret_key_gui() {
-        $secret_key = get_option('amazon_polly_secret_key');
-        echo '<input type="password" class="regular-text" name="amazon_polly_secret_key" id="amazon_polly_secret_key" value="' . esc_attr($secret_key) . '" autocomplete="off"> ';
+        $secret_key = get_option('amazon_polly_secret_key_fake','********************');
+        echo '<input type="password" class="regular-text" name="amazon_polly_secret_key_fake" id="amazon_polly_secret_key_fake" value="' . esc_attr($secret_key) . '" autocomplete="off"> ';
         echo '<p class="description" id="amazon_polly_access_key">Required only if you aren\'t using IAM roles</p>';
     }
 

@@ -10,8 +10,19 @@
  */
 
 class AmazonAI_PollyConfiguration {
+	/**
+	 * @var AmazonAI_Common
+	 */
+	private $common;
 
-  private $common;
+	/**
+	 * AmazonAI_PollyConfiguration constructor.
+	 *
+	 * @param AmazonAI_Common $common
+	 */
+	public function __construct(AmazonAI_Common $common) {
+		$this->common = $common;
+	}
 
 	public function amazon_ai_add_menu() {
 		$this->plugin_screen_hook_suffix = add_submenu_page( 'amazon_ai', 'Text-To-Speech', 'Text-To-Speech', 'manage_options', 'amazon_ai_polly', array( $this, 'amazonai_gui' ));
@@ -41,10 +52,6 @@ class AmazonAI_PollyConfiguration {
 
 	function display_options()
 	{
-
-		$this->common = new AmazonAI_Common();
-    $this->common->init();
-
         register_setting('amazon_ai_polly', 'amazon_ai_polly_enable');
         add_settings_section('amazon_ai_polly', "Amazon Polly configuration", array($this,'polly_gui'), 'amazon_ai_polly');
         add_settings_field( 'amazon_ai_source_language', __('Source language:', 'amazonpolly'), array($this,'source_language_gui'), 'amazon_ai_polly', 'amazon_ai_polly', array('label_for' => 'amazon_ai_source_language'));

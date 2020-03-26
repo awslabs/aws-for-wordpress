@@ -14,10 +14,9 @@ class AmazonAI_CloudFrontConfiguration
     private $common;
     private $cloudformation; //Required to retrieve Cloudformation service 
 
-    public function __construct() {
-        $this->common = new AmazonAI_Common();
-        $this->common->init();
-        $this->cloudformation = new AmazonAI_Cloudformation();
+    public function __construct(AmazonAI_Common $common, AmazonAI_Cloudformation $cloudformation) {
+        $this->common = $common;
+        $this->cloudformation = $cloudformation;
     }
 
     public function amazon_ai_add_menu() {

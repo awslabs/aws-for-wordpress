@@ -19,9 +19,8 @@ class AmazonAI_Cloudformation
     private $helper;
     private $stack_resources;
 
-    public function __construct() {
-        $this->common = new AmazonAI_Common();
-        $this->common->init();
+    public function __construct(AmazonAI_Common $common) {
+        $this->common = $common;
         $this->cloudformation_client = $this->common->get_cloudformation_client();
         $this->acm_client = $this->common->get_acm_client();
         $this->cf_client = $this->common->get_cloudfront_client();
