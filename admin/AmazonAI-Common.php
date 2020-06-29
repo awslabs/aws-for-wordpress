@@ -1216,6 +1216,7 @@ class AmazonAI_Common
 		$aws_sdk_config = [
 			'region' => $this->get_aws_region(),
 			'version' => 'latest',
+			'ua_append' => ['request-source/aws-for-wordpress']
 		];
 		$credentials = false;
 		$aws_access_key = get_option('amazon_polly_access_key');
