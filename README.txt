@@ -4,7 +4,7 @@ Tags: AWS, Amazon Web Services, WP Engine, Cloud, Text-to-Speech, Amazon Polly, 
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 5.3
-Stable tag: 4.2.0
+Stable tag: 4.2.1
 License: GPLv3 ONLY
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -133,6 +133,9 @@ Yes. As part of the AWS Free Usage Tier (https://aws.amazon.com/free/), you can 
 3. After activating the plugin, each audio section will have its own play button, which will allow the end user to listen to the content.
 
 == Changelog ==
+
+= 4.2.1 =
+* Code Refactoring
 
 = 4.2.0 =
 * Code Refactoring
