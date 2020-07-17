@@ -159,7 +159,9 @@ class Amazonpolly {
 		/**
 		 * Load AWS PHP SDK
 		 */
-		require_once plugin_dir_path(dirname(__FILE__)) . 'vendor/autoload.php';
+		if ( ! class_exists( 'Aws\Sdk' ) ) {
+			require_once plugin_dir_path(dirname(__FILE__)) . 'vendor/autoload.php';
+		}
 
 		/**
 		 * The class responsible for custom helper functions
