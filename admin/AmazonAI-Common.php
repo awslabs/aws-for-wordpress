@@ -375,7 +375,7 @@ class AmazonAI_Common
 		$byte_word        = substr( $id3_header, 6, 4 );
 		$byte_word_length = strlen( $byte_word );
 		for ( $i = 0; $i < $byte_word_length; $i++ ) {
-			$int_value += ( ord( $byte_word{$i} ) & 0x7F ) * pow( 2, ( $byte_word_length - 1 - $i ) * 7 );
+			$int_value += ( ord( $byte_word[$i] ) & 0x7F ) * pow( 2, ( $byte_word_length - 1 - $i ) * 7 );
 		}
 		$offset = ( (int) $int_value ) + 10;
 
