@@ -1,5 +1,6 @@
 {
     "require": {
-        "aws/aws-sdk-php": "3.*"
+        "aws/aws-sdk-php": "3.*",
+        "symfony/polyfill-mbstring": "1.17"
     }
 }

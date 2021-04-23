@@ -279,9 +279,9 @@ class AmazonAI_PollyService {
 		}
 
 		// Just in case we check if sample rate is valid, if not we will set default value.
-		$sample_rate_values = array( '22050', '16000', '8000' );
+		$sample_rate_values = array( '24000', '22050', '16000', '8000' );
 		if ( ! in_array( $sample_rate, $sample_rate_values, true ) ) {
-			$sample_rate = '22050';
+			$sample_rate = '24000';
 		}
 
 		// In case of asynchronous synthesis flow.
