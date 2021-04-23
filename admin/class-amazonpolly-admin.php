@@ -642,9 +642,9 @@ class Amazonpolly_Admin {
 			}
 		}
 
-		$sample_rate_values = array( '22050', '16000', '8000' );
+		$sample_rate_values = array( '24000', '22050', '16000', '8000' );
 		if ( ! in_array( $sample_rate, $sample_rate_values, true ) ) {
-			$sample_rate = '22050';
+			$sample_rate = '24000';
 		}
 
 		$upload_dir           = wp_upload_dir()['basedir'];
@@ -1744,7 +1744,7 @@ class Amazonpolly_Admin {
 		if ( $this->amazon_polly_is_ok() ) {
 
 			$sample_rate  = get_option( 'amazon_polly_sample_rate' );
-			$sample_array = array( '22050', '16000', '8000' );
+			$sample_array = array( '24000', '22050', '16000', '8000' );
 
 			echo '<select name="amazon_polly_sample_rate" id="amazon_polly_sample_rate" >';
 			foreach ( $sample_array as $rate ) {

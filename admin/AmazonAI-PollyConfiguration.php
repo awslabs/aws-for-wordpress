@@ -476,7 +476,7 @@ public function playerlabel_gui() {
 	public function sample_rate_gui() {
 
   			$sample_rate  = $this->common->get_sample_rate();
-  			$sample_array = array( '22050', '16000', '8000' );
+  			$sample_array = array( '24000', '22050', '16000', '8000' );
 
   			echo '<select name="amazon_polly_sample_rate" id="amazon_polly_sample_rate" >';
   			foreach ( $sample_array as $rate ) {

@@ -741,7 +741,7 @@ class AmazonAI_Common
 	public function get_sample_rate() {
 		$sample_rate = get_option('amazon_polly_sample_rate');
 		if (empty($sample_rate)) {
-			$sample_rate = '22050';
+			$sample_rate = '24000';
 			update_option('amazon_polly_sample_rate', $sample_rate);
 		}
 
@@ -971,9 +971,8 @@ class AmazonAI_Common
 	}
 
 	public function is_polly_neural_enabled() {
-
 		$option_value = get_option('amazon_polly_neural', '');
-		if (empty($option_value)) {
+		if (empty($option_value) && !$this->is_neural_only_voice()) {
 			return '';
 		}
 		else {
@@ -1071,7 +1070,7 @@ class AmazonAI_Common
 	public function is_neural_supported_in_region() {
 
 		$selected_region = $this->get_aws_region();
-		$neural_supported_regions = array("us-east-1","us-west-2","eu-west-1");
+		$neural_supported_regions = array("us-east-1","us-west-2","ap-northeast-2","ap-southeast-1","ap-southeast-2","ap-northeast-1","ca-central-1","eu-central-1","eu-west-1","eu-west-2","us-gov-west-1");
 
 		if (in_array($selected_region, $neural_supported_regions)) {
 			return true;
@@ -1081,7 +1080,7 @@ class AmazonAI_Common
 	}
 
 	public function is_news_style_for_voice($voice) {
-		$supported_voices = array("Joanna","Matthew");
+		$supported_voices = array("Joanna","Matthew","Lupe","Amy");
 
 		if (in_array($voice, $supported_voices)) {
 			return true;
@@ -1101,11 +1100,28 @@ class AmazonAI_Common
 	}
 
 	public function is_neural_supported_for_voice($voice) {
-		$neural_supported_voices = array("Amy","Emma","Brian","Ivy","Joanna","Kendra","Kimberly","Salli","Joey","Justin","Matthew","Camila","Lupe");
+		$neural_supported_voices = array("Olivia","Amy","Emma","Brian","Ivy","Joanna","Kendra","Kimberly","Salli","Joey","Justin","Kevin","Matthew","Camila","Lupe");
 
 		if (in_array($voice, $neural_supported_voices)) {
 			return true;
 		} else {
+			return false;
+		}
+
+	}
+
+	public function is_neural_only_voice() {
+		$voice = $this->get_voice_id();
+		$neural_only_voices = array("Olivia","Kevin");
+		$logger = new AmazonAI_Logger();
+
+		$logger->log("Checking for neural: ".$voice);
+
+		if (in_array($voice, $neural_only_voices)) {
+			$logger->log("Neural only: TRUE");
+			return true;
+		} else {
+			$logger->log("Neural only: FALSE");
 			return false;
 		}
 
